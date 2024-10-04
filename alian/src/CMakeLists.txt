@@ -1,0 +1,51 @@
+message(INFO "HEPMC2 found: ${HEPMC_FOUND}")
+message(INFO "FASTJET found: ${FASTJET_FOUND}")
+message(INFO "ROOT found: ${ROOT_FOUND}")
+message(INFO "PYTHIA8 found: ${PYTHIA8_FOUND}")
+
+if (FASTJET_FOUND)
+  # add_subdirectory(test)
+else(FASTJET_FOUND)
+  message(SEND_ERROR "The tools will not work without FASTJET")
+endif(FASTJET_FOUND)
+
+## Tools migrated from heppy  https://github.com/ezradlesser/heppy
+if (PYTHIA8_FOUND)
+  if (HEPMC_FOUND)
+    # add_subdirectory(pythiaext)
+    #add_subdirectory(hepmc2wrap)
+  else(HEPMC_FOUND)
+    message(WARNING "${Yellow}Some tools will not be compiled w/o HEPMC ver 2.x...${ColourReset}")
+  endif(HEPMC_FOUND)
+
+  if (FASTJET_FOUND)
+    #add_subdirectory(pythiafjext)
+  endif(FASTJET_FOUND)
+else(PYTHIA8_FOUND)
+  message(WARNING "${Yellow}Pythia8 missing - some of the tools will not be compiled.${ColourReset}")
+endif(PYTHIA8_FOUND)
+
+#if (HEPMC3_FOUND)
+#  add_subdirectory(hepmc3)
+#  add_subdirectory(pythiahepmc3)
+#endif(HEPMC3_FOUND)
+##
+
+if (HEPMC_FOUND)
+  # add_subdirectory(hepmc2util)
+else(HEPMC_FOUND)
+  message(WARNING "Some tools will not work without HEPMC2")
+endif(HEPMC_FOUND)
+
+if ((FASTJET_FOUND) AND (HEPMC_FOUND) AND (ROOT_FOUND))
+  # add_subdirectory(jewelutil)
+else ((FASTJET_FOUND) AND (HEPMC_FOUND) AND (ROOT_FOUND))
+  message(INFO "Some JEWEL tools will not work without HEPMC2 and FASTJET and ROOT")
+endif ((FASTJET_FOUND) AND (HEPMC_FOUND) AND (ROOT_FOUND))
+
+if ((FASTJET_FOUND) AND (ROOT_FOUND))
+  # add_subdirectory(hybridutil)
+  add_subdirectory(demo)
+else ((FASTJET_FOUND) AND (ROOT_FOUND))
+  message(INFO "Some HYBRID tools will not work without FASTJET and ROOT")
+endif ((FASTJET_FOUND) AND (ROOT_FOUND))
