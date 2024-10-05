@@ -23,17 +23,5 @@ from yasp.cppyyhelper import YaspCppyyHelper
 YaspCppyyHelper().load(packs, libs, headers)
 print(YaspCppyyHelper())
 
-import cppyy
-def module(module = ''):
-	if module == '':
-		module = packs[0]
-	try:
-		return getattr(cppyy.gbl, module)
-	except AttributeError:
-		print('[e] module ' + module + ' not found')
-	return None
-
-# usage example:
-# import alian
-# alian = alian.module()
-# dc = alian.DemoClass()
+# import heppyy
+# alian = heppyy.load_cppyy('alian')
