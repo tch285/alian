@@ -16,11 +16,8 @@ alian_settings = AliAnSettings(src_path=os.path.dirname(os.path.abspath(__file__
 from yasp import find_files
 
 headers = find_files(alian_settings.path + '/include', '*.hh')
-print(headers)
 packs = ['alian']
-print(packs)
 libs = set(['alian_' + os.path.basename(os.path.dirname(h)) for h in headers])
-print(libs)
 
 from yasp.cppyyhelper import YaspCppyyHelper
 YaspCppyyHelper().load(packs, libs, headers)
@@ -36,3 +33,17 @@ import cppyy
 import importlib
 for pack in packs:
 	modules.__setattr__(pack, getattr(cppyy.gbl, pack))
+
+def module(module = ''):
+	if module == '':
+		module = packs[0]
+	try:
+		return modules.__getattribute__(module)
+	except AttributeError:
+		print('[e] module ' + module + ' not found')
+	return None
+
+# usage example:
+# import alian
+# alian = alian.module()
+# dc = alian.DemoClass()
