@@ -13,5 +13,5 @@ prepend-path LD_LIBRARY_PATH {{prefix}}/lib
 prepend-path DYLD_LIBRARY_PATH {{prefix}}/lib
 prepend-path PYTHONPATH {{prefix}}/lib
 prepend-path PYTHONPATH {{prefix}}/lib/{{python_site_packages_subpath}}
-set-alias ALIAN_cd "cd {{yasp.alian_dir}}"
+set-alias alian_cd "cd {{yasp.alian_dir}}"
 prepend-path CPATH {{prefix}}/include
