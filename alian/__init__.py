@@ -23,22 +23,12 @@ from yasp.cppyyhelper import YaspCppyyHelper
 YaspCppyyHelper().load(packs, libs, headers)
 print(YaspCppyyHelper())
 
-class AliAnModules(GenericObject):
-	def __init__(self, **kwargs):
-		super(AliAnModules, self).__init__(**kwargs)
-  
-modules = AliAnModules()
-
 import cppyy
-import importlib
-for pack in packs:
-	modules.__setattr__(pack, getattr(cppyy.gbl, pack))
-
 def module(module = ''):
 	if module == '':
 		module = packs[0]
 	try:
-		return modules.__getattribute__(module)
+		return getattr(cppyy.gbl, module)
 	except AttributeError:
 		print('[e] module ' + module + ' not found')
 	return None
