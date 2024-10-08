@@ -13,21 +13,35 @@ def print_root_keys(file_path):
     file = uproot.open(file_path)
     print("Keys in the ROOT file:")
     for key in file.keys(recursive=True):  # Use recursive=True to see keys in subdirectories
-        print(key, type(key))
+        print('- key:', key, type(key))
 
 # Function to recursively list trees in the ROOT file
 def find_trees(root_directory):
     trees = {}
     # Loop over keys in the directory
     for key, item in root_directory.items():
-        print(key, type(key), type(item))
+        # print(' - key:', key, type(key), type(item))
         # If the item is a tree, add it to the dictionary
-        # if isinstance(item, uproot.models.TTree.Model_TTree):
-        if 'TTree' in type(item):
-            trees[key] = item
+        if isinstance(item, uproot.models.TTree.Model_TTree_v20):
+        # if 'uproot.models.TTree.Model_TTree' in str(type(item)):
+            print(' - - found tree:', key)
+        # Use the key object to get the cycle
+            cycle = root_directory.key(key).fCycle
+            print(' - - - current cycle:', cycle)
+            key_no_cycle = key.split(';')[0]
+            if trees.get(key_no_cycle):
+                if trees[key_no_cycle][1] < cycle:
+                    print(' - - - updating cycle:', trees[key_no_cycle][1], cycle)
+                    trees[key_no_cycle] = (item, cycle)
+                else:
+                    print(' - - - keeping cycle:', trees[key_no_cycle][1], 'instead of', cycle)
+            else:
+                trees[key_no_cycle] = (item, cycle)
         # If the item is a directory, recursively find trees within it
         elif isinstance(item, uproot.reading.ReadOnlyDirectory):
+            print(' - updating trees:', item)
             trees.update(find_trees(item))
+    trees = {key: value[0] for key, value in trees.items()}
     return trees
 
 # Function to describe the structure of the ROOT file
@@ -51,7 +65,7 @@ def describe_root_file(file_path, tree_name=None):
     structure = {}
 
     # Iterate over trees and list branches
-    for tree_name, tree in trees.items():
+    for tree_name, tree in trees.items():        
         structure[tree_name] = {
             'branches': [branch.name for branch in tree.branches]
         }
