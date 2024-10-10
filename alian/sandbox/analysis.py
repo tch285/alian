@@ -177,6 +177,7 @@ if __name__ == '__main__':
   parser.add_argument("yaml_file_path", type=str, help="Path to the YAML file.")
   parser.add_argument("root_file_path", type=str, help="Path to the ROOT file.")
   parser.add_argument("-e", "--entries", type=int, help="Number of entries to process.")
+  parser.add_argument("-o", "--output", type=str, help="Output file name.", default="analysis_results.root")
   args = parser.parse_args()
   
   yaml_file_path = args.yaml_file_path
@@ -197,7 +198,7 @@ if __name__ == '__main__':
       engine = AnalysisEngine(root_file_path, tree_name, branches, user_entries=args.entries)
 
       # Add analyses
-      root_output = SingleRootFile('analysis_results.root')
+      root_output = SingleRootFile(args.output)
       print_event_analysis = PrintEventAnalysis(output_file='print_event_results.txt')
       multiplicity_analysis = MultiplicityAnalysis(output_file = 'multiplicity_results.txt')
       multiplicity_analysis_root = MultiplicityAnalysisRoot()
