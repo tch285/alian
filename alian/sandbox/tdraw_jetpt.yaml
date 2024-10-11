@@ -1,0 +1,93 @@
+jet_pt:
+  - output: {{ output }}
+    mode: "recreate"
+  - h_jet_pt_norm:
+      file: {{ input }}
+      tree: jet_v
+      xrange: [-100, 200]
+      xnbins: 60
+      xbins: linear
+      var: pt - rho * area
+      cond: ""
+      bw : True
+  - h_jet_pt_lead_all:
+      file: {{ input }}
+      tree: jet_v
+      xrange: [-100, 200]
+      xnbins: 60
+      xbins: linear
+      var: pt - rho * area
+      cond: ""
+      scale: 1./h_jet_pt_norm.Integral()
+      bw : True
+  - h_jet_pt_lead_0:
+      file: {{ input }}
+      tree: jet_v
+      xrange: [-100, 200]
+      xnbins: 60
+      xbins: linear
+      var: pt - rho * area
+      cond: "(nlead==0)"
+      scale: 1./h_jet_pt_norm.Integral()
+      bw : True
+  - h_jet_pt_lead_1:
+      file: {{ input }}
+      tree: jet_v
+      xrange: [-100, 200]
+      xnbins: 60
+      xbins: linear
+      var: pt - rho * area
+      cond: "(nlead==1)"
+      scale: 1./h_jet_pt_norm.Integral()
+      bw : True
+  - h_jet_pt_lead_2:
+      file: {{ input }}
+      tree: jet_v
+      xrange: [-100, 200]
+      xnbins: 60
+      xbins: linear
+      var: pt - rho * area
+      cond: "(nlead==2)"
+      scale: 1./h_jet_pt_norm.Integral()
+      bw : True
+  - h_jet_pt_lead_3:
+      file: {{ input }}
+      tree: jet_v
+      xrange: [-100, 200]
+      xnbins: 60
+      xbins: linear
+      var: pt - rho * area
+      cond: "(nlead==3)"
+      scale: 1./h_jet_pt_norm.Integral()
+      bw : True
+  - h_jet_pt_lead_4:
+      file: {{ input }}
+      tree: jet_v
+      xrange: [-100, 200]
+      xnbins: 60
+      xbins: linear
+      var: pt - rho * area
+      cond: "(nlead==4)"
+      scale: 1./h_jet_pt_norm.Integral()
+      bw : True
+  - h_jet_pt_lead_4leq:
+      file: {{ input }}
+      tree: jet_v
+      xrange: [-100, 200]
+      xnbins: 60
+      xbins: linear
+      var: pt - rho * area
+      cond: "(nlead<=4)"
+      scale: 1./h_jet_pt_norm.Integral()
+      bw : True
+  - h_jet_pt_lead_4plus:
+      file: {{ input }}
+      tree: jet_v
+      xrange: [-100, 200]
+      xnbins: 60
+      xbins: linear
+      var: pt - rho * area
+      cond: "(nlead>4)"
+      scale: 1./h_jet_pt_norm.Integral()
+      bw : True
+
