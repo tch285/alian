@@ -8,7 +8,20 @@ jet_pt:
       xnbins: 60
       xbins: linear
       var: pt - rho * area
-      cond: ""
+      cond: "(centr >= {{ centrality_min }} && centr <= {{ centrality_max }})"
+      bw : True
+  - h_jet_pt_centr:
+      file: {{ input }}
+      tree: jet_v
+      xrange: [-100, 200]
+      xnbins: 60
+      xbins: linear
+      yrange: [0, 105]
+      ynbins: 105
+      ybins: linear
+      var: centr:pt - rho * area
+      cond: "(centr >= {{ centrality_min }} && centr <= {{ centrality_max }})"
+      scale: 1./h_jet_pt_norm.Integral()
       bw : True
   - h_jet_pt_lead_all:
       file: {{ input }}
@@ -17,7 +30,7 @@ jet_pt:
       xnbins: 60
       xbins: linear
       var: pt - rho * area
-      cond: ""
+      cond: "(centr >= {{ centrality_min }} && centr <= {{ centrality_max }})"
       scale: 1./h_jet_pt_norm.Integral()
       bw : True
   - h_jet_pt_lead_0:
@@ -27,7 +40,7 @@ jet_pt:
       xnbins: 60
       xbins: linear
       var: pt - rho * area
-      cond: "(nlead==0)"
+      cond: "(nlead==0) && (centr >= {{ centrality_min }} && centr <= {{ centrality_max }})"
       scale: 1./h_jet_pt_norm.Integral()
       bw : True
   - h_jet_pt_lead_1:
@@ -37,7 +50,7 @@ jet_pt:
       xnbins: 60
       xbins: linear
       var: pt - rho * area
-      cond: "(nlead==1)"
+      cond: "(nlead==1) && (centr >= {{ centrality_min }} && centr <= {{ centrality_max }})"
       scale: 1./h_jet_pt_norm.Integral()
       bw : True
   - h_jet_pt_lead_2:
@@ -47,7 +60,7 @@ jet_pt:
       xnbins: 60
       xbins: linear
       var: pt - rho * area
-      cond: "(nlead==2)"
+      cond: "(nlead==2) && (centr >= {{ centrality_min }} && centr <= {{ centrality_max }})"
       scale: 1./h_jet_pt_norm.Integral()
       bw : True
   - h_jet_pt_lead_3:
@@ -57,7 +70,7 @@ jet_pt:
       xnbins: 60
       xbins: linear
       var: pt - rho * area
-      cond: "(nlead==3)"
+      cond: "(nlead==3) && (centr >= {{ centrality_min }} && centr <= {{ centrality_max }})"
       scale: 1./h_jet_pt_norm.Integral()
       bw : True
   - h_jet_pt_lead_4:
@@ -67,7 +80,7 @@ jet_pt:
       xnbins: 60
       xbins: linear
       var: pt - rho * area
-      cond: "(nlead==4)"
+      cond: "(nlead==4) && (centr >= {{ centrality_min }} && centr <= {{ centrality_max }})"
       scale: 1./h_jet_pt_norm.Integral()
       bw : True
   - h_jet_pt_lead_4leq:
@@ -77,7 +90,7 @@ jet_pt:
       xnbins: 60
       xbins: linear
       var: pt - rho * area
-      cond: "(nlead<=4)"
+      cond: "(nlead<=4) && (centr >= {{ centrality_min }} && centr <= {{ centrality_max }})"
       scale: 1./h_jet_pt_norm.Integral()
       bw : True
   - h_jet_pt_lead_4plus:
@@ -87,7 +100,7 @@ jet_pt:
       xnbins: 60
       xbins: linear
       var: pt - rho * area
-      cond: "(nlead>4)"
+      cond: "(nlead>4) && (centr >= {{ centrality_min }} && centr <= {{ centrality_max }})"
       scale: 1./h_jet_pt_norm.Integral()
       bw : True
 

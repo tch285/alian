@@ -84,8 +84,8 @@ class JetAnalysisRoot(BaseAnalysis):
     def user_init(self):
         print('defaults are:', self.__class__._defaults)
         self.root_output = SingleRootFile()
-        self.tn_mult = ROOT.TNtuple("jet_ev", "jet_ev", "mult:track_count:jet_count")
-        self.tn_jets = ROOT.TNtuple("jet_v", "jet_v","emult:track_count:pt:eta:phi:m:e:jmult:nlead:leadpt:area:rho")
+        self.tn_mult = ROOT.TNtuple("jet_ev", "jet_ev", "mult:track_count:centr:jet_count")
+        self.tn_jets = ROOT.TNtuple("jet_v", "jet_v","emult:track_count:centr:pt:eta:phi:m:e:jmult:nlead:leadpt:area:rho")
         self.root_output.add(self.tn_mult)
         self.root_output.add(self.tn_jets)
         self.results.append(self.root_output)
@@ -99,6 +99,7 @@ class JetAnalysisRoot(BaseAnalysis):
         
     def process_event(self, event):
         multiplicity = event['multiplicity']
+        centrality = event['centrality']
         track_count = len(event['track_data_pt'])
         if track_count < 10:
             return
@@ -117,9 +118,9 @@ class JetAnalysisRoot(BaseAnalysis):
             if len(jconstits) == 0:
                 continue
             leadpt = fj.sorted_by_pt(jconstits)[0].perp()
-            self.tn_jets.Fill(multiplicity, track_count, j.perp(), j.eta(), j.phi(), j.m(), j.e(), len(jconstits), ij, leadpt, j.area(), rho)
+            self.tn_jets.Fill(multiplicity, track_count, centrality, j.perp(), j.eta(), j.phi(), j.m(), j.e(), len(jconstits), ij, leadpt, j.area(), rho)
             jet_count += 1
-        self.tn_mult.Fill(multiplicity, track_count, jet_count)
+        self.tn_mult.Fill(multiplicity, track_count, centrality, jet_count)
         
 def parse_yaml(file_path):
     with open(file_path, 'r') as file:
