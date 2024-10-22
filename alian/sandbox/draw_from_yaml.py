@@ -131,7 +131,9 @@ def build_hist(hist_config, hist_name, tree, output_file):
             hist = ROOT.TH2F(hist_name, hist_name, hsetup['xnbins'], hsetup['xrange'][0], hsetup['xrange'][1], hsetup['ynbins'], hsetup['yrange'][0], hsetup['yrange'][1])
     else:
         if hsetup['xbins']:
-            hist = ROOT.TH1F(hist_name, hist_name, hsetup['xnbins'], hsetup['xbins'])
+            hsetup['xnbins'] = len(hsetup['xbins'])-1
+            _bins = array.array('d', hsetup['xbins'])
+            hist = ROOT.TH1F(hist_name, hist_name, hsetup['xnbins'], _bins)
         else:
             hist = ROOT.TH1F(hist_name, hist_name, hsetup['xnbins'], hsetup['xrange'][0], hsetup['xrange'][1])
     return hist
