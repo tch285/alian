@@ -1,0 +1,63 @@
+#-----------------------
+#figure
+#geom 500x500
+#date
+#title: smart group
+#legend pos=ur
+h_run2.root 		:h_jet_pt_norm_jet_pt :p  : title=norm_jet_pt
+
+#-----------------------
+#figure
+#geom 500x500
+#date
+#title: smart group
+#legend pos=ur
+#logy 1
+h_run2.root 		:h_jet_pt_lead_all_jet_pt :hist : title=lead_all_jet_pt
+h_run2.root 		:h_jet_pt_lead_0_jet_pt :hist : title=lead_0_jet_pt
+h_run2.root 		:h_jet_pt_lead_1_jet_pt :hist : title=lead_1_jet_pt
+h_run2.root 		:h_jet_pt_lead_2_jet_pt :hist : title=lead_2_jet_pt
+h_run2.root 		:h_jet_pt_lead_3_jet_pt :hist : title=lead_3_jet_pt
+h_run2.root 		:h_jet_pt_lead_4_jet_pt :hist : title=lead_4_jet_pt
+h_run2.root 		:h_jet_pt_lead_4leq_jet_pt :hist +f1001 +a20 : title=lead_4leq_jet_pt
+h_run2.root 		:h_jet_pt_lead_4plus_jet_pt :hist +f1001 +a20 : title=lead_4plus_jet_pt
+
+#scale index=0 fout=h_run2_ratios.root
+
+#-----------------------
+#figure
+#geom 500x500
+#date
+#title: smart group
+#legend pos=ur
+#logy 1
+h_run2.root 		:h_jet_pt_lead_all_jet_pt :hist : title=lead_all_jet_pt
+h_run2.root 		:h_jet_pt_lead_4leq_jet_pt :hist +f1001 +a20 : title=lead_4leq_jet_pt
+h_run2.root 		:h_jet_pt_lead_4plus_jet_pt :hist +f1001 +a20 : title=lead_4plus_jet_pt
+
+#-----------------------
+#figure
+#geom 500x500
+#date
+#title: smart group
+#legend pos=ul
+#maxy 1.9
+h_run2_ratios.root 		:o_0 :hist : title=lead_0_jet_pt / lead_all_jet_pt
+h_run2_ratios.root 		:o_1 :hist : title=lead_1_jet_pt / lead_all_jet_pt
+h_run2_ratios.root 		:o_2 :hist : title=lead_2_jet_pt / lead_all_jet_pt
+h_run2_ratios.root 		:o_3 :hist : title=lead_3_jet_pt / lead_all_jet_pt
+h_run2_ratios.root 		:o_4 :hist : title=lead_4_jet_pt / lead_all_jet_pt
+h_run2_ratios.root 		:o_5 :hist +f1001 +a20: title=lead_4leq_jet_pt / lead_all_jet_pt
+h_run2_ratios.root 		:o_6 :hist +f1001 +a20: title=lead_4plus_jet_pt / lead_all_jet_pt
+
+#-----------------------
+#figure
+#geom 500x500
+#date
+#title: smart group
+#legend pos=ul
+#maxy 1.9
+#x pTraw - #rho x area
+h_run2_ratios.root 		:o_0 :hist : title=lead_0_jet_pt / lead_all_jet_pt
+h_run2_ratios.root 		:o_5 :hist +f1001 +a20: title=lead_4leq_jet_pt / lead_all_jet_pt
+h_run2_ratios.root 		:o_6 :hist +f1001 +a20: title=lead_4plus_jet_pt / lead_all_jet_pt
