@@ -36,11 +36,17 @@ class BaseAnalysis(GenericObject):
         # Implement the event processing logic here
         pass
 
+    def summary(self):
+        # Implement the logic to summarize the results
+        print(self)
+        pass
+    
     def write_to_file(self):
         if self.output_file is not None:
             with open(self.output_file, 'w') as file:
                 # Implement the logic to write results to file
                 file.write(str(self.results))
+        self.summary()
             
 class PrintEventAnalysis(BaseAnalysis):
     def process_event(self, event):
@@ -95,21 +101,34 @@ class JetAnalysisRoot(BaseAnalysis):
         # self.ca = fj.ClusterSequenceArea(charged_particles_psjv(event), self.jet_def, fj.AreaDefinition(fj.active_area_explicit_ghosts, fj.GhostedAreaSpec(self.jet_eta_max)))
         self.area_def = fj.AreaDefinition(fj.active_area_explicit_ghosts, fj.GhostedAreaSpec(self.jet_eta_max + self.jet_R, 1, 0.01))
         self.jet_selector = fj.SelectorAbsEtaMax(self.jet_eta_max)
-        self.bg_estimator = fj.GridMedianBackgroundEstimator(1.0, 0.1)
+        bg_ymax = 1.0
+        bg_grid_spacing = 0.1
+        self.bg_estimator = fj.GridMedianBackgroundEstimator(bg_ymax, bg_grid_spacing)
         
-    def process_event(self, event):
+        self.data_input_name = 'aliceRun3'
+        self.n_accepted_jets = 0
+        self.n_accepted_events = 0
+        self.set_centrality(-1, 1001)
+        
+    def set_centrality(self, centmin, centmax):
+        self.centrality_min = centmin
+        self.centrality_max = centmax
+        
+    def process_event(self, event_struct):
+        if isinstance(event_struct, GenericObject):
+            event = event_struct.data[self.data_input_name]
         multiplicity = event['multiplicity']
         centrality = event['centrality']
+        if centrality < self.centrality_min or centrality > self.centrality_max:
+            return
+        self.n_accepted_events += 1
         track_count = len(event['track_data_pt'])
-        if track_count < 10:
-            return
         # estimate event background rho with grid estimator
-        self.bg_estimator.set_particles(charged_particles_psjv(event))
+        part_psjv = charged_particles_psjv(event)
+        self.bg_estimator.set_particles(part_psjv)
         rho = self.bg_estimator.rho()
-        if rho < 20.:
-            return
+        # print('rho:', rho, 'centrality:', centrality, 'track_count:', track_count, 'part_psjv.size():', part_psjv.size())
         psjv = charged_particles_psjv(event)
-        # jets = fj.sorted_by_pt(self.jet_selector(self.jet_def(psjv)))        
         ca = fj.ClusterSequenceArea(psjv, self.jet_def, self.area_def)
         jets = fj.sorted_by_pt(self.jet_selector(ca.inclusive_jets()))
         jet_count = 0
@@ -120,6 +139,7 @@ class JetAnalysisRoot(BaseAnalysis):
             leadpt = fj.sorted_by_pt(jconstits)[0].perp()
             self.tn_jets.Fill(multiplicity, track_count, centrality, j.perp(), j.eta(), j.phi(), j.m(), j.e(), len(jconstits), ij, leadpt, j.area(), rho)
             jet_count += 1
+            self.n_accepted_jets += 1
         self.tn_mult.Fill(multiplicity, track_count, centrality, jet_count)
         
 def parse_yaml(file_path):
