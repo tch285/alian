@@ -1,0 +1,29 @@
+# to do
+
+- analysis.py 
+  - remove the not needed code (superseeded by jet_analysis.py)
+  - AnalysisEngine - remove
+- data_io.py
+  - AnalysisEngine should go to a separate file
+    - change AnalysisEnging to EventLoop?
+  - implement event cuts here?
+- pythia_io.py
+  - implement data source with pythia
+  - use .cmnd file to initialize pythia
+- jet_analysis.py
+  - implement embedding analysis - pythia into data:
+    - add another source to steeting code; set data as driver; + just needs analysis handing two sources
+    - in principle no need to run jet finding on pythia alone separately within this analysis... could be done in the steering code
+  - write a jet tree (constituents) - in python? with uproot? c++ code?
+- more analyses
+  - single particle spectrum (jet constituents)
+  - EEC's
+  - E3C's
+  - angularity
+  - jet-axis
+  - theta_g
+  - lund diagram x EEC
+  - FF
+  - do we need separate things for p-Pb?
+  - implement data source for D's analysis in run2 data
+  - EEC of D's
