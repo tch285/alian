@@ -27,6 +27,8 @@ class JetAnalysisRoot(BaseAnalysis):
     _defaults = { 'jet_R': 0.4, 
                   'jet_algorithm': fj.antikt_algorithm, 
                   'jet_eta_max': 0.5,
+                  'bg_y_max': 0.9,
+                  'bg_grid_spacing': 0.1,
                   'data_input_name': 'aliceRun3',
                   'centrality_min': -1,
                   'centrality_max': 1001,
@@ -36,7 +38,7 @@ class JetAnalysisRoot(BaseAnalysis):
     
     def user_init(self):
         self.root_output = SingleRootFile()
-        self.tn_mult = ROOT.TNtuple("jet_ev", "jet_ev", "mult:track_count:centr:jet_count")
+        self.tn_mult = ROOT.TNtuple("jet_ev", "jet_ev", "mult:track_count:centr:jet_count:bgrho:bgsigma")
         self.tn_jets = ROOT.TNtuple("jet_v", "jet_v","emult:track_count:centr:pt:eta:phi:m:e:jmult:nlead:leadpt:area:rho")
         self.root_output.add(self.tn_mult)
         self.root_output.add(self.tn_jets)
@@ -46,9 +48,7 @@ class JetAnalysisRoot(BaseAnalysis):
         self.jet_def = fj.JetDefinition(self.jet_algorithm, self.jet_R)
         self.area_def = fj.AreaDefinition(fj.active_area_explicit_ghosts, fj.GhostedAreaSpec(self.jet_eta_max + self.jet_R, 1, 0.01))
         self.jet_selector = fj.SelectorAbsEtaMax(self.jet_eta_max)
-        bg_ymax = 1.0
-        bg_grid_spacing = 0.1
-        self.bg_estimator = fj.GridMedianBackgroundEstimator(bg_ymax, bg_grid_spacing)
+        self.bg_estimator = fj.GridMedianBackgroundEstimator(self.bg_y_max, self.bg_grid_spacing)
                 
     def set_centrality(self, centmin, centmax):
         self.centrality_min = centmin
@@ -96,6 +96,7 @@ class JetAnalysisRoot(BaseAnalysis):
         # estimate event background rho with grid estimator
         self.bg_estimator.set_particles(self.psjv)
         rho = self.bg_estimator.rho()
+        sigma = self.bg_estimator.sigma()
         # print('rho:', rho, 'centrality:', self.centrality, 'track_count:', self.track_count, 'self.psjv.size():', self.psjv.size())
         self.ca = fj.ClusterSequenceArea(self.psjv, self.jet_def, self.area_def)
         self.jets = fj.sorted_by_pt(self.jet_selector(self.ca.inclusive_jets()))
@@ -108,7 +109,7 @@ class JetAnalysisRoot(BaseAnalysis):
             self.tn_jets.Fill(self.multiplicity, self.track_count, self.centrality, j.perp(), j.eta(), j.phi(), j.m(), j.e(), len(jconstits), ij, leadpt, j.area(), rho)
             jet_count += 1
             self.n_accepted_jets += 1
-        self.tn_mult.Fill(self.multiplicity, self.track_count, self.centrality, jet_count)
+        self.tn_mult.Fill(self.multiplicity, self.track_count, self.centrality, jet_count, rho, sigma)
         
 
 def psjv_run2(event, m=0.13957):
