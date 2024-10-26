@@ -2,6 +2,7 @@
 
 import uproot
 import yaml
+import pandas as pd
 from yasp import GenericObject
 from tqdm import tqdm
 
@@ -73,25 +74,23 @@ class Run2FileInput(GenericObject):
                 self.file_list = [x.strip() for x in self.file_list]
             else:
                 self.file_list = [self.file_list]
-        self.load_default_trees_and_branches(yaml_file)
+        self.setup_default_trees_and_branches(yaml_file)
         if self.name is None:
             self.name = "FileIORun2"
         self.event = None
         self.event_count = 0
 
-    def load_default_trees_and_branches(self, yaml_file_path):
+    def setup_default_trees_and_branches(self, yaml_file_path):
         with open(yaml_file_path, 'r') as file:
             config = yaml.safe_load(file)
         
-        tree_particle_name = 'PWGHF_TreeCreator/tree_Particle'
-        tree_event_char_name = 'PWGHF_TreeCreator/tree_event_char'
+        self.tree_particle_name = 'PWGHF_TreeCreator/tree_Particle'
+        self.tree_event_char_name = 'PWGHF_TreeCreator/tree_event_char'
         
-        branches_particle = list(config['PWGHF_TreeCreator']['tree_Particle'].keys())
-        branches_event_char = list(config['PWGHF_TreeCreator']['tree_event_char'].keys())
+        self.branches_particle = list(config['PWGHF_TreeCreator']['tree_Particle'].keys())
+        self.branches_event_char = list(config['PWGHF_TreeCreator']['tree_event_char'].keys())
         
-        branches = branches_particle + branches_event_char
-        
-        return self.tree_particle_name, self.tree_event_char_name, self.branches
+        self.branches = self.branches_particle + self.branches_event_char
 
     # Efficiently iterate over the tree as a generator
     def next_event(self):
@@ -101,7 +100,7 @@ class Run2FileInput(GenericObject):
             pbar_total = tqdm(total=self.n_events, desc="Total events")
         for root_file_path in tqdm(self.file_list, desc="Files"):
             # Open the ROOT file
-            file = uproot.open(self.root_file_path)
+            file = uproot.open(root_file_path)
             # Access the trees
             tree_particle = file[self.tree_particle_name]
             tree_event_char = file[self.tree_event_char_name]
@@ -121,7 +120,7 @@ class Run2FileInput(GenericObject):
             
             # Efficiently iterate over the grouped DataFrame with a progress bar
             total_entries = len(grouped_df)
-            with tqdm(total=total_entries, desc="Processing events") as pbar:
+            with tqdm(total=total_entries, desc=f'...{root_file_path[-25:]}') as pbar:
                 for name, group in grouped_df:
                     self.event = {branch: group[branch].tolist() for branch in self.branches if branch in group}
                     yield self.event
@@ -177,9 +176,9 @@ class AnalysisEngine(GenericObject):
     def run(self):
         if self.driver_source is None:
             raise ValueError("AnalysisEngine: No driver source specified")
-        event = GenericObject()
-        event.data = {}
         for e in self.driver_source.next_event():
+            event = GenericObject()
+            event.data = {}
             event.data[self.driver_source.name] = e
             for source in self.sources.values():
                 if source.is_driver:

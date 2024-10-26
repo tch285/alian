@@ -56,7 +56,7 @@ class JetAnalysisRoot(BaseAnalysis):
 
     def build_psjv(self, event_struct):
         if event_struct.psjv is None:
-            event_struct.psjv = GenericObject()
+          event_struct.psjv = GenericObject()
         if event_struct.psjv.run3 is None:
           event_struct.psjv.run3 = psjv_run3(event_struct.data[self.data_input_name])
     
@@ -131,7 +131,7 @@ class JetAnalysisRootRun2(JetAnalysisRoot):
                 
     def build_psjv(self, event_struct):
         if event_struct.psjv is None:
-            event_struct.psjv = GenericObject()
+          event_struct.psjv = GenericObject()
         if event_struct.psjv.run2 is None:
           event_struct.psjv.run2 = psjv_run2(event_struct.data[self.data_input_name])
       
@@ -164,5 +164,5 @@ class JetAnalysisRootRun2(JetAnalysisRoot):
         self.track_count = len(event['ParticlePt'])
         self.n_accepted_events += 1
         self.build_psjv(event_struct)
-        self.psjv = event_struct.psjv.run3
+        self.psjv = event_struct.psjv.run2
         self.jet_analysis(event_struct)
