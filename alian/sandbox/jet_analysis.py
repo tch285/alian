@@ -2,6 +2,7 @@ import argparse
 import yaml
 import uproot
 
+import math
 from yasp import GenericObject
 from tqdm import tqdm
 from root_output import SingleRootFile
@@ -13,13 +14,24 @@ import heppyy
 fj = heppyy.load_cppyy('fastjet')
 std = heppyy.load_cppyy('std')
 
-def psjv_run3(event, m=0.13957):
+def psjv_run3_slow(event, m=0.13957):
     rv = std.vector[fj.PseudoJet]()
     for i in range(len(event['track_data_pt'])):
-      psj = fj.PseudoJet()
-      psj.reset_PtYPhiM(event['track_data_pt'][i], event['track_data_eta'][i], event['track_data_phi'][i], m)
-      psj.set_user_index(i)
-      rv.push_back(psj)
+        px = event['track_data_pt'][i] * math.cos(event['track_data_phi'][i])
+        py = event['track_data_pt'][i] * math.sin(event['track_data_phi'][i])
+        pz = event['track_data_pt'][i] * math.sinh(event['track_data_eta'][i])
+        E = math.sqrt(px * px + py * py + pz * pz + m * m)
+        psj = fj.PseudoJet(px, py, pz, E)
+        # note that this is wrong because here we treat eta==y
+        # psj.reset_PtYPhiM(event['track_data_pt'][i], event['track_data_eta'][i], event['track_data_phi'][i], m)
+        psj.set_user_index(i)
+        rv.push_back(psj)
+    return rv
+
+alian = heppyy.load_cppyy("alian")
+# def psjv_run3_cpp(event, m=0.13957):
+def psjv_run3(event, m=0.13957):
+    rv = alian.numpy_ptetaphi_to_pseudojets(event['track_data_pt'], event['track_data_eta'], event['track_data_phi'], m)
     return rv
 
 # note default is Run3 data
@@ -115,10 +127,15 @@ class JetAnalysisRoot(BaseAnalysis):
 def psjv_run2(event, m=0.13957):
     rv = std.vector[fj.PseudoJet]()
     for i in range(len(event['ParticlePt'])):
-      psj = fj.PseudoJet()
-      psj.reset_PtYPhiM(event['ParticlePt'][i], event['ParticleEta'][i], event['ParticlePhi'][i], m)
-      psj.set_user_index(i)
-      rv.push_back(psj)
+        px = event['ParticlePt'][i] * math.cos(event['ParticlePhi'][i])
+        py = event['ParticlePt'][i] * math.sin(event['ParticlePhi'][i])
+        pz = event['ParticlePt'][i] * math.sinh(event['ParticleEta'][i])
+        E = math.sqrt(px * px + py * py + pz * pz + m * m)
+        psj = fj.PseudoJet(px, py, pz, E)
+        # note that this is wrong because here we treat eta==y
+        # psj.reset_PtYPhiM(event['ParticlePt'][i], event['ParticleEta'][i], event['ParticlePhi'][i], m)
+        psj.set_user_index(i)
+        rv.push_back(psj)
     return rv
 
 

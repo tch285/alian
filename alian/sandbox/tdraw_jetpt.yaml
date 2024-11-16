@@ -23,6 +23,16 @@ jet_pt:
       cond: "(centr >= {{ centrality_min }} && centr <= {{ centrality_max }})"
       scale: 1./h_jet_pt_norm.Integral()
       bw : True
+  - h_jet_pt_lead_acut:
+      file: {{ input }}
+      tree: jet_v
+      xrange: [-100, 200]
+      xnbins: 60
+      xbins: linear
+      var: pt - rho * area
+      cond: "(centr >= {{ centrality_min }} && centr <= {{ centrality_max }} && area > 0.6 * TMath::Pi() * 0.4 * 0.4)"
+      scale: 1./h_jet_pt_norm.Integral()
+      bw : True
   - h_jet_pt_lead_all:
       file: {{ input }}
       tree: jet_v
