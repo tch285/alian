@@ -7,7 +7,7 @@ from yasp import GenericObject
 from tqdm import tqdm
 
 class Run3FileInput(GenericObject):
-    def __init__(self, file_list, tree_name=None, branches=None, yaml_file=None, **kwargs):
+    def __init__(self, file_list, yaml_file=None, tree_name=None, branches=None, **kwargs):
         super(Run3FileInput, self).__init__(**kwargs)
         self.file_list = file_list
         if isinstance(self.file_list, str):
@@ -29,9 +29,10 @@ class Run3FileInput(GenericObject):
             self.name = "FileIO"
         self.event = None
         self.event_count = 0
+        self.n_events = kwargs.get('n_events', -1)
 
     # Efficiently iterate over the tree as a generator
-    def next_event(self):
+    def next_event(self, step_size=1000):
         self.event = None
         pbar_total = None
         if self.n_events > 0:
@@ -45,24 +46,26 @@ class Run3FileInput(GenericObject):
             total_entries = tree.num_entries
             # Efficiently iterate over the tree with a progress bar
             with tqdm(total=total_entries, desc=f'...{root_file_path[-25:]}') as pbar:
-                for data in tree.iterate(self.branches, library="np", step_size=1):
+                for data in tree.iterate(self.branches, library="np", step_size=step_size):
                     # Iterate over the events in the chunk
                     for i in range(len(next(iter(data.values())))):
                         self.event = {branch: data[branch][i] for branch in self.branches}
-                        yield self.event
                         pbar.update(1)
                         self.event_count += 1
+                        if pbar_total is not None:
+                            pbar_total.update(1)
+                            if pbar_total.n >= self.n_events:
+                                break
+                        yield self.event
                     if pbar.n >= total_entries:
                         break
                     if pbar_total is not None:
-                        pbar_total.update(1)
                         if pbar_total.n >= self.n_events:
                             break
             if pbar_total is not None:
                 if pbar_total.n >= self.n_events:
                     pbar_total.close()
                     break
-
 class Run2FileInput(GenericObject):
     def __init__(self, file_list, yaml_file, **kwargs):
         super(Run2FileInput, self).__init__(**kwargs)
