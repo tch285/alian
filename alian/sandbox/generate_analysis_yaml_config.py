@@ -13,7 +13,7 @@ def print_root_keys(file_path):
     file = uproot.open(file_path)
     print("Keys in the ROOT file:")
     for key in file.keys(recursive=True):  # Use recursive=True to see keys in subdirectories
-        print('- key:', key, type(key))
+        print('- key:', key)
 
 # Function to recursively list trees in the ROOT file
 def find_trees(root_directory):
@@ -72,6 +72,33 @@ def describe_root_file(file_path, tree_name=None):
 
     return structure
 
+def describe_root_file_alt(file_path, tree_name=None):
+    try:
+        # Open the ROOT file
+        file = uproot.open(file_path)
+    except Exception as e:
+        raise RuntimeError(f"Failed to open file {file_path}: {e}")
+
+    try:
+        # Get the list of trees in the file
+        trees = find_trees(file)
+    except Exception as e:
+        raise RuntimeError(f"Failed to find trees in file {file_path}: {e}")
+
+    if not trees:
+        raise ValueError("No trees found in the file.")
+
+    # If a specific tree is requested, check if it exists
+    if tree_name:
+        if tree_name not in trees:
+            raise ValueError(f"No tree found with name: {tree_name}")
+
+    # Additional code to describe the tree can be added here
+    print(f"Trees found: {list(trees.keys())}")
+    if tree_name:
+        print(f"Describing tree: {tree_name}")
+        # Add code to describe the specific tree
+
 # Function to write structure to a YAML file
 def write_yaml(structure, yaml_file_path):
     with open(yaml_file_path, 'w') as yaml_file:
@@ -106,9 +133,10 @@ def main():
     args = parser.parse_args()
 
     try:
-        print_root_keys(args.root_file)
+        # print_root_keys(args.root_file)
 
         # Get the ROOT file structure
+        # structure = describe_root_file_alt(args.root_file, args.tree)
         structure = describe_root_file(args.root_file, args.tree)
 
         # Write the structure to a YAML file
