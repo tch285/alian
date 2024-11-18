@@ -115,6 +115,7 @@ class JetAnalysisRoot(BaseAnalysis):
         self.centrality_max = centmax
         
     def process_event(self, event_struct):
+        event = event_struct
         if isinstance(event_struct, GenericObject):
             event = event_struct.data[self.data_input_name]
         multiplicity = event['multiplicity']
