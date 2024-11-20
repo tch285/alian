@@ -4,8 +4,8 @@ jet_pt:
   - h_jet_pt_norm:
       file: {{ input }}
       tree: jet_v
-      xrange: [-100, 200]
-      xnbins: 60
+      xrange: [-100, 500]
+      xnbins: 240
       xbins: linear
       var: pt - rho * area
       cond: "(centr >= {{ centrality_min }} && centr <= {{ centrality_max }})"
@@ -13,8 +13,8 @@ jet_pt:
   - h_jet_pt_centr:
       file: {{ input }}
       tree: jet_v
-      xrange: [-100, 200]
-      xnbins: 60
+      xrange: [-100, 500]
+      xnbins: 240
       xbins: linear
       yrange: [0, 105]
       ynbins: 105
@@ -26,8 +26,8 @@ jet_pt:
   - h_jet_pt_lead_acut:
       file: {{ input }}
       tree: jet_v
-      xrange: [-100, 200]
-      xnbins: 60
+      xrange: [-100, 500]
+      xnbins: 240
       xbins: linear
       var: pt - rho * area
       cond: "(centr >= {{ centrality_min }} && centr <= {{ centrality_max }} && area > 0.6 * TMath::Pi() * 0.4 * 0.4)"
@@ -36,8 +36,8 @@ jet_pt:
   - h_jet_pt_lead_all:
       file: {{ input }}
       tree: jet_v
-      xrange: [-100, 200]
-      xnbins: 60
+      xrange: [-100, 500]
+      xnbins: 240
       xbins: linear
       var: pt - rho * area
       cond: "(centr >= {{ centrality_min }} && centr <= {{ centrality_max }})"
@@ -46,8 +46,8 @@ jet_pt:
   - h_jet_pt_lead_0:
       file: {{ input }}
       tree: jet_v
-      xrange: [-100, 200]
-      xnbins: 60
+      xrange: [-100, 500]
+      xnbins: 240
       xbins: linear
       var: pt - rho * area
       cond: "(nlead==0) && (centr >= {{ centrality_min }} && centr <= {{ centrality_max }})"
@@ -56,8 +56,8 @@ jet_pt:
   - h_jet_pt_lead_1:
       file: {{ input }}
       tree: jet_v
-      xrange: [-100, 200]
-      xnbins: 60
+      xrange: [-100, 500]
+      xnbins: 240
       xbins: linear
       var: pt - rho * area
       cond: "(nlead==1) && (centr >= {{ centrality_min }} && centr <= {{ centrality_max }})"
@@ -66,8 +66,8 @@ jet_pt:
   - h_jet_pt_lead_2:
       file: {{ input }}
       tree: jet_v
-      xrange: [-100, 200]
-      xnbins: 60
+      xrange: [-100, 500]
+      xnbins: 240
       xbins: linear
       var: pt - rho * area
       cond: "(nlead==2) && (centr >= {{ centrality_min }} && centr <= {{ centrality_max }})"
@@ -76,8 +76,8 @@ jet_pt:
   - h_jet_pt_lead_3:
       file: {{ input }}
       tree: jet_v
-      xrange: [-100, 200]
-      xnbins: 60
+      xrange: [-100, 500]
+      xnbins: 240
       xbins: linear
       var: pt - rho * area
       cond: "(nlead==3) && (centr >= {{ centrality_min }} && centr <= {{ centrality_max }})"
@@ -86,8 +86,8 @@ jet_pt:
   - h_jet_pt_lead_4:
       file: {{ input }}
       tree: jet_v
-      xrange: [-100, 200]
-      xnbins: 60
+      xrange: [-100, 500]
+      xnbins: 240
       xbins: linear
       var: pt - rho * area
       cond: "(nlead==4) && (centr >= {{ centrality_min }} && centr <= {{ centrality_max }})"
@@ -96,8 +96,8 @@ jet_pt:
   - h_jet_pt_lead_4leq:
       file: {{ input }}
       tree: jet_v
-      xrange: [-100, 200]
-      xnbins: 60
+      xrange: [-100, 500]
+      xnbins: 240
       xbins: linear
       var: pt - rho * area
       cond: "(nlead<=4) && (centr >= {{ centrality_min }} && centr <= {{ centrality_max }})"
@@ -106,8 +106,8 @@ jet_pt:
   - h_jet_pt_lead_4plus:
       file: {{ input }}
       tree: jet_v
-      xrange: [-100, 200]
-      xnbins: 60
+      xrange: [-100, 500]
+      xnbins: 240
       xbins: linear
       var: pt - rho * area
       cond: "(nlead>4) && (centr >= {{ centrality_min }} && centr <= {{ centrality_max }})"

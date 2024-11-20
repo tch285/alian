@@ -1,0 +1,75 @@
+ev_char:
+  - output: {{ output }}
+    mode: "recreate"
+  - h_centr:
+      file: {{ input }}
+      tree: jet_ev
+      xrange: [0, 100]
+      xnbins: 100
+      xbins: linear
+      var: centr
+      cond: "(centr >= {{ centrality_min }} && centr <= {{ centrality_max }})"
+      bw : True
+  - jet_count_centr:
+      file: {{ input }}
+      tree: jet_ev
+      xrange: [0, 60]
+      xnbins: 60
+      xbins: linear
+      yrange: [0, 100]
+      ynbins: 100
+      ybins: linear
+      var: centr:jet_count
+      cond: "(centr >= {{ centrality_min }} && centr <= {{ centrality_max }})"
+      scale: 1./h_centr.Integral()
+      bw : True
+  - bgrho_centr:
+      file: {{ input }}
+      tree: jet_ev
+      xrange: [0, 300]
+      xnbins: 300
+      xbins: linear
+      yrange: [0, 100]
+      ynbins: 100
+      ybins: linear
+      var: centr:bgrho
+      cond: "(centr >= {{ centrality_min }} && centr <= {{ centrality_max }})"
+      scale: 1./h_centr.Integral()
+      bw : True
+  - bgsigma_centr:
+      file: {{ input }}
+      tree: jet_ev
+      xrange: [0, 30]
+      xnbins: 30
+      xbins: linear
+      yrange: [0, 100]
+      ynbins: 100
+      ybins: linear
+      var: centr:bgsigma
+      cond: "(centr >= {{ centrality_min }} && centr <= {{ centrality_max }})"
+      scale: 1./h_centr.Integral()
+      bw : True
+  - mult_centr:
+      file: {{ input }}
+      tree: jet_ev
+      xnbins: 300
+      xbins: linear
+      yrange: [0, 100]
+      ynbins: 100
+      ybins: linear
+      var: centr:mult
+      cond: "(centr >= {{ centrality_min }} && centr <= {{ centrality_max }})"
+      scale: 1./h_centr.Integral()
+      bw : True
+  - track_count_centr:
+      file: {{ input }}
+      tree: jet_ev
+      xnbins: 300
+      xbins: linear
+      yrange: [0, 100]
+      ynbins: 100
+      ybins: linear
+      var: centr:track_count
+      cond: "(centr >= {{ centrality_min }} && centr <= {{ centrality_max }})"
+      scale: 1./h_centr.Integral()
+      bw : True
