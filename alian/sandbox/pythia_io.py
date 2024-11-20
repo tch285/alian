@@ -10,6 +10,11 @@ fj = heppyy.load_cppyy('fastjet')
 std = heppyy.load_cppyy('std')
 Pythia8 = heppyy.load_cppyy('pythia8.Pythia8')
 
+def psj_from_particle_with_index(particle, index):
+    psj = fj.PseudoJet(particle.px(), particle.py(), particle.pz(), particle.e())
+    psj.set_user_index(index)
+    return psj
+
 class PythiaInput(GenericObject):
 	def __init__(self, pythia_cmnd_file = None, user_settings=[], **kwargs):
 		super(PythiaInput, self).__init__(**kwargs)
@@ -46,6 +51,8 @@ class PythiaInput(GenericObject):
 			self.init = True
 		else:
 			raise RuntimeError("Pythia initialization failed.")
+		if self.n_events is None:
+			self.n_events = -1
 	
 	# Efficiently iterate over the tree as a generator
 	def next_event(self):
@@ -53,12 +60,23 @@ class PythiaInput(GenericObject):
 		pbar_total = None
 		if self.n_events > 0:
 			pbar_total = tqdm(total=self.n_events, desc="Total events")
-		while self.event_count < self.n_events:
-			if self.pythia.next():
+		while self.event_count < self.n_events or self.n_events < 0:
+			n_try = 100
+			gen_ok = False
+			while n_try > 0:
+				if self.pythia.next():
+					gen_ok = True
+					n_try = 0
+				n_try -= 1
+			if gen_ok:
 				self.event = self.pythia
-				yield self.event
 				self.event_count += 1
 				if pbar_total is not None:
 					pbar_total.update(1)
+				yield self.event
 			else:
 				break
+  
+	def __del__(self):
+		if self.pythia and self.init:
+			self.pythia.stat()

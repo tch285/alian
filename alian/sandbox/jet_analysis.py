@@ -1,7 +1,3 @@
-import argparse
-import yaml
-import uproot
-
 import math
 from yasp import GenericObject
 from tqdm import tqdm
@@ -72,7 +68,7 @@ class JetAnalysisRoot(BaseAnalysis):
 
         fj.ClusterSequence().print_banner()
         self.jet_def = fj.JetDefinition(self.jet_algorithm, self.jet_R)
-        self.area_def = fj.AreaDefinition(fj.active_area_explicit_ghosts, fj.GhostedAreaSpec(self.jet_eta_max + self.jet_R, 1, 0.01))
+        self.area_def = fj.AreaDefinition(fj.active_area, fj.GhostedAreaSpec(self.jet_eta_max + self.jet_R, 1, 0.01))
         self.jet_selector = fj.SelectorAbsEtaMax(self.jet_eta_max)
         self.bg_estimator = fj.GridMedianBackgroundEstimator(self.bg_y_max, self.bg_grid_spacing)
         
@@ -92,14 +88,14 @@ class JetAnalysisRoot(BaseAnalysis):
           event_struct.psjv = GenericObject()
         if event_struct.psjv.run3 is None:
           event_struct.psjv.run3 = psjv_run3(event_struct.data[self.data_input_name])
-          self.psjv = event_struct.psjv.run3
+        self.psjv = event_struct.psjv.run3
 
     def build_psjv_run2(self, event_struct):
         if event_struct.psjv is None:
           event_struct.psjv = GenericObject()
         if event_struct.psjv.run2 is None:
           event_struct.psjv.run2 = psjv_run2(event_struct.data[self.data_input_name])
-          self.psjv = event_struct.psjv.run2
+        self.psjv = event_struct.psjv.run2
     
     def accept_event_run3(self, event_struct):
         if event_struct is None:

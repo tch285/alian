@@ -47,45 +47,62 @@ class BaseAnalysis(GenericObject):
 
 
 class AnalysisEngine(GenericObject):
-    def __init__(self, root_file_path, tree_name, branches, **kwargs):
-        super(AnalysisEngine, self).__init__(**kwargs)
-        self.root_file_path = root_file_path
-        self.tree_name = tree_name
-        self.branches = branches
-        self.analyses = []
+    _instance = None
 
+    def __new__(cls, *args, **kwargs):
+        if cls._instance is None:
+            cls._instance = super(AnalysisEngine, cls).__new__(cls)
+        return cls._instance
+
+    def __init__(self, **kwargs):
+        # if not hasattr(self, 'initialized'):  # Ensure __init__ is only called once
+        if self.initialized:
+            return
+        super(AnalysisEngine, self).__init__(**kwargs)
+        if self.sources is None:
+            self.sources = {}
+        if self.analyses is None:
+            self.analyses = []
+        self.initialized = True
+
+    def add_source(self, source, is_driver=False, rename=None):
+        if rename is not None:
+            source.name = rename
+        if is_driver:
+            source.is_driver = True
+        self.sources[source.name] = source
+        count_drivers = sum([1 for source in self.sources.values() if source.is_driver])
+        if count_drivers > 1:
+            raise ValueError("AnalysisEngine: Only one driver can be specified")
+        driver_source_list = [source for source in self.sources.values() if source.is_driver]
+        if len(driver_source_list) > 0:
+            self.driver_source = driver_source_list[0]
+            
     def add_analysis(self, analysis):
         self.analyses.append(analysis)
-
-    # Efficiently iterate over the tree
-    def run(self):
-        # Open the ROOT file
-        file = uproot.open(self.root_file_path)
-        # Access the tree
-        tree = file[self.tree_name]
         
-        # Efficiently iterate over the tree with a progress bar
-        total_entries = tree.num_entries
-        if self.user_entries:
-          total_entries = self.user_entries
-        # Efficiently iterate over the tree with a progress bar
-        with tqdm(total=total_entries, desc="Processing events") as pbar:
-            # for data in tree.iterate(self.branches, library="np", step_size="100MB"):
-            for data in tree.iterate(self.branches, library="np", step_size=1):
-                # Iterate over the events in the chunk
-                for i in range(len(next(iter(data.values())))):
-                    event = {branch: data[branch][i] for branch in self.branches}
-                    self.process_event(event)
-                    pbar.update(1)
-                if pbar.n >= total_entries:
-                    break
-                                
-    def process_event(self, event):
-        for analysis in self.analyses:
-            analysis.process_event(event)
+    def run(self):
+        if self.driver_source is None:
+            raise ValueError("AnalysisEngine: No driver source specified")
+        for e in self.driver_source.next_event():
+            event = GenericObject()
+            event.data = {}
+            event.data[self.driver_source.name] = e
+            event.source = {}
+            event.source[self.driver_source.name] = self.driver_source
+            for source in self.sources.values():
+                if source.is_driver:
+                    continue
+                # print(f'AnalysisEngine: Getting next event from {source.name}')
+                if source.auto_next:
+                  event.data[source.name] = next(source.next_event())
+                else:
+                  event.data[source.name] = source.next_event()
+                event.source[source.name] = source
+            for analysis in self.analyses:
+                analysis.process_event(event)
 
     def write_results(self):
         for analysis in self.analyses:
-            print(f'Writing results for {analysis.output_file}')
+            print(f'AnalysisEngine: Writing results for {analysis.output_file}')
             analysis.write_to_file()
-
