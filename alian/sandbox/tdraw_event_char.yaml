@@ -49,6 +49,28 @@ ev_char:
       cond: "(centr >= {{ centrality_min }} && centr <= {{ centrality_max }})"
       scale: 1./h_centr.Integral()
       bw : True
+  - bgrho_centr10:
+      file: {{ input }}
+      tree: jet_ev
+      xrange: [0, 300]
+      xnbins: 300
+      xbins: linear
+      yrange: [0, 100]
+      ynbins: 100
+      ybins: linear
+      var: bgrho
+      cond: "(centr >= 0 && centr <= 10)"
+  - bgsigma_centr10:
+      file: {{ input }}
+      tree: jet_ev
+      xrange: [0, 30]
+      xnbins: 90
+      xbins: linear
+      yrange: [0, 100]
+      ynbins: 100
+      ybins: linear
+      var: bgsigma
+      cond: "(centr >= 0 && centr <= 10)"
   - mult_centr:
       file: {{ input }}
       tree: jet_ev

@@ -21,4 +21,4 @@ done
 export commands
 
 # Use gnuparallel to run the commands in parallel with a maximum number of jobs
-parallel -j $max_jobs ::: "${commands[@]}"
+parallel --eta --progress --joblog parallel_joblog.txt -j $max_jobs ::: "${commands[@]}"
