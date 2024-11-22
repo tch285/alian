@@ -51,6 +51,7 @@ class Run3FileInput(yasp.GenericObject):
                     # Iterate over the events in the chunk
                     for i in range(len(next(iter(data.values())))):
                         self.event = {branch: data[branch][i] for branch in self.branches}
+                        self.event['lhc_run'] = 3
                         pbar.update(1)
                         self.event_count += 1
                         if pbar_total is not None:
@@ -127,6 +128,7 @@ class Run2FileInput(yasp.GenericObject):
             with tqdm(total=total_entries, desc=f'...{root_file_path[-25:]}') as pbar:
                 for name, group in grouped_df:
                     self.event = {branch: group[branch].tolist() for branch in self.branches if branch in group}
+                    self.event['lhc_run'] = 2
                     pbar.update(1)
                     if pbar.n >= total_entries:
                         break
