@@ -32,10 +32,18 @@ class Run3FileInput(yasp.GenericObject):
         self.event_count = 0
         self.n_events = kwargs.get('n_events', -1)
 
+    def add_generic_ebye_info(self):
+        self.event.multiplicity = self.event.data['multiplicity']
+        self.event.centrality = self.event.data['centrality']
+        self.event.track_count = len(self.event.data['track_data_pt'])
+        self.event.counter = self.event_count
+
     # Efficiently iterate over the tree as a generator
     def next_event(self, step_size=1000):
         self.event = None
         pbar_total = None
+        self.event = yasp.GenericObject()
+        self.event.lhc_run = 3
         if self.n_events > 0:
             pbar_total = tqdm(total=self.n_events, desc="Total events")
         for root_file_path in tqdm(self.file_list, desc="Files"):
@@ -50,8 +58,8 @@ class Run3FileInput(yasp.GenericObject):
                 for data in tree.iterate(self.branches, library="np", step_size=step_size):
                     # Iterate over the events in the chunk
                     for i in range(len(next(iter(data.values())))):
-                        self.event = {branch: data[branch][i] for branch in self.branches}
-                        self.event['lhc_run'] = 3
+                        self.event.data = {branch: data[branch][i] for branch in self.branches}
+                        self.add_generic_ebye_info()
                         pbar.update(1)
                         self.event_count += 1
                         if pbar_total is not None:
@@ -97,10 +105,18 @@ class Run2FileInput(yasp.GenericObject):
         
         self.branches = self.branches_particle + self.branches_event_char
 
+    def add_generic_ebye_info(self):
+        self.event.multiplicity = list(set(self.event.data['V0Amult']))[0]
+        self.event.centrality = list(set(self.event.data['centrality']))[0]
+        self.event.track_count = len(self.event.data['ParticlePt'])
+        self.event.counter = self.event_count
+
     # Efficiently iterate over the tree as a generator
     def next_event(self):
         self.event = None
         pbar_total = None
+        self.event = yasp.GenericObject()
+        self.event.lhc_run = 2
         if self.n_events > 0:
             pbar_total = tqdm(total=self.n_events, desc="Total events")
         for root_file_path in tqdm(self.file_list, desc="Files"):
@@ -127,8 +143,8 @@ class Run2FileInput(yasp.GenericObject):
             total_entries = len(grouped_df)
             with tqdm(total=total_entries, desc=f'...{root_file_path[-25:]}') as pbar:
                 for name, group in grouped_df:
-                    self.event = {branch: group[branch].tolist() for branch in self.branches if branch in group}
-                    self.event['lhc_run'] = 2
+                    self.event.data = {branch: group[branch].tolist() for branch in self.branches if branch in group}
+                    self.add_generic_ebye_info()
                     pbar.update(1)
                     if pbar.n >= total_entries:
                         break

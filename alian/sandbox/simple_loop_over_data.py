@@ -34,6 +34,7 @@ def main():
 		# get all the tracks into a vector of pseudojets - prep for jet finding
 		psjv = data_fj.data_tracks_to_pseudojets(e, lhc_run=args.lhc_run)
 		# do what you will with these...
+		# print(e.counter, e.multiplicity, e.centrality, len(psjv))
  
 if __name__ == '__main__':
 		main()
