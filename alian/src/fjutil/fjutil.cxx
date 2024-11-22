@@ -23,7 +23,7 @@ namespace alian
 	}
 
 	// function to transform three numpy arrays into a vector of PseudoJets
-	std::vector<fastjet::PseudoJet> numpy_pxpypz_to_pseudojets(PyObject *px, PyObject *py, PyObject *pz, double m)
+	std::vector<fastjet::PseudoJet> numpy_pxpypz_to_pseudojets(PyObject *px, PyObject *py, PyObject *pz, double m, int index_offset)
 	{
 		PyArrayObject *np_px = reinterpret_cast<PyArrayObject *>(px);
 		PyArrayObject *np_py = reinterpret_cast<PyArrayObject *>(py);
@@ -53,13 +53,14 @@ namespace alian
 		{
 			double E = sqrt(px_data[i] * px_data[i] + py_data[i] * py_data[i] + pz_data[i] * pz_data[i] + m * m);
 			particles.emplace_back(px_data[i], py_data[i], pz_data[i], E);
+			particles.back().set_user_index(i + index_offset);
 		}
 
 		return particles;
 	}
 
 	// function to transform three numpy arrays pt,eta,phi into a vector of PseudoJets
-	std::vector<fastjet::PseudoJet> numpy_ptetaphi_to_pseudojets(PyObject *pt, PyObject *eta, PyObject *phi, double m)
+	std::vector<fastjet::PseudoJet> numpy_ptetaphi_to_pseudojets(PyObject *pt, PyObject *eta, PyObject *phi, double m, int index_offset)
 	{
 		PyArrayObject *np_pt = reinterpret_cast<PyArrayObject *>(pt);
 		PyArrayObject *np_eta = reinterpret_cast<PyArrayObject *>(eta);
@@ -99,7 +100,7 @@ namespace alian
 			double E = sqrt(px * px + py * py + pz * pz + m * m);
 
 			particles.emplace_back(px, py, pz, E);
-			particles.back().set_user_index(i);
+			particles.back().set_user_index(i + index_offset);
 		}
 
 		return particles;
