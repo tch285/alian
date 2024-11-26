@@ -4,8 +4,9 @@ import os
 import uproot
 import yaml
 import pandas as pd
-from tqdm import tqdm
 import yasp
+from alian.steer.tqdm import tqdm
+
 
 class Run3FileInput(yasp.GenericObject):
     def __init__(self, file_list, yaml_file=None, tree_name=None, branches=None, **kwargs):

@@ -7,6 +7,7 @@ std = heppyy.load_cppyy('std')
 from alian.io import data_io
 from alian.utils import data_fj
 from alian.io.root_io import SingleRootFile
+from alian.steer.glob import globals
 
 import ROOT
 
@@ -112,9 +113,12 @@ def main():
 	parser.add_argument('--save-tracks', action='store_true', help='Save track information in the output file')
 	parser.add_argument('--cent-min', type=int, help='Minimum centrality', default=-1)
 	parser.add_argument('--cent-max', type=int, help='Maximum centrality', default=101)
+	parser.add_argument('--no-tqdm', action='store_true', help='Disable tqdm progress bars', default=False)
  
 	args = parser.parse_args()
 	print(args)
+
+	globals.tqdm_silent = args.no_tqdm
 
 	# initialize the data input
 	data_source = data_io.DataInput(args.input_file, lhc_run=args.lhc_run, yaml_file=args.tree_struct, n_events=args.entries)
