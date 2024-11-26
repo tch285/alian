@@ -160,7 +160,7 @@ class AnalysisEngine(GenericObject):
         self.analyses.append(analysis)
 
     # Efficiently iterate over the tree
-    def run(self):
+    def run(self, step_size=1000):
         # Open the ROOT file
         file = uproot.open(self.root_file_path)
         # Access the tree
@@ -173,7 +173,7 @@ class AnalysisEngine(GenericObject):
         # Efficiently iterate over the tree with a progress bar
         with tqdm(total=total_entries, desc="Processing events") as pbar:
             # for data in tree.iterate(self.branches, library="np", step_size="100MB"):
-            for data in tree.iterate(self.branches, library="np", step_size=1):
+            for data in tree.iterate(self.branches, library="np", step_size=step_size):
                 # Iterate over the events in the chunk
                 for i in range(len(next(iter(data.values())))):
                     event = {branch: data[branch][i] for branch in self.branches}
