@@ -27,17 +27,21 @@ class SingleRootFile(object):
             if SingleRootFile.__instance.root_file:
                 log.info(f'closing {SingleRootFile.__instance.root_file.GetName()}')
                 SingleRootFile.__instance.close()
-        
-    def close(self):
+
+    def write(self):
         _rfile = self.root_file
-        log.info(f'SingleRootFile: root_file is {_rfile}')
+        log.info(f'SingleRootFile:write root_file is {_rfile}')
         if _rfile:
             _rfile.cd()
             _ = [o.Write() for o in self.objects]
             _rfile.Write()
-            _rfile.Close()
             log.info(f'SingleRootFile: wrote {_rfile.GetName()}')
+                
+    def close(self):
+        _rfile = self.root_file
+        if _rfile:
             log.info(f'SingleRootFile: purging {_rfile.GetName()}')
+            self.write()
             _rfile = ROOT.TFile(self.filename, 'UPDATE')
             _rfile.Purge()
             _rfile.Write()
