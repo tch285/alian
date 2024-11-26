@@ -17,10 +17,19 @@ class tqdm(tqdm_impl):
 	def __init__(self, *args, **kwargs):
 		self.silent = kwargs.pop('silent', False)
 		super(tqdm, self).__init__(*args, **kwargs)
+		self.display = self.display_std
+		if tqdm_impl == tqdm_nb:
+				self.display = self.display_nb
 		
-	def display(self, msg=None, pos=None):
+	def display_std(self, msg=None, pos=None):
 			if not globals.tqdm_silent:
 					super().display(msg, pos)
+
+	def display_nb(self, msg=None, pos=None,
+									# additional signals
+									close=False, bar_style=None, check_delay=True):
+			if not globals.tqdm_silent:
+					super().display(msg, pos, close, bar_style, check_delay)
 
 	def write(self, s, file=None, end="\n", nolock=False):
 			if not globals.tqdm_silent:
