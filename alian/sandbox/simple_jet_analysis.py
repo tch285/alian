@@ -14,7 +14,7 @@ import ROOT
 
 class BaseAnalysis(heppyy.GenericObject):
     _defaults = {}
-    
+
     def __init__(self, **kwargs):
         super(BaseAnalysis, self).__init__(**kwargs)
         self.results = []
@@ -25,9 +25,9 @@ class BaseAnalysis(heppyy.GenericObject):
 
 # this is finding jets - not doing anything with them
 class JetFinding(BaseAnalysis):
-	_defaults = { 
-              	'jet_R': 0.4, 
-								'jet_algorithm': fj.antikt_algorithm, 
+	_defaults = {
+              	'jet_R': 0.4,
+								'jet_algorithm': fj.antikt_algorithm,
 								'jet_eta_max': 0.5,
 								'bg_y_max': 1.5,
 								'bg_grid_spacing': 0.1,
@@ -50,10 +50,10 @@ class JetFinding(BaseAnalysis):
 
 # this is finding jets and doing something with them - storing them in a TNtuple
 class SimpleJetAnalysis(BaseAnalysis):
-	_defaults = { 
+	_defaults = {
 								'name' : 'sja',
-              	'jet_R': 0.4, 
-								'jet_algorithm': fj.antikt_algorithm, 
+              	'jet_R': 0.4,
+								'jet_algorithm': fj.antikt_algorithm,
 								'jet_eta_max': 0.5,
 								'bg_y_max': 1.5,
 								'bg_grid_spacing': 0.1,
@@ -114,7 +114,7 @@ def main():
 	parser.add_argument('--cent-min', type=int, help='Minimum centrality', default=-1)
 	parser.add_argument('--cent-max', type=int, help='Maximum centrality', default=101)
 	parser.add_argument('--no-tqdm', action='store_true', help='Disable tqdm progress bars', default=False)
- 
+
 	args = parser.parse_args()
 	print(args)
 
@@ -130,7 +130,7 @@ def main():
 	root_output = SingleRootFile()
 	analyses = []
 	for R in [0.2, 0.4, 0.6]:
-		analyses.append(SimpleJetAnalysis(name=f'sja_R{R}', jet_R=R, svae_tracks=args.save_tracks))
+		analyses.append(SimpleJetAnalysis(name=f'sja_R{R}'.replace('.', ''), jet_R=R, svae_tracks=args.save_tracks))
 
 	# event loop using the data source directly
 	for i,e in enumerate(data_source.next_event()):
@@ -140,11 +140,11 @@ def main():
 		e.psjv = data_fj.data_tracks_to_pseudojets(e)
 		for a in analyses:
 			a.analyze(e)
-  
+
   # finalize the analyses - write the output, close the file, etc.
 	for a in analyses:
 		a.finalize()
 	root_output.close()
-  
+
 if __name__ == '__main__':
 		main()
