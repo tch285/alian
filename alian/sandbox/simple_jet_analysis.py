@@ -136,7 +136,7 @@ def main():
 	for i,e in enumerate(data_source.next_event()):
 		if e.centrality < args.cent_min or e.centrality > args.cent_max:
 			continue
-		psjv = data_fj.data_tracks_to_pseudojets(e)
+		# psjv = data_fj.data_tracks_to_pseudojets(e)
 		e.psjv = data_fj.data_tracks_to_pseudojets(e)
 		for a in analyses:
 			a.analyze(e)
