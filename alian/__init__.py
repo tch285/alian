@@ -1,9 +1,9 @@
 import sys
 import os
 
-from yasp import GenericObject
+import heppyy
 
-class AliAnSettings(GenericObject):
+class AliAnSettings(heppyy.GenericObject):
 	def __init__(self, **kwargs):
 		super(AliAnSettings, self).__init__(**kwargs)
 
