@@ -14,14 +14,17 @@ from alian.analysis.base import CEventSubtractor
 
 import ROOT
 
+gDefaultGridSpacing = 0.2
+gDefaultGridBGyMax = 0.9
+
 # this is finding jets - not doing anything with them
 class JetFinding(BaseAnalysis):
 	_defaults = {
               	'jet_R': 0.4,
 								'jet_algorithm': fj.antikt_algorithm,
 								'part_eta_max': 0.9,
-								'bg_y_max': 1.5,
-								'bg_grid_spacing': 0.2,
+								'bg_y_max': gDefaultGridBGyMax,
+								'bg_grid_spacing': gDefaultGridSpacing,
 								}
 	def __init__(self, **kwargs):
 		super(JetFinding, self).__init__(**kwargs)
@@ -47,8 +50,8 @@ class LeadingJetAnalysis(BaseAnalysis):
 								'nleading_write': -1,
 								'jet_algorithm': fj.antikt_algorithm,
 								'part_eta_max': 0.9,
-								'bg_y_max': 1.5,
-								'bg_grid_spacing': 0.1,
+								'bg_y_max': gDefaultGridBGyMax,
+								'bg_grid_spacing': gDefaultGridSpacing,
 								'write_constituents': False,
 								}
 
@@ -175,14 +178,14 @@ def main():
 
 	cs = None
 	if args.cs_dRmax > 0:
-		cs = CEventSubtractor(alpha=args.cs_alpha, max_distance=args.cs_dRmax, max_eta=args.part_eta_max, bge_rho_grid_size=0.1, max_pt_correct=100)
+		cs = CEventSubtractor(alpha=args.cs_alpha, max_distance=args.cs_dRmax, max_eta=args.part_eta_max, bge_rho_grid_size=gDefaultGridSpacing, max_pt_correct=100)
 		print(cs)
 	parts_selector = fj.SelectorAbsEtaMax(args.part_eta_max)
 
 	# open the output file
-	an = LeadingJetAnalysis(name='ljetanastd', part_eta_max=args.part_eta_max, bg_y_max=1.5, bg_grid_spacing=0.1, save_tracks=args.save_tracks, write_constituents=args.save_tracks, nleading_write=args.nlead)
+	an = LeadingJetAnalysis(name='ljetana_std', part_eta_max=args.part_eta_max, bg_y_max=gDefaultGridBGyMax, bg_grid_spacing=gDefaultGridSpacing, save_tracks=args.save_tracks, write_constituents=args.save_tracks, nleading_write=args.nlead)
 	if args.cs_dRmax > 0:
-		an_cs = LeadingJetAnalysis(name='ljetanacs', part_eta_max=args.part_eta_max, bg_y_max=1.5, bg_grid_spacing=0.1, save_tracks=args.save_tracks, write_constituents=args.save_tracks, nleading_write=args.nlead)
+		an_cs = LeadingJetAnalysis(name='ljetana_cs', part_eta_max=args.part_eta_max, bg_y_max=gDefaultGridBGyMax, bg_grid_spacing=gDefaultGridSpacing, save_tracks=args.save_tracks, write_constituents=args.save_tracks, nleading_write=args.nlead)
 
 	# event loop using the data source directly
 	for i,e in enumerate(data_source.next_event()):

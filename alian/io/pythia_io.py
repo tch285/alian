@@ -8,12 +8,19 @@ from yasp import GenericObject
 
 fj = heppyy.load_cppyy('fastjet')
 std = heppyy.load_cppyy('std')
-Pythia8 = heppyy.load_cppyy('pythia8.Pythia8')
+# Pythia8 = heppyy.load_cppyy('pythia8.Pythia8')
+import heppyy.util.pythia8_cppyy
+import heppyy.util.heppyy_cppyy
+from cppyy.gbl import Pythia8
 
 def psj_from_particle_with_index(particle, index):
-    psj = fj.PseudoJet(particle.px(), particle.py(), particle.pz(), particle.e())
-    psj.set_user_index(index)
-    return psj
+	psj = fj.PseudoJet(particle.px(), particle.py(), particle.pz(), particle.e())
+	psj.set_user_index(index)
+	return psj
+
+def get_pythia_info(pythia):
+	_info = Pythia8.getInfo(pythia)
+	return _info
 
 class PythiaInput(GenericObject):
 	def __init__(self, pythia_cmnd_file = None, user_settings=[], **kwargs):
