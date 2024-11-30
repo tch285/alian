@@ -180,7 +180,7 @@ def main():
 	if args.cs_dRmax > 0:
 		cs = CEventSubtractor(alpha=args.cs_alpha, max_distance=args.cs_dRmax, max_eta=args.part_eta_max, bge_rho_grid_size=gDefaultGridSpacing, max_pt_correct=100)
 		print(cs)
-	parts_selector = fj.SelectorAbsEtaMax(args.part_eta_max)
+	parts_selector = fj.SelectorAbsEtaMax(args.part_eta_max) * fj.SelectorPtMax(300)
 
 	# open the output file
 	an = LeadingJetAnalysis(name='ljetana_std', part_eta_max=args.part_eta_max, bg_y_max=gDefaultGridBGyMax, bg_grid_spacing=gDefaultGridSpacing, save_tracks=args.save_tracks, write_constituents=args.save_tracks, nleading_write=args.nlead)
