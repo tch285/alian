@@ -26,7 +26,7 @@ class RTreeWriter(heppyy.GenericObject):
 		if self.name is None:
 			self.name = 'RTreeWriter'
 		if self.file_name is None:
-			self.file_name = 'RTreeWriter.root'
+			self.file_name = f'rtw_{self.name}.root'
 		self._warnings = []
 		if self.tree is None:
 			if self.fout is None:
@@ -34,8 +34,9 @@ class RTreeWriter(heppyy.GenericObject):
 				self.fout = ROOT.TFile(self.file_name, 'recreate')
 				self.fout.cd()
 			else:
-				self.name = self.fout.GetName()
-				self.file_name = self.name
+				if self.name == 'RTreeWriter':
+					self.name = self.fout.GetName()
+				self.file_name = self.fout.GetName()
 				self.fout.cd()
 			if self.tree_name is None:
 				self.tree_name = 't'+self.name
@@ -128,6 +129,11 @@ class RTreeWriter(heppyy.GenericObject):
 	def fill_tree(self):
 		self.tree.Fill()
 		self.clear()
+
+	def write(self):
+		self.fout.cd()
+		self.tree.Write()
+		print('[i] writing {}'.format(self.fout.GetName()))
 
 	def write_and_close(self):
 		print('[i] writing {}'.format(self.fout.GetName()))
