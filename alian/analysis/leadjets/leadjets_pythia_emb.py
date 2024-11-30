@@ -160,7 +160,7 @@ def main():
 	if args.cs_dRmax > 0:
 		cs = CEventSubtractor(alpha=args.cs_alpha, max_distance=args.cs_dRmax, max_eta=args.part_eta_max, bge_rho_grid_size=gDefaultGridSpacing, max_pt_correct=100)
 		print(cs)
-	parts_selector = fj.SelectorAbsEtaMax(args.part_eta_max) * fj.SelectorPtMax(300)
+	parts_selector = fj.SelectorAbsEtaMax(args.part_eta_max)
 
 
 	# open the output file
