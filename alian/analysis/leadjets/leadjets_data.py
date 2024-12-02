@@ -67,9 +67,17 @@ class LeadingJetAnalysis(BaseAnalysis):
 		# declare jet analysis for each jet radius
 		self.jet_findings = []
 		self.tnj = {}
+		self.tnj_cor = {}
+		self.hc_pt = {}
+		self.hc_z = {}
+		self.hc_pt_all = ROOT.TH1F(f"hc_pt_all_{self.name}".replace('.', ''), f"hc_pt_all_{self.name}".replace('.', ''), 500, 0, 500)
 		for R in self.jet_Rs:
 			self.jet_findings.append(JetFinding(jet_R=R, jet_algorithm=self.jet_algorithm, part_eta_max=self.part_eta_max, bg_y_max=self.bg_y_max, bg_grid_spacing=self.bg_grid_spacing))
 			self.tnj[R] = ROOT.TNtuple(f"tnj_{self.name}_R{R}".replace('.', ''), f"e_{self.name}_R{R}".replace('.', ''),  "mult:track_count:centr:jet_count:bgrho:bgsigma:pt:eta:phi")
+			self.tnj_cor[R] = ROOT.TNtuple(f"tnj_cor_{self.name}_R{R}".replace('.', ''), f"tnj_cor_{self.name}_R{R}".replace('.', ''),  "pt_cs:eta_cs:phi_cs:pt_std:eta_std:phi_std:deltaR:deltapt:deltapt_rho")
+			self.hc_pt[R] = ROOT.TH1F(f"hc_pt_{self.name}_R{R}".replace('.', ''), f"hc_pt_{self.name}_R{R}".replace('.', ''), 500, 0, 500)
+			self.hc_z[R] = ROOT.TH1F(f"hc_z_{self.name}_R{R}".replace('.', ''), f"hc_z_{self.name}_R{R}".replace('.', ''), 100, 0, 1)
+			
 
 	def add_constituents_to_write(self, j, nlead, jetR):
 		for c in fj.sorted_by_pt(j.constituents()):
@@ -94,7 +102,8 @@ class LeadingJetAnalysis(BaseAnalysis):
 		data['npsjv'] = len(e.psjv)
 		data['mult'] = float(e.multiplicity)
 		if self.write_constituents:
-			self.cs_to_write = {}
+			self.cs_to_write = {}	
+		_ = [self.hc_pt_all.Fill(c.pt()) for c in e.psjv]
 		for jf in self.jet_findings:
 			jf.analyze(e.psjv)
 			data_ev['rho_R{}'.format(jf.jet_R).replace('.', '')] = jf.rho
@@ -107,6 +116,7 @@ class LeadingJetAnalysis(BaseAnalysis):
 						data['{}'.format(sjetR)] = [j for ij, j in enumerate(jf.jets) if ij < self.nleading_write]
 						data['{}_n'.format(sjetR)] = [ij for ij, j in enumerate(jf.jets) if ij < self.nleading_write]
 						_ = [self.tnj[jf.jet_R].Fill(e.multiplicity, e.track_count, e.centrality, len(jf.jets), jf.rho, jf.sigma, j.pt(), j.eta(), j.phi()) for ij, j in enumerate(jf.jets) if ij < self.nleading_write]
+						_ = [self.hc_pt[jf.jet_R].Fill(c.pt()) for ij, j in enumerate(jf.jets) for c in j.constituents() if ij < self.nleading_write]
 						if self.write_constituents:
 							_ = [self.add_constituents_to_write(j, ij, jf.jet_R) for ij, j in enumerate(jf.jets) if ij < self.nleading_write]
 					else:
@@ -138,6 +148,36 @@ class LeadingJetAnalysis(BaseAnalysis):
 		self.rt_j.fill_tree()
 		self.rt_e.fill_branches(e = data_ev)
 		self.rt_e.fill_tree()
+		self.correlate_with_std_analysis()
+
+	def pt_match_jets(self, jsig, jemb):
+			ptmatch = 0
+			for jsigc in jsig.constituents():
+					for jembc in jemb.constituents():
+							if jsigc.user_index() == jembc.user_index():
+									ptmatch += jsigc.pt()
+			return ptmatch / jsig.pt()
+
+	def correlate_with_std_analysis(self):
+		if self.std_analysis is None:
+			return
+		for i, jfcs in enumerate(self.jet_findings):
+			std_jf = self.std_analysis.jet_findings[i]
+			for ij, jcs in enumerate(jfcs.jets):
+				if self.nleading_write > 0:
+					if ij >= self.nleading_write:
+						break
+				for js in std_jf.jets:
+					deltapt = self.pt_match_jets(js, jcs)
+					# if deltapt < 0.5:
+					#	continue
+					deltaR = js.delta_R(jcs)
+					if deltaR > 0.2:
+						continue
+					deltapt_rho = jcs.perp() - (js.perp() - std_jf.rho * js.area())
+			     # "pt_cs:eta_cs:phi_cs:pt_std:eta_std:phi_std:deltaR:deltapt:deltapt_rho"
+					self.tnj_cor[jfcs.jet_R].Fill(jcs.pt(), jcs.eta(), jcs.phi(), js.pt(), js.eta(), js.phi(), deltaR, deltapt, deltapt_rho)
+					break
 
 	def finalize(self):
 		self.rt.write()
@@ -185,7 +225,7 @@ def main():
 	# open the output file
 	an = LeadingJetAnalysis(name='ljetana_std', part_eta_max=args.part_eta_max, bg_y_max=gDefaultGridBGyMax, bg_grid_spacing=gDefaultGridSpacing, save_tracks=args.save_tracks, write_constituents=args.save_tracks, nleading_write=args.nlead)
 	if args.cs_dRmax > 0:
-		an_cs = LeadingJetAnalysis(name='ljetana_cs', part_eta_max=args.part_eta_max, bg_y_max=gDefaultGridBGyMax, bg_grid_spacing=gDefaultGridSpacing, save_tracks=args.save_tracks, write_constituents=args.save_tracks, nleading_write=args.nlead)
+		an_cs = LeadingJetAnalysis(name='ljetana_cs', part_eta_max=args.part_eta_max, bg_y_max=gDefaultGridBGyMax, bg_grid_spacing=gDefaultGridSpacing, save_tracks=args.save_tracks, write_constituents=args.save_tracks, nleading_write=args.nlead, std_analysis=an)
 
 	# event loop using the data source directly
 	for i,e in enumerate(data_source.next_event()):
