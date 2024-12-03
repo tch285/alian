@@ -14,6 +14,16 @@ from alian.analysis.base import CEventSubtractor
 
 import ROOT
 
+import numpy as np
+import array
+
+def logbins(xmin, xmax, nbins):
+    xmin = max(xmin, 1e-10)
+    xmax = max(xmax, 1e-10)
+    lspace = np.logspace(np.log10(xmin), np.log10(xmax), nbins+1)
+    arr = array.array('d', lspace)
+    return arr
+
 gDefaultGridSpacing = 0.2
 gDefaultGridBGyMax = 0.9
 
@@ -69,13 +79,17 @@ class LeadingJetAnalysis(BaseAnalysis):
 		self.tnj = {}
 		self.tnj_cor = {}
 		self.hc_pt = {}
+		self.hc_pt_log = {}
 		self.hc_z = {}
 		self.hc_pt_all = ROOT.TH1F(f"hc_pt_all_{self.name}".replace('.', ''), f"hc_pt_all_{self.name}".replace('.', ''), 500, 0, 500)
+		logbins_pt = logbins(1, 500, 50)
+		self.hc_pt_all_log = ROOT.TH1F(f"hc_pt_all_{self.name}_log".replace('.', ''), f"hc_pt_all_{self.name}".replace('.', ''), 50, logbins_pt)
 		for R in self.jet_Rs:
 			self.jet_findings.append(JetFinding(jet_R=R, jet_algorithm=self.jet_algorithm, part_eta_max=self.part_eta_max, bg_y_max=self.bg_y_max, bg_grid_spacing=self.bg_grid_spacing))
 			self.tnj[R] = ROOT.TNtuple(f"tnj_{self.name}_R{R}".replace('.', ''), f"e_{self.name}_R{R}".replace('.', ''),  "mult:track_count:centr:jet_count:bgrho:bgsigma:pt:eta:phi")
 			self.tnj_cor[R] = ROOT.TNtuple(f"tnj_cor_{self.name}_R{R}".replace('.', ''), f"tnj_cor_{self.name}_R{R}".replace('.', ''),  "pt_cs:eta_cs:phi_cs:pt_std:eta_std:phi_std:deltaR:deltapt:deltapt_rho")
 			self.hc_pt[R] = ROOT.TH1F(f"hc_pt_{self.name}_R{R}".replace('.', ''), f"hc_pt_{self.name}_R{R}".replace('.', ''), 500, 0, 500)
+			self.hc_pt_log[R] = ROOT.TH1F(f"hc_pt_{self.name}_R{R}_log".replace('.', ''), f"hc_pt_{self.name}_R{R}".replace('.', ''), 50, logbins_pt)
 			self.hc_z[R] = ROOT.TH1F(f"hc_z_{self.name}_R{R}".replace('.', ''), f"hc_z_{self.name}_R{R}".replace('.', ''), 100, 0, 1)
 			
 
@@ -104,6 +118,7 @@ class LeadingJetAnalysis(BaseAnalysis):
 		if self.write_constituents:
 			self.cs_to_write = {}	
 		_ = [self.hc_pt_all.Fill(c.pt()) for c in e.psjv]
+		_ = [self.hc_pt_all_log.Fill(c.pt()) for c in e.psjv]
 		for jf in self.jet_findings:
 			jf.analyze(e.psjv)
 			data_ev['rho_R{}'.format(jf.jet_R).replace('.', '')] = jf.rho
@@ -117,6 +132,7 @@ class LeadingJetAnalysis(BaseAnalysis):
 						data['{}_n'.format(sjetR)] = [ij for ij, j in enumerate(jf.jets) if ij < self.nleading_write]
 						_ = [self.tnj[jf.jet_R].Fill(e.multiplicity, e.track_count, e.centrality, len(jf.jets), jf.rho, jf.sigma, j.pt(), j.eta(), j.phi()) for ij, j in enumerate(jf.jets) if ij < self.nleading_write]
 						_ = [self.hc_pt[jf.jet_R].Fill(c.pt()) for ij, j in enumerate(jf.jets) for c in j.constituents() if ij < self.nleading_write]
+						_ = [self.hc_pt_log[jf.jet_R].Fill(c.pt()) for ij, j in enumerate(jf.jets) for c in j.constituents() if ij < self.nleading_write]      
 						if self.write_constituents:
 							_ = [self.add_constituents_to_write(j, ij, jf.jet_R) for ij, j in enumerate(jf.jets) if ij < self.nleading_write]
 					else:
