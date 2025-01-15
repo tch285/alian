@@ -206,7 +206,7 @@ def main():
 	parser.add_argument('input_file', type=str, help="Input file or file containing a list of input files.")
 	parser.add_argument("-e", "--entries", type=int, help="Number of entries to process.", default=-1) #-1 means all entries
 	parser.add_argument("-o", "--output", type=str, help="Output file name.", default="analysis_results.root")
-	parser.add_argument('-t', '--tree-struct', type=str, help="Path to a YAML file describing the tree structure.", default=data_io.get_default_tree_structure())
+	parser.add_argument('-t', '--tree-struct', type=str, help="Path to a YAML file describing the tree structure.", default=None)
 	parser.add_argument('--lhc-run', type=int, help='LHC Run', default=3)
 	parser.add_argument('--nlead', type=int, default=-1, help='how many lead jets to write to the output file - <= 0 is all')
 	parser.add_argument('--save-tracks', action='store_true', help='Save track information in the output file')
@@ -226,6 +226,8 @@ def main():
 	root_file = SingleRootFile(fname=args.output)
 	print(root_file.root_file.GetName())
  
+	if args.tree_struct is None:
+		args.tree_struct = data_io.get_default_tree_structure(args.lhc_run)
 	# initialize the data input
 	data_source = data_io.DataInput(args.input_file, lhc_run=args.lhc_run, yaml_file=args.tree_struct, n_events=args.entries)
 
@@ -247,7 +249,7 @@ def main():
 	for i,e in enumerate(data_source.next_event()):
 		if e.centrality < args.cent_min or e.centrality > args.cent_max:
 			continue
-		psjv = data_fj.data_tracks_to_pseudojets(e)
+		psjv = data_fj.data_tracks_to_pseudojets(e, lhc_run=args.lhc_run)
 		e.psjv = parts_selector(psjv)
 		an.analyze(e)
 		if cs:

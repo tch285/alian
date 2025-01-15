@@ -132,13 +132,17 @@ class Run2FileInput(yasp.GenericObject):
             df_event_char = tree_event_char.arrays(library="pd")
             
             # Merge the DataFrames on 'ev_id', 'ev_id_ext', and 'run_number'
-            merged_df = pd.merge(df_particle, df_event_char, on=['ev_id', 'ev_id_ext', 'run_number'])
+            data_merge_on = ['ev_id', 'ev_id_ext', 'run_number']
+            # check if ev_id_ext present in both DataFrames
+            if 'ev_id_ext' not in df_particle.columns or 'ev_id_ext' not in df_event_char.columns:
+                data_merge_on.remove('ev_id_ext')
+            merged_df = pd.merge(df_particle, df_event_char, on=data_merge_on)
             
             # Filter out events where 'is_ev_rej' is not zero and 'centrality' is not less than 10
             filtered_df = merged_df[(merged_df['is_ev_rej'] == 0) & (merged_df['centrality'] < 10)]
             
             # Group by 'ev_id', 'ev_id_ext', and 'run_number'
-            grouped_df = filtered_df.groupby(['ev_id', 'ev_id_ext', 'run_number'])
+            grouped_df = filtered_df.groupby(data_merge_on)
             
             # Efficiently iterate over the grouped DataFrame with a progress bar
             total_entries = len(grouped_df)
