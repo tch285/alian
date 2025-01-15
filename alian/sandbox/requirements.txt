@@ -1,3 +1,2 @@
 awkward-pandas
 uproot
-numba
