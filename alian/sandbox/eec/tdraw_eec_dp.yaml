@@ -1,0 +1,103 @@
+eec:
+  - output: {{output}}
+    mode: "recreate"
+  - h_jet_pt:
+      file: {{input}}
+      tree: tn_jet
+      xrange: [0, 1000]
+      xnbins: 1000
+      xbins: linear
+      var: pt
+      cond: "(pt > {{jetptmin}}) && (pt < {{jetptmax}})"
+  - h_nev_xsec:
+      file: {{input}}
+      tree: tn_events
+      xbins: auto
+      xnbins: 1000
+      var: xsec
+      cond: ""
+  - h_nev_ncoll:
+      file: {{input}}
+      tree: tn_events
+      xbins: auto
+      xnbins: 1000
+      var: ncoll
+      cond: ""
+      scale: 1./h_nev_xsec.GetEntries()
+      bw : True
+  - h_eec0:
+      file: {{input}}
+      tree: tn_eec_ptcut0.15
+      # xrange: [1e-4, 1]
+      # xnbins: 50
+      xrange: [1e-2, 1]
+      xnbins: 10
+      xbins: log
+      var: dr
+      cond: "(eec) * (ptjet > {{jetptmin}} && ptjet < {{jetptmax}})"
+      scale: 1./h_jet_pt.Integral()
+      bw : True
+  - h_eec1:
+      file: {{input}}
+      tree: tn_eec_ptcut1.0
+      # xrange: [1e-4, 1]
+      # xnbins: 50
+      xrange: [1e-2, 1]
+      xnbins: 10
+      xbins: log
+      var: dr
+      cond: "(eec) * (ptjet > {{jetptmin}} && ptjet < {{jetptmax}})"
+      scale: 1./h_jet_pt.Integral()
+      bw : True
+  - h_eec0_dp:
+      file: {{input}}
+      tree: tn_eec_ptcut0.15
+      # xrange: [1e-4, 1]
+      # xnbins: 50
+      xrange: [1e-2, 1]
+      xnbins: 10
+      xbins: log
+      yrange: [0, 10]
+      ynbins: 10
+      var: dp:dr
+      cond: "(eec) * (ptjet > {{jetptmin}} && ptjet < {{jetptmax}})"
+      scale: 1./h_jet_pt.Integral()
+      bw : True
+  - h_eec1_dp:
+      file: {{input}}
+      tree: tn_eec_ptcut1.0
+      # xrange: [1e-4, 1]
+      # xnbins: 50
+      xrange: [1e-2, 1]
+      xnbins: 10
+      xbins: log
+      yrange: [0, 10]
+      ynbins: 10
+      var: dp:dr
+      cond: "(eec) * (ptjet > {{jetptmin}} && ptjet < {{jetptmax}})"
+      scale: 1./h_jet_pt.Integral()
+      bw : True
+  - h_eec0_pconebg:
+      file: {{input}}
+      tree: tn_eec_pcone_ptcut0.15
+      # xrange: [1e-4, 1]
+      # xnbins: 50
+      xrange: [1e-2, 1]
+      xnbins: 10
+      xbins: log
+      var: dr
+      cond: "(eec) * (ptjet > {{jetptmin}} && ptjet < {{jetptmax}})"
+      scale: 1./h_jet_pt.Integral()/2.
+      bw : True
+  - h_eec1_pconebg:
+      file: {{input}}
+      tree: tn_eec_pcone_ptcut1.0
+      # xrange: [1e-4, 1]
+      # xnbins: 50
+      xrange: [1e-2, 1]
+      xnbins: 10
+      xbins: log
+      var: dr
+      cond: "(eec) * (ptjet > {{jetptmin}} && ptjet < {{jetptmax}})"
+      scale: 1./h_jet_pt.Integral()/2.
+      bw : True

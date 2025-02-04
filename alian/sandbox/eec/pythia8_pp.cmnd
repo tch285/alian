@@ -1,0 +1,54 @@
+! pp collision at 5 TeV with customized ISR and FSR alpha_s settings
+
+!---------------------------
+! Basic Setup for pp Collisions
+!---------------------------
+Beams:idA = 2212
+Beams:idB = 2212
+Beams:eCM = 5000.0
+
+!---------------------------
+! Process Selection
+!---------------------------
+! Enable all QCD 2->2 processes (adjust as needed)
+HardQCD:all = on
+
+!---------------------------
+! Parton Shower Settings (alpha_s for ISR and FSR)
+!---------------------------
+! Set alpha_s for Final-State Radiation (FSR)
+TimeShower:alphaSvalue = 0.1365
+! Optionally disable the CMW scheme (for a fixed alpha_s)
+TimeShower:alphaSuseCMW = off
+
+! Set alpha_s for Initial-State Radiation (ISR)
+SpaceShower:alphaSvalue = 0.1365
+! Optionally disable the CMW scheme for ISR as well
+SpaceShower:alphaSuseCMW = off
+
+!---------------------------
+! Parton Shower Cutoffs
+!---------------------------
+! Define the minimum pT for parton shower emissions
+TimeShower:pTmin = 0.4   ! FSR cutoff in GeV
+! SpaceShower:pTmin = 0.4  ! ISR cutoff in GeV
+
+!---------------------------
+! Multiple Parton Interactions (MPI) Settings
+!---------------------------
+! Set alpha_s for MPI if desired
+! MultipartonInteractions:alphaSvalue = 0.1365
+
+!---------------------------
+! Hadronization Settings (Lund String Model)
+!---------------------------
+StringPT:sigma = 0.335         ! Gaussian width for hadron pT (effective string tension)
+StringZ:aLund = 0.68           ! Lund fragmentation parameter a
+StringZ:bLund = 0.98           ! Lund fragmentation parameter b
+
+!---------------------------
+! Additional Settings (optional)
+!---------------------------
+! Print:quiet = on
+PhaseSpace:bias2Selection = on
+PhaseSpace:pTHatMin = 100
