@@ -18,6 +18,10 @@ HardQCD:all = on
 !---------------------------
 ! Set alpha_s for Final-State Radiation (FSR)
 TimeShower:alphaSvalue = 0.1365
+! TimeShower:alphaSvalue = 0.1
+! TimeShower:alphaSvalue = 0.173
+! TimeShower:alphaSvalue = 0.0600000
+! TimeShower:alphaSvalue = 0.25000
 ! Optionally disable the CMW scheme (for a fixed alpha_s)
 TimeShower:alphaSuseCMW = off
 
@@ -30,7 +34,7 @@ SpaceShower:alphaSuseCMW = off
 ! Parton Shower Cutoffs
 !---------------------------
 ! Define the minimum pT for parton shower emissions
-TimeShower:pTmin = 0.4   ! FSR cutoff in GeV
+TimeShower:pTmin = 0.5   ! FSR cutoff in GeV (0.5 if default)
 ! SpaceShower:pTmin = 0.4  ! ISR cutoff in GeV
 
 !---------------------------

@@ -55,10 +55,10 @@ eec:
       # xrange: [1e-4, 1]
       # xnbins: 50
       xrange: [1e-2, 1]
-      xnbins: 10
+      xnbins: 20
       xbins: log
       yrange: [0, 10]
-      ynbins: 10
+      ynbins: 20
       var: dp:dr
       cond: "(eec) * (ptjet > {{jetptmin}} && ptjet < {{jetptmax}})"
       scale: 1./h_jet_pt.Integral()
@@ -69,10 +69,10 @@ eec:
       # xrange: [1e-4, 1]
       # xnbins: 50
       xrange: [1e-2, 1]
-      xnbins: 10
+      xnbins: 20
       xbins: log
       yrange: [0, 10]
-      ynbins: 10
+      ynbins: 20
       var: dp:dr
       cond: "(eec) * (ptjet > {{jetptmin}} && ptjet < {{jetptmax}})"
       scale: 1./h_jet_pt.Integral()

@@ -1,0 +1,96 @@
+#-----------------------
+#figure
+#geom 500x500
+#date
+#title: smart group
+#legend pos=ur
+hist.root 		:h_jet_pt_eec :p  : title=h_jet_pt_eec
+#-----------------------
+#figure
+#geom 500x500
+#date
+#title: smart group
+#legend pos=ur
+hist.root 		:h_nev_xsec_eec :p  : title=h_nev_xsec_eec
+#-----------------------
+#figure
+#geom 500x500
+#date
+#title: smart group
+#legend pos=ur
+hist.root 		:h_nev_ncoll_eec :p  : title=h_nev_ncoll_eec
+#-----------------------
+#figure
+#geom 500x500
+#date
+#title: smart group
+#legend pos=ur
+#logx 1
+hist.root 		:h_eec0_eec :p  : title=h_eec0_eec
+hist.root 		:h_eec1_eec :p  : title=h_eec1_eec
+
+#-----------------------
+#figure
+#geom 500x500
+#date
+#title: smart group
+#legend pos=ur title=PYTHIA8 100 GeV jets at 5 TeV pp
+#logx 1
+#x R_{L}
+#y #Sigma_{EEC}
+alpha_s0p1365/hist.root 	:h_eec1_eec :l hist +w5  : title=#alpha_{s}=0.1365 (default)
+alpha_s0p25/hist.root 		:h_eec1_eec :l hist +w5  : title=#alpha_{s}=0.25
+# alpha_s0p173/hist.root 		:h_eec1_eec :l hist +w5  : title=#alpha_{s}=0.173
+# alpha_s0p1/hist.root 		:h_eec1_eec :l hist +w5  : title=#alpha_{s}=0.1
+alpha_s0p06/hist.root 		:h_eec1_eec :l hist +w5  : title=#alpha_{s}=0.06
+
+#-----------------------
+#figure
+#geom 500x500
+#date
+#title: smart group
+#legend pos=ur
+#logx 1
+hist.root 		:h_eec0_dp_eec :colz +xprof +yprof : title=h_eec0_dp_eec
+
+#-----------------------
+#figure
+#geom 500x500
+#date
+#title: smart group
+#legend pos=ur
+#logx 1
+# hist.root 		:h_eec1_dp_eec :colz +xprof +yprof : title=h_eec1_dp_eec
+
+#x R_{L}
+#y #Delta_{p}
+alpha_s0p1365/hist.root 		:h_eec1_dp_eec :colz +xprof +yprof : title=h_eec1_dp_eec
+
+#hist.root 		:h_eec0_pconebg_eec :p  : title=h_eec0_pconebg_eec
+#hist.root 		:h_eec1_pconebg_eec :p  : title=h_eec1_pconebg_eec
+
+#-----------------------
+#figure
+#geom 500x500
+#date
+#title: smart group
+#legend pos=ur
+#logx 1
+# hist.root 		:h_eec1_dp_eec :colz +xprof +yprof : title=h_eec1_dp_eec
+
+#x R_{L}
+#y #Delta_{p}
+alpha_s0p06/hist.root 		:h_eec1_dp_eec :colz +xprof +yprof : title=h_eec1_dp_eec
+
+#-----------------------
+#figure
+#geom 500x500
+#date
+#title: smart group
+#legend pos=ur
+#logx 1
+# hist.root 		:h_eec1_dp_eec :colz +xprof +yprof : title=h_eec1_dp_eec
+
+#x R_{L}
+#y #Delta_{p}
+alpha_s0p25/hist.root 		:h_eec1_dp_eec :colz +xprof +yprof : title=h_eec1_dp_eec
