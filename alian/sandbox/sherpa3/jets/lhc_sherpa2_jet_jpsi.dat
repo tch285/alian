@@ -1,0 +1,24 @@
+(run){
+  BEAM_1           2212;            # proton
+  BEAM_ENERGY_1    7000;            # in GeV
+  BEAM_2           2212;            # proton
+  BEAM_ENERGY_2    7000;
+  MODEL            NRQCD;           # use NRQCD for quarkonium production
+  EVENTS           10000;           # number of events
+  SHOWER_GENERATOR CSSHOWER;        # default parton shower
+  FRAGMENTATION    AHADIC;          # cluster hadronisation
+}(run)
+
+(processes){
+  # Define J/ψ + jet production:
+  # "93" is used as a generic placeholder for light-parton jets.
+  Process 93 93 -> 443 93{1};
+  Order   {QCD:2};                # fixed-order QCD order (adjust as needed)
+  CKKW    sqr(30/E_CMS);          # merging scale tag for ME+PS merging
+  End process;
+}(processes)
+
+(selector){
+  # Define a simple jet finder (here using the anti-kt algorithm with R=0.4)
+  FastjetFinder antikt, PT:20, R:0.4;
+}(selector)
