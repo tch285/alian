@@ -53,6 +53,9 @@ def evaluate_min_max(sexpr1dim, tree, condition=''):
     _htmp_name = f'htmp_{sexpr1dim}'
     tree.Draw(f'{sexpr1dim}>>{_htmp_name}', condition, 'goff')
     h = ROOT.gDirectory.Get(_htmp_name)
+    if not h or not h.InheritsFrom(ROOT.TH1.Class()):
+        print("Error: Retrieved object is not a histogram.", h, _htmp_name)
+        sys.exit(1)
     rval = (h.GetXaxis().GetXmin(), h.GetXaxis().GetXmax())
     h.Delete()
     return rval
@@ -118,6 +121,7 @@ def build_hist(hist_config, hist_name, tree, output_file):
     print('hsetup:', hsetup)
     if hsetup['clone']:
         hist = get_hist_clone_from_file(hsetup['clone'], hist_name, output_file)
+        print('Info: using a cloned histogram:', hist.GetName()) 
         return hist
     if hsetup['y']:
         if hsetup['xbins'] and hsetup['ybins']:
@@ -253,12 +257,14 @@ if __name__ == '__main__':
     parser.add_argument('-d', '--define', help='Define a variable x=y to replace {{x}} by y in the config', nargs='+')
     parser.add_argument('-x', '--context', help='the context file', default=None)
     args = parser.parse_args()
-    print(args)
+    print('args:', args)
 
     context = {}
     if args.context:
         with open(args.context, 'r') as f:
             context = eval(f.read())
+
+    print('context:', context)
 
     if args.define:
         for define in args.define:
@@ -266,5 +272,7 @@ if __name__ == '__main__':
             context[key] = value
 
     args.define = context
-    print(args)
+
+    print('args after reading context:', args)
+
     main(args)
