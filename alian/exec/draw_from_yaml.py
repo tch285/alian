@@ -32,7 +32,7 @@ def get_hist_clone_from_file(hist_config, hist_new_name, output_file):
     hist_clone = hist.Clone()
     hist_clone.SetName(hist_new_name)
     hist_clone.Reset()
-    hist_clone.Write()
+    hist_clone.SetDirectory(output_file)
     return hist_clone
 
 
@@ -116,13 +116,15 @@ def hsetup_from_config(hist_config, axis='x', hsetup=None, tree=None):
 
 def build_hist(hist_config, hist_name, tree, output_file):
     hsetup = {}
-    hsetup = hsetup_from_config(hist_config, 'x', hsetup, tree)
-    hsetup = hsetup_from_config(hist_config, 'y', hsetup, tree)
-    print('hsetup:', hsetup)
-    if hsetup['clone']:
+    if 'clone' in hist_config:
+        hsetup = hist_config
         hist = get_hist_clone_from_file(hsetup['clone'], hist_name, output_file)
         print('Info: using a cloned histogram:', hist.GetName()) 
         return hist
+    else:
+        hsetup = hsetup_from_config(hist_config, 'x', hsetup, tree)
+        hsetup = hsetup_from_config(hist_config, 'y', hsetup, tree)
+
     if hsetup['y']:
         if hsetup['xbins'] and hsetup['ybins']:
             hist = ROOT.TH2F(hist_name, hist_name, hsetup['xnbins'], hsetup['xbins'], hsetup['ynbins'], hsetup['ybins'])
@@ -140,6 +142,7 @@ def build_hist(hist_config, hist_name, tree, output_file):
             hist = ROOT.TH1F(hist_name, hist_name, hsetup['xnbins'], _bins)
         else:
             hist = ROOT.TH1F(hist_name, hist_name, hsetup['xnbins'], hsetup['xrange'][0], hsetup['xrange'][1])
+    print('new hist - hsetup:', hsetup)
     return hist
 
 
@@ -200,7 +203,8 @@ def main(args):
                 hist = None
                 if 'ybins' in hist_config:
                     print ('ybins:', hist_config['ybins'])
-                    
+
+                print('x-check hist_config:', hist_config)                    
                 hist = build_hist(hist_config, hist_name, tree, output_file)
 
                 if hist is None:
