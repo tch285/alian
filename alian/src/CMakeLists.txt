@@ -11,6 +11,9 @@ endif(FASTJET_FOUND)
 
 ## Tools migrated from heppy  https://github.com/ezradlesser/heppy
 if (PYTHIA8_FOUND)
+  if (CUSTOM_SHOWER)
+    add_subdirectory(mytimeshower)
+  endif(CUSTOM_SHOWER)
   if (HEPMC_FOUND)
     # add_subdirectory(pythiaext)
     #add_subdirectory(hepmc2wrap)
