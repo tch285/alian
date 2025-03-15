@@ -40,10 +40,18 @@ else
   echo "[i] custom shower option is: ${shower_flag} -- use '--opt custom_shower=on' to enable it -- called with custom_shower={{custom_shower}}"
 fi
 
+build_visual="-DBUILD_VISUAL=OFF"
+if [ "{{visual}}" = "on" ]; then
+    build_visual=-DBUILD_VISUAL=ON
+    echo "[i] custom shower option is: ${build_visual} -- called with visual={{visual}}"
+else
+  echo "[i] custom shower option is: ${build_visual} -- use '--opt visual=on' to enable it -- called with visual={{visual}}"
+fi
+
 srcdir=$(abspath {{yasp.recipe_dir}}/../alian)
 cd {{builddir}}
 echo "[i] source dir is {{srcdir}}"
 cmake -DCMAKE_INSTALL_PREFIX={{prefix}} \
-	-DCMAKE_BUILD_TYPE=Release ${shower_flag} \
+	-DCMAKE_BUILD_TYPE=Release ${shower_flag} ${build_visual} \
 	{{srcdir}} && cmake --build . --target install -- -j {{n_cores}}
 # {{alian_dir}}
