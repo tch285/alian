@@ -144,7 +144,47 @@ def build_hist(hist_config, hist_name, tree, output_file):
             hist = ROOT.TH1F(hist_name, hist_name, hsetup['xnbins'], hsetup['xrange'][0], hsetup['xrange'][1])
     print('new hist - hsetup:', hsetup)
     return hist
-
+    
+def draw_config_dict(fname):
+    print('[i] opening file:', fname)  
+    root_file = ROOT.TFile.Open(fname)
+    if not root_file or root_file.IsZombie():
+        print(f'[e] Could not open ROOT file: {fname}')
+        return None    
+    trees = []
+    for k in root_file.GetListOfKeys():
+        t = root_file.Get(k.GetName())
+        if isinstance(t, ROOT.TTree):
+            trees.append(t)
+            print('found tree:', t.GetName())
+    master_dict = {}
+    for tree in trees:
+        section_name = tree.GetName()
+        tname = tree.GetName()
+        master_dict[section_name] = []
+        output = fname.replace('.root', f'_{section_name}_h.root')
+        dict_out = {
+            'output': output,
+            'mode': 'recreate'
+        }
+        master_dict[section_name].append(dict_out)
+        dict_out = {}
+        for b in tree.GetListOfBranches():
+            varname = b.GetName()
+            _d = {
+                    'tree' : tname, 
+                    'var' : varname,
+                    'file' : fname,
+                    'cond' : '', 
+                    'xbins': 'auto',
+                    'xnbins': 100
+                }
+            # _d_entry_name = f'{tname}_{varname}'
+            _d_entry_name = f'{varname}'
+            dict_out[_d_entry_name] = _d
+        master_dict[section_name].append(dict_out)
+    print('[i] dicts:', master_dict)
+    return master_dict
 
 def main(args):
     config = None
@@ -257,7 +297,7 @@ def main(args):
     
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Draw histograms from a YAML file')
-    parser.add_argument('-c', '--config', help='YAML config file')
+    parser.add_argument('-c', '--config', help='YAML config file OR a root file')
     parser.add_argument('-d', '--define', help='Define a variable x=y to replace {{x}} by y in the config', nargs='+')
     parser.add_argument('-x', '--context', help='the context file', default=None)
     args = parser.parse_args()
@@ -278,5 +318,15 @@ if __name__ == '__main__':
     args.define = context
 
     print('args after reading context:', args)
-
-    main(args)
+    
+    if args.config and args.config.endswith('.root'):
+        out_dict = draw_config_dict(args.config)
+        if out_dict:
+            yaml_output_file = args.config.replace('.root', '_draw.yaml')
+            with open(yaml_output_file, 'w') as f:
+                yaml.dump(out_dict, f)
+            print(f'[i] Wrote YAML file: {yaml_output_file}')
+        else:
+            print('[i] Could not create config from', args.config)
+    else:
+        main(args)
