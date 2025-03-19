@@ -24,7 +24,7 @@ function make_job_string() {
     outfname=$3
     # replace .root with _seed.root
     outfname=${outfname/.root/_$seed.root}
-    job_string="./pythia_charm.py --nev $nev --py-seed $seed -o $outfname > log_$seed.txt 2>&1"
+    job_string="./pythia_charm.py --nev $nev --py-seed $seed -o $outfname > pythia_charm_$seed.log 2>&1"
     echo $job_string
 }
 export -f make_job_string

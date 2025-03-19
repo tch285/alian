@@ -59,7 +59,7 @@ def main():
 	fout = SingleRootFile(args.output)
 	fout.root_file.cd()
 	tn_events = ROOT.TNtuple("tn_events", "tn_events", "sigma:weight:code:out1pid:out2pid")
-	tn_jets = ROOT.TNtuple("tn_jets", "tn_jets", "sigma:weight:code:pt:eta:phi:mass:R:leadpid:has_charm")
+	tn_jets = ROOT.TNtuple("tn_jets", "tn_jets", "sigma:weight:code:pt:eta:phi:mass:R:leadpid:has_charm:leadpt")
 	tn_partons = ROOT.TNtuple("tn_partons", "tn_partons", "sigma:weight:code:pid:pt:eta:phi:mass")
  
 	# configure pythia
@@ -109,7 +109,7 @@ def main():
 				leading_pythia_id = leading.user_index()
 				leading_pythia = pythia.event[leading_pythia_id]
 				has_charm = any([abs(pythia.event[p.user_index()].id()) == 4 for p in j.constituents()])
-				tn_jets.Fill(sigma, weight, leading_process_code, j.perp(), j.eta(), j.phi(), j.m(), R, leading_pythia.id(), int(has_charm))
+				tn_jets.Fill(sigma, weight, leading_process_code, j.perp(), j.eta(), j.phi(), j.m(), R, leading_pythia.id(), int(has_charm), leading.perp())
 
 	pythia.stat()
 
