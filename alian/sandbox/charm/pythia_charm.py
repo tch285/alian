@@ -61,9 +61,9 @@ def main():
 	tn_events = ROOT.TNtuple("tn_events", "tn_events", "sigma:weight:code:out1pid:out2pid")
 	tn_jets = ROOT.TNtuple("tn_jets", "tn_jets", "sigma:weight:code:pt:eta:phi:mass:R:leadpid:has_charm:leadpt")
 	tn_partons = ROOT.TNtuple("tn_partons", "tn_partons", "sigma:weight:code:pid:pt:eta:phi:mass")
- 
+
 	# configure pythia
-	mycfg = ['HadronLevel:all = off', 
+	mycfg = ['HadronLevel:all = off',
           f'PhaseSpace:pThatMin = {args.jet_pt_min}',
           'PhaseSpace:bias2Selection = off']
 	pythia = pyconf.create_and_init_pythia_from_args(args, mycfg)
@@ -90,8 +90,12 @@ def main():
 		# parts = pythiafjext.vectorize(pythia, True, -1, 1, False)
 		pythia_info = Pythia8.getInfo(pythia)
 		sigma = pythia_info.sigmaGen()
-		weight = pythia.info.weight()
+		# weight = pythia.info.weight()
+		weight = 1
 		leading_process_code = pythia_info.code()
+		#accepted+=1
+		#pbar.update(1)
+		#continue
 		tn_events.Fill(sigma, weight, leading_process_code, pythia.event[4].id(), pythia.event[5].id())
 		_ = [tn_partons.Fill(sigma, weight, leading_process_code, p.id(), p.pT(), p.eta(), p.phi(), p.m()) for p in pythia.event if p.isFinal() and p.isParton()]
 
@@ -119,5 +123,3 @@ def main():
 
 if __name__ == '__main__':
 	main()
- 
- 

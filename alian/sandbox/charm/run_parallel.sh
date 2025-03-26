@@ -24,12 +24,16 @@ function make_job_string() {
     outfname=$3
     # replace .root with _seed.root
     outfname=${outfname/.root/_$seed.root}
+<<<<<<< HEAD
     job_string="./pythia_charm.py --nev $nev --py-seed $seed -o $outfname > pythia_charm_$seed.log 2>&1"
+=======
+    job_string="./pythia_charm.py --nev $nev --py-seed $seed -o $outfname --py-ecm 5020 > log_$seed.txt 2>&1"
+>>>>>>> b5a8570 (charm tests with pythia)
     echo $job_string
 }
 export -f make_job_string
 
-nev=1000
+nev=10000
 jobs=()
 for i in $(seq 1 $n_jobs); do
     seed=$((10000 + i))
