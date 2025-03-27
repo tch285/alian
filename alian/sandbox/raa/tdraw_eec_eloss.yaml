@@ -1,0 +1,94 @@
+eec:
+  - output: {{output}}
+    mode: "recreate"
+  - h_sigma:
+      file: {{input}}
+      tree: tn_norm
+      xbins: auto
+      xnbins: 1000
+      var: xsec
+      cond: ""
+  - h_n_accepted:
+      file: {{input}}
+      tree: tn_norm
+      xbins: auto
+      xnbins: 1000
+      var: nev
+      cond: ""
+  - h_sum_weights:
+      file: {{input}}
+      tree: tn_norm
+      xbins: auto
+      xnbins: 1000
+      var: sum_of_weights
+      cond: ""
+  - h_weights:
+      file: {{input}}
+      tree: tn_events
+      xbins: log
+      xnbins: 1000
+      var: ev_weight
+      cond: ""
+  - h_nev_xsec:
+      file: {{input}}
+      tree: tn_events
+      xbins: auto
+      xnbins: 1000
+      var: xsec
+      cond: ""
+  - h_nev_weights:
+      file: {{input}}
+      tree: tn_events
+      xbins: auto
+      xnbins: 1000
+      var: ev_weight
+      cond: ""
+  - h_jet_pt:
+      file: {{input}}
+      tree: tn_jet
+      xrange: [0, 100]
+      xnbins: 100
+      xbins: linear
+      var: pt
+      cond: "(pt > {{jetptmin}}) && (pt < {{jetptmax}})"
+  - h_jet_pt_wxsec:
+      file: {{input}}
+      tree: tn_jet
+      xrange: [0, 100]
+      xnbins: 100
+      xbins: linear
+      var: pt
+      cond: "(ev_weight) * (pt > {{jetptmin}}) && (pt < {{jetptmax}})"
+      scale: (h_nev_xsec.GetMean() - h_nev_xsec.GetBinWidth(1)/2.)
+      bw : True
+  - h_jet_pt_wxsec_sumw:
+      file: {{input}}
+      tree: tn_jet
+      xrange: [0, 100]
+      xnbins: 100
+      xbins: linear
+      var: pt
+      cond: "(ev_weight) * (pt > {{jetptmin}}) && (pt < {{jetptmax}})"
+      scale: (h_nev_xsec.GetMean() - h_nev_xsec.GetBinWidth(1)/2.)/(h_sum_weights.GetMean() - h_sum_weights.GetBinWidth(1)/2.)
+      bw : True
+  - h_nev_ncoll:
+      file: {{input}}
+      tree: tn_events
+      xbins: auto
+      xnbins: 1000
+      var: ncoll
+      cond: ""
+      scale: 1./h_nev_xsec.GetEntries()
+      bw : True
+  - h_eec1:
+      file: {{input}}
+      tree: tn_eec_ptcut1.0
+      # xrange: [1e-4, 1]
+      # xnbins: 50
+      xrange: [1e-2, 1]
+      xnbins: 10
+      xbins: log
+      var: dr
+      cond: "(eec) * (ptjet > {{jetptmin}} && ptjet < {{jetptmax}})"
+      scale: 1./h_jet_pt.Integral()
+      bw : True
