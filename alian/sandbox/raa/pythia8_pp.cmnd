@@ -55,8 +55,8 @@ HardQCD:all = on
 !---------------------------
 ! Print:quiet = on
 PhaseSpace:bias2Selection = on
-PhaseSpace:pTHatMin = 40
-PhaseSpace:bias2SelectionRef = 40
+PhaseSpace:pTHatMin = 20
+PhaseSpace:bias2SelectionRef = 20
 
 ! set the tune to monash
 Tune:pp = 14

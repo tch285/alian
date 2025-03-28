@@ -1,0 +1,127 @@
+#-----------------------
+#figure
+#geom 500x500
+#date
+#title: smart group
+#legend 0.654,0.669,0.92,0.871
+#x R_{L}
+#y #Sigma EEC (R_{L})
+#logx 1
+#maxy 10
+#miny 0
+PbPb_data.root 		:h1d_EEC_4060_pp: p: title=pp data
+PbPb_data.root 		:h1d_EEC_4060_PbPb: p: title=PbPb data
+
+#scale index=0 fout=EECs_data_ratio_40_60.root
+
+#-----------------------
+#figure
+#geom 500x500
+#date
+#title: smart group
+#legend pos=ur title=40-60 GeV/c
+#x R_{L}
+#y PbPb/pp
+#logx 1
+#maxy 2
+#miny 0
+
+EECs_data_ratio_40_60.root 		:o_0 :p  : title=PbPb data / pp data
+
+#line 0,1,1,1,1,9,1
+
+#-----------------------
+#figure
+#geom 500x500
+#date
+#title: smart group
+#legend 0.654,0.669,0.92,0.871
+#x R_{L}
+#y #Sigma EEC (R_{L})
+#logx 1
+#maxy 10
+#miny 0
+PbPb_data.root 		:h1d_EEC_6080_pp: p: title=pp data
+PbPb_data.root 		:h1d_EEC_6080_PbPb: p: title=PbPb data
+
+#scale index=0 fout=EECs_data_ratio_60_80.root
+
+#-----------------------
+#figure
+#geom 500x500
+#date
+#title: smart group
+#legend pos=ur title=60-80 GeV/c
+#x R_{L}
+#y PbPb/pp
+#logx 1
+#maxy 2
+#miny 0
+
+EECs_data_ratio_60_80.root 		:o_0 :p  : title=PbPb data / pp data
+
+#line 0,1,1,1,1,9,1
+
+#-----------------------
+#figure
+#geom 500x500
+#date
+#title: smart group
+#legend 0.654,0.669,0.92,0.871
+#x R_{L}
+#y #Sigma EEC (R_{L})
+#logx 1
+#maxy 10
+#miny 0
+PbPb_data.root 		:h1d_EEC_80100_pp: p: title=pp data
+PbPb_data.root 		:h1d_EEC_80100_PbPb: p: title=PbPb data
+
+#scale index=0 fout=EECs_data_ratio_80_100.root
+
+#-----------------------
+#figure
+#geom 500x500
+#date
+#title: smart group
+#legend pos=ur title=80-100 GeV/c
+#x R_{L}
+#y PbPb/pp
+#logx 1
+#maxy 2
+#miny 0
+
+EECs_data_ratio_80_100.root 		:o_0 :p  : title=PbPb data / pp data
+
+#line 0,1,1,1,1,9,1
+
+#-----------------------
+#figure
+#geom 500x500
+#date
+#title: smart group
+#legend 0.654,0.669,0.92,0.871
+#x R_{L}
+#y #Sigma EEC (R_{L})
+#logx 1
+#maxy 10
+#miny 0
+PbPb_data.root 		:h1d_EEC_100120_pp: p: title=pp data
+PbPb_data.root 		:h1d_EEC_100120_PbPb: p: title=PbPb data
+
+#scale index=0 fout=EECs_data_ratio_100_120.root
+
+#-----------------------
+#figure
+#geom 500x500
+#date
+#title: smart group
+#legend pos=ur title=100-120 GeV/c
+#x R_{L}
+#y PbPb/pp
+#logx 1
+#maxy 2
+#miny 0
+
+EECs_data_ratio_100_120.root 		:o_0 :p  : title=PbPb data / pp data
+
+#line 0,1,1,1,1,9,1

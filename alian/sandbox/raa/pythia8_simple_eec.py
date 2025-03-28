@@ -6,6 +6,7 @@ import argparse
 import os
 import numpy as np
 import sys
+import json
 import yasp
 import cppyy
 
@@ -127,7 +128,8 @@ def main():
 
   rf = SingleRootFile(fname=args.output)
   rf.root_file.cd()
-  tn_norm =   ROOT.TNtuple('tn_norm', 'tn_norm', 'nev:xsec:xsec_err:sum_of_weights')
+  h_jet_pt  = ROOT.TH1F('h_jet_pt', 'h_jet_pt', 100, 0, 100)
+  tn_norm   = ROOT.TNtuple('tn_norm', 'tn_norm', 'nev:xsec:xsec_err:sum_of_weights')
   tn_hard 	= ROOT.TNtuple('tn_hard', 'tn_hard', 'nev:xsec:ev_weight:x1:x2:QFac:id1:id2:id3:pt3:eta3:id4:pt4:eta4')
   tn_events = ROOT.TNtuple('tn_events', 'tn_events', 'nev:xsec:ev_weight:nparts:x1:x2:QFac:ncoll')
   tn_jet 		= ROOT.TNtuple(f'tn_jet', 'tn_jet', 'nev:xsec:ev_weight:nj:ij:pt:eta:phi:m:ptlead:pid')
@@ -161,6 +163,7 @@ def main():
     print("[e] pythia initialization failed.")
     return
 
+  sum_weights = 0.0
   _stop = False 
   pbar = tqdm.tqdm(range(args.nev))
   njets = 0
@@ -168,6 +171,11 @@ def main():
   while not _stop:
     if not pythia.next():
       continue
+    # _info = Pythia8.pythia.info - defunct
+    _info = Pythia8.getInfo(pythia)
+    sigmaGen = _info.sigmaGen()
+    ev_weight = _info.weight()
+    sum_weights += ev_weight
     iev += 1
 
     if args.charged:
@@ -177,10 +185,6 @@ def main():
 
     jets = fj.sorted_by_pt(jet_selector(jet_def(fjparts)))
     njets += len(jets)
-    # _info = Pythia8.pythia.info - defunct
-    _info = Pythia8.getInfo(pythia)
-    sigmaGen = _info.sigmaGen()
-    ev_weight = _info.weight()
     # see https://pythia.org/latest-manual/HeavyIons.html 
     ncoll = 1
     hiinfo = Pythia8.getHIInfo(pythia)
@@ -205,6 +209,7 @@ def main():
         fjp.set_user_index(p.index())
         fj_out_partons.push_back(fjp)
       for ij, j in enumerate(jets):
+        h_jet_pt.Fill(j.perp(), ev_weight)
         pid_idx = idx_match_to_out_parton(j, fj_out_partons[0], fj_out_partons[1], jet_R0)
         pid = pythia.event[pid_idx].id() if pid_idx is not None else 0
         ptlead = fj.sorted_by_pt(j.constituents())[0].perp()
@@ -247,11 +252,32 @@ def main():
       _stop = True
 
   pythia.stat()
-  # tn_norm =   ROOT.TNtuple('tn_norm', 'tn_norm', 'nev:xsec:xsec_err:sum_of_weights')
-  tn_norm.Fill(_info.nAccepted(), _info.sigmaGen(), _info.sigmaErr(), _info.weightSum())
 
+  # Get the total cross section and weight sum
+  sigma_gen = _info.sigmaGen()
+  sigma_gen_err = _info.sigmaErr()
+  weight_sum = _info.weightSum()  # Same as sum_weights
+  nAccepted = _info.nAccepted()
+
+  # tn_norm =   ROOT.TNtuple('tn_norm', 'tn_norm', 'nev:xsec:xsec_err:sum_of_weights')
+  tn_norm.Fill(nAccepted, sigma_gen, sigma_gen_err, weight_sum)
+
+  # Save to JSON summary
+  json_file = args.output.replace('.root', '.json')
+  with open(json_file, "w") as f:
+      json.dump({
+          "n_accepted": nAccepted,
+          "sigma_gen": sigma_gen,
+          "sum_weights": weight_sum
+      }, f, indent=2)
+
+  # Output for verification
+  print(f"sigma_gen = {sigma_gen:.3f} +- {sigma_gen_err:.3f} mb")
+  print(f"Sum of weights = {weight_sum:.3f} [check: {sum_weights:.3f}]")
  
   print('[i] number of jets:', njets)
+  
+  h_jet_pt.Scale(sigma_gen / sum_weights)
   rf.close()
 
 if __name__ == '__main__':

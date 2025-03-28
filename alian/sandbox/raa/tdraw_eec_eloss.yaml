@@ -4,8 +4,10 @@ eec:
   - h_sigma:
       file: {{input}}
       tree: tn_norm
+      # xrange: [0, 1.0]
+      # xnbins: 10000
       xbins: auto
-      xnbins: 1000
+      xnbins: 10000
       var: xsec
       cond: ""
   - h_n_accepted:
@@ -25,7 +27,7 @@ eec:
   - h_weights:
       file: {{input}}
       tree: tn_events
-      xbins: log
+      xbins: auto
       xnbins: 1000
       var: ev_weight
       cond: ""
@@ -46,40 +48,86 @@ eec:
   - h_jet_pt:
       file: {{input}}
       tree: tn_jet
-      xrange: [0, 100]
-      xnbins: 100
+      xrange: [0, 150]
+      xnbins: 150
       xbins: linear
       var: pt
-      cond: "(pt > {{jetptmin}}) && (pt < {{jetptmax}})"
+      cond: "(pt > {{jetptmin}} && pt < {{jetptmax}})"
+  - h_jet_pt_ev_weight:
+      file: {{input}}
+      tree: tn_jet
+      xrange: [0, 150]
+      xnbins: 150
+      xbins: linear
+      var: pt
+      cond: "ev_weight * (pt > {{jetptmin}} && pt < {{jetptmax}})"
+      #cond: "1. * (ev_weight)"
   - h_jet_pt_wxsec:
       file: {{input}}
       tree: tn_jet
-      xrange: [0, 100]
-      xnbins: 100
+      xrange: [0, 150]
+      xnbins: 150
       xbins: linear
       var: pt
-      cond: "(ev_weight) * (pt > {{jetptmin}}) && (pt < {{jetptmax}})"
+      cond: "ev_weight * (pt > {{jetptmin}} && pt < {{jetptmax}})"
+      # cond: "1. * (ev_weight)"
       scale: (h_nev_xsec.GetMean() - h_nev_xsec.GetBinWidth(1)/2.)
       bw : True
   - h_jet_pt_wxsec_sumw:
       file: {{input}}
       tree: tn_jet
-      xrange: [0, 100]
-      xnbins: 100
+      xrange: [0, 150]
+      xnbins: 15
       xbins: linear
       var: pt
-      cond: "(ev_weight) * (pt > {{jetptmin}}) && (pt < {{jetptmax}})"
-      scale: (h_nev_xsec.GetMean() - h_nev_xsec.GetBinWidth(1)/2.)/(h_sum_weights.GetMean() - h_sum_weights.GetBinWidth(1)/2.)
+      cond: "ev_weight * (pt > {{jetptmin}} && pt < {{jetptmax}})"
+      # cond: "1. * (ev_weight)"
+      scale: "(h_nev_xsec.GetMean() - h_nev_xsec.GetBinWidth(1)/2.)/(h_sum_weights.GetMean() - h_sum_weights.GetBinWidth(1)/2.)"
       bw : True
-  - h_nev_ncoll:
+  - h_jet_pt_vac:
       file: {{input}}
-      tree: tn_events
-      xbins: auto
-      xnbins: 1000
-      var: ncoll
-      cond: ""
-      scale: 1./h_nev_xsec.GetEntries()
+      tree: tn_jet
+      xrange: [0, 150]
+      xnbins: 15
+      xbins: linear
+      var: pt
+      cond: "ev_weight * (pt > {{jetptmin}} && pt < {{jetptmax}})"
+      # cond: "1. * (ev_weight)"
+      scale: "(h_nev_xsec.GetMean() - h_nev_xsec.GetBinWidth(1)/2.)/(h_sum_weights.GetMean() - h_sum_weights.GetBinWidth(1)/2.)"
       bw : True
+  - h_jet_pt_vac_count:
+      file: {{input}}
+      tree: tn_jet
+      xrange: [0, 150]
+      xnbins: 15
+      xbins: linear
+      var: pt
+      cond: "ev_weight * (pt > {{jetptmin}} && pt < {{jetptmax}})"
+      # cond: "1. * (ev_weight)"
+      scale: 1.
+      bw : False
+  - h_jet_pt_quenched:
+      file: {{input}}
+      tree: tn_jet
+      xrange: [0, 150]
+      xnbins: 15
+      xbins: linear
+      var: pt - pt * {{fquench}}
+      cond: "ev_weight * (pt - pt * {{fquench}} > {{jetptmin}} && pt - pt * {{fquench}} < {{jetptmax}})"
+      # cond: "1. * (ev_weight)"
+      scale: "(h_nev_xsec.GetMean() - h_nev_xsec.GetBinWidth(1)/2.)/(h_sum_weights.GetMean() - h_sum_weights.GetBinWidth(1)/2.)"
+      bw : True
+  - h_jet_pt_quenched_count:
+      file: {{input}}
+      tree: tn_jet
+      xrange: [0, 150]
+      xnbins: 15
+      xbins: linear
+      var: pt - pt * {{fquench}}
+      cond: "ev_weight * (pt - pt * {{fquench}} > {{jetptmin}} && pt - pt * {{fquench}} < {{jetptmax}})"
+      # cond: "1. * (ev_weight)"
+      scale: 1.
+      bw : False
   - h_eec1:
       file: {{input}}
       tree: tn_eec_ptcut1.0
@@ -89,6 +137,64 @@ eec:
       xnbins: 10
       xbins: log
       var: dr
-      cond: "(eec) * (ptjet > {{jetptmin}} && ptjet < {{jetptmax}})"
-      scale: 1./h_jet_pt.Integral()
+      cond: "(ev_weight * eec) * (ptjet > {{jetptmin}} && ptjet < {{jetptmax}})"
+      scale: 1./h_jet_pt_vac_count.Integral()
+      bw : True
+  - h_eec1_quenched:
+      file: {{input}}
+      tree: tn_eec_ptcut1.0
+      # xrange: [1e-4, 1]
+      # xnbins: 50
+      xrange: [1e-2, 1]
+      xnbins: 10
+      xbins: log
+      var: dr
+      cond: "(ev_weight * eec) * (ptjet - ptjet * {{fquench}} > {{jetptmin}} && ptjet - ptjet * {{fquench}} < {{jetptmax}})"
+      scale: 1./h_jet_pt_quenched_count.Integral()
+      bw : True
+  - h_eec1_quenched_reweight:
+      file: {{input}}
+      tree: tn_eec_ptcut1.0
+      # xrange: [1e-4, 1]
+      # xnbins: 50
+      xrange: [1e-2, 1]
+      xnbins: 10
+      xbins: log
+      var: dr
+      cond: "(ev_weight * pt1 * pt2 / ( ptjet - ptjet * {{fquench}} ) ) * (ptjet - ptjet * {{fquench}} > {{jetptmin}} && ptjet - ptjet * {{fquench}} < {{jetptmax}})"
+      scale: 1./h_jet_pt_quenched_count.Integral()
+      bw : True
+  - h_jet_pt_qconst:
+      file: {{input}}
+      tree: tn_jet
+      xrange: [0, 150]
+      xnbins: 15
+      xbins: linear
+      var: pt - {{fquenchconst}}
+      cond: "ev_weight * (pt - {{fquenchconst}} > {{jetptmin}} && pt - {{fquenchconst}} < {{jetptmax}})"
+      # cond: "1. * (ev_weight)"
+      scale: "(h_nev_xsec.GetMean() - h_nev_xsec.GetBinWidth(1)/2.)/(h_sum_weights.GetMean() - h_sum_weights.GetBinWidth(1)/2.)"
+      bw : True
+  - h_jet_pt_qconst_count:
+      file: {{input}}
+      tree: tn_jet
+      xrange: [0, 150]
+      xnbins: 15
+      xbins: linear
+      var: pt - {{fquenchconst}}
+      cond: "ev_weight * (pt - {{fquenchconst}} > {{jetptmin}} && pt - {{fquenchconst}} < {{jetptmax}})"
+      # cond: "1. * (ev_weight)"
+      scale: 1.
+      bw : False
+  - h_eec1_qconst:
+      file: {{input}}
+      tree: tn_eec_ptcut1.0
+      # xrange: [1e-4, 1]
+      # xnbins: 50
+      xrange: [1e-2, 1]
+      xnbins: 10
+      xbins: log
+      var: dr
+      cond: "(ev_weight * eec) * (ptjet - {{fquenchconst}} > {{jetptmin}} && ptjet - {{fquenchconst}} < {{jetptmax}})"
+      scale: 1./h_jet_pt_qconst_count.Integral()
       bw : True
