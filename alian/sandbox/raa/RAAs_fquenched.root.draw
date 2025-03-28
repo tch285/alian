@@ -1,0 +1,12 @@
+#-----------------------
+#figure
+#geom 500x500
+#date
+#title: smart group
+#legend pos=ur
+/Users/ploskon/devel/alian/alian/sandbox/raa/RAAs_fquenched.root 		:o_0 :p  : title=unquenched / pp
+/Users/ploskon/devel/alian/alian/sandbox/raa/RAAs_fquenched.root 		:o_1 :p  : title=qconst f=3 / pp
+/Users/ploskon/devel/alian/alian/sandbox/raa/RAAs_fquenched.root 		:o_2 :p  : title=qconst f=5 / pp
+/Users/ploskon/devel/alian/alian/sandbox/raa/RAAs_fquenched.root 		:o_3 :p  : title=qconst f=7 / pp
+/Users/ploskon/devel/alian/alian/sandbox/raa/RAAs_fquenched.root 		:o_4 :p  : title=qconst f=10 / pp
+

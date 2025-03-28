@@ -1,0 +1,31 @@
+#-----------------------
+#figure
+#geom 500x500
+#date
+#title: smart group
+#legend pos=ur
+#maxy 2.0
+#miny 0
+#y R_{AA}
+#x p_{T}^{jet} (GeV/c)
+# /Users/ploskon/devel/alian/alian/sandbox/raa/RAAs.root 		:o_0 :hist  : title=unquenched / biased
+/Users/ploskon/devel/alian/alian/sandbox/raa/RAAs.root 		:o_1 :hist  : title=quenched f=0.075 / biased
+/Users/ploskon/devel/alian/alian/sandbox/raa/RAAs.root 		:o_2 :hist  : title=quenched f=0.1 / biased
+/Users/ploskon/devel/alian/alian/sandbox/raa/RAAs.root 		:o_3 :hist  : title=quenched f=0.125 / biased
+/Users/ploskon/devel/alian/alian/sandbox/raa/RAAs.root 		:o_4 :hist  : title=quenched f=0.2 / biased
+
+#-----------------------
+#figure
+#geom 500x500
+#date
+#title: smart group
+#legend pos=ur
+#maxy 1.5
+#miny 0.8
+#logx 1
+#y quenched/vacuum
+# /Users/ploskon/devel/alian/alian/sandbox/raa/RAAsEEC.root 		:o_0 :hist  : title=unquenched / biased
+/Users/ploskon/devel/alian/alian/sandbox/raa/RAAsEEC.root 		:o_1 :hist  : title=quenched f=0.075 / biased
+/Users/ploskon/devel/alian/alian/sandbox/raa/RAAsEEC.root 		:o_2 :hist  : title=quenched f=0.1 / biased
+/Users/ploskon/devel/alian/alian/sandbox/raa/RAAsEEC.root 		:o_3 :hist  : title=quenched f=0.125 / biased
+/Users/ploskon/devel/alian/alian/sandbox/raa/RAAsEEC.root 		:o_4 :hist  : title=quenched f=0.2 / biased
