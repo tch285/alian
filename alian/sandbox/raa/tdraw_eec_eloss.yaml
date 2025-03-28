@@ -198,3 +198,11 @@ eec:
       cond: "(ev_weight * eec) * (ptjet - {{fquenchconst}} > {{jetptmin}} && ptjet - {{fquenchconst}} < {{jetptmax}})"
       scale: 1./h_jet_pt_qconst_count.Integral()
       bw : True
+  - h_eec1_qconst:
+      file: {{input}}
+      tree: tn_eec_ptcut1.0
+      clone: {{clone_fname}}:{{clone_hname}}
+      var: dr
+      cond: "(ev_weight * eec) * (ptjet - {{fquenchconst}} > {{jetptmin}} && ptjet - {{fquenchconst}} < {{jetptmax}})"
+      scale: 1./h_jet_pt_qconst_count.Integral()
+      bw : True
