@@ -119,7 +119,7 @@ def build_hist(hist_config, hist_name, tree, output_file):
     if 'clone' in hist_config:
         hsetup = hist_config
         hist = get_hist_clone_from_file(hsetup['clone'], hist_name, output_file)
-        print('Info: using a cloned histogram:', hist.GetName()) 
+        print('[i] using a cloned histogram:', hist.GetName()) 
         return hist
     else:
         hsetup = hsetup_from_config(hist_config, 'x', hsetup, tree)

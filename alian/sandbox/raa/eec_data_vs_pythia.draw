@@ -1,0 +1,64 @@
+#-----------------------
+#figure
+#geom 500x500
+#date
+#title: smart group
+#legend 0.654,0.669,0.92,0.871
+#x R_{L}
+#y #Sigma EEC (R_{L})
+#logx 1
+#maxy 10
+#miny 0
+PbPb_data.root 		:h1d_EEC_4060_pp: p: title=pp data
+PbPb_data.root 		:h1d_EEC_4060_PbPb: p: title=PbPb data
+
+pythia8_simple_eec_output_40_60_h_0.root 			:h_eec1_qconst_databins_eec :hist l  				: title=Pythia8
+
+#-----------------------
+#figure
+#geom 500x500
+#date
+#title: smart group
+#legend 0.654,0.669,0.92,0.871
+#x R_{L}
+#y #Sigma EEC (R_{L})
+#logx 1
+#maxy 10
+#miny 0
+PbPb_data.root 		:h1d_EEC_6080_pp: p: title=pp data
+PbPb_data.root 		:h1d_EEC_6080_PbPb: p: title=PbPb data
+
+pythia8_simple_eec_output_60_80_h_0.root 			:h_eec1_qconst_databins_eec :hist l  				: title=Pythia8
+
+#-----------------------
+#figure
+#geom 500x500
+#date
+#title: smart group
+#legend 0.654,0.669,0.92,0.871
+#x R_{L}
+#y #Sigma EEC (R_{L})
+#logx 1
+#maxy 10
+#miny 0
+PbPb_data.root 		:h1d_EEC_80100_pp: p: title=pp data
+PbPb_data.root 		:h1d_EEC_80100_PbPb: p: title=PbPb data
+
+pythia8_simple_eec_output_80_100_h_0.root 			:h_eec1_qconst_databins_eec :hist l  				: title=Pythia8
+
+
+#-----------------------
+#figure
+#geom 500x500
+#date
+#title: smart group
+#legend 0.654,0.669,0.92,0.871
+#x R_{L}
+#y #Sigma EEC (R_{L})
+#logx 1
+#maxy 10
+#miny 0
+PbPb_data.root 		:h1d_EEC_100120_pp: p: title=pp data
+PbPb_data.root 		:h1d_EEC_100120_PbPb: p: title=PbPb data
+
+pythia8_simple_eec_output_100_120_h_0.root 			:h_eec1_qconst_databins_eec :hist l  				: title=Pythia8

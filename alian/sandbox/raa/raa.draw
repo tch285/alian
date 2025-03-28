@@ -54,11 +54,11 @@ pythia8_simple_eec_output_20_150_h_q0p4.root 		:h_jet_pt_qconst_eec :hist +w5 : 
 alice_RAA_ML.root 		:Figure 4a top ML/Graph1D_y1 :p +k2  : title=ALICE Data (ML) Phys.Lett.B 849 (2024) 138412, 2024.
 alice_RAA_AB.root 		:Figure 4a top AB/Graph1D_y1 :p +k4 : title=ALICE Data (Area Based)
 
-RAAs_fquenched.root 		:o_1 :hist +k1 : title=qconst f=7 / pp
-RAAs_fquenched.root 		:o_2 :hist -k : title=qconst f=10 / pp
-RAAs_fquenched.root 		:o_3 :hist -k : title=qconst f=12 / pp
-RAAs_fquenched.root 		:o_4 :hist -k : title=qconst f=14 / pp
-RAAs_fquenched.root 		:o_5 :hist -k : title=qconst f=20 / pp
+RAAs_fquenched.root 		:o_1 :hist +k1 	: title=Pythia8 #DeltaE = -7 (GeV/c)
+RAAs_fquenched.root 		:o_2 :hist -k 	: title=Pythia8 #DeltaE = -10 (GeV/c)
+RAAs_fquenched.root 		:o_3 :hist -k 	: title=Pythia8 #DeltaE = -12 (GeV/c)
+RAAs_fquenched.root 		:o_4 :hist -k 	: title=Pythia8 #DeltaE = -14 (GeV/c)
+RAAs_fquenched.root 		:o_5 :hist -k 	: title=Pythia8 #DeltaE = -20 (GeV/c)
 
 #line 0,1,150,1,1,9,1
 
@@ -74,12 +74,13 @@ RAAs_fquenched.root 		:o_5 :hist -k : title=qconst f=20 / pp
 #logx 1
 #maxy 10
 #miny 0
-pythia8_simple_eec_output_40_60_h_0.root 		:h_eec1_eec :p  				: title=40-60 pp
-pythia8_simple_eec_output_40_60_h_7.root 		:h_eec1_qconst_eec :hist +k1  	: title=q_{const} = 7
-pythia8_simple_eec_output_40_60_h_10.root 		:h_eec1_qconst_eec :hist +k1  	: title=q_{const} = 10
-pythia8_simple_eec_output_40_60_h_12.root 		:h_eec1_qconst_eec :hist +k1  	: title=q_{const} = 12
-pythia8_simple_eec_output_40_60_h_14.root 		:h_eec1_qconst_eec :hist +k1  	: title=q_{const} = 14
-pythia8_simple_eec_output_40_60_h_20.root 		:h_eec1_qconst_eec :hist +k1  	: title=q_{const} = 20
+#pythia8_simple_eec_output_40_60_h_0.root 			:h_eec1_eec :p  				: title=40-60 pp
+pythia8_simple_eec_output_40_60_h_0.root 			:h_eec1_qconst_databins_eec :p  				: title=40-60 pp
+pythia8_simple_eec_output_40_60_h_7.root 			:h_eec1_qconst_databins_eec :hist +k1  	: title=Pythia8 #DeltaE = -7 (GeV/c)
+pythia8_simple_eec_output_40_60_h_10.root 		:h_eec1_qconst_databins_eec :hist +k1  	: title=Pythia8 #DeltaE = -10 (GeV/c)
+pythia8_simple_eec_output_40_60_h_12.root 		:h_eec1_qconst_databins_eec :hist +k1  	: title=Pythia8 #DeltaE = -12 (GeV/c)
+pythia8_simple_eec_output_40_60_h_14.root 		:h_eec1_qconst_databins_eec :hist +k1  	: title=Pythia8 #DeltaE = -14 (GeV/c)
+pythia8_simple_eec_output_40_60_h_20.root 		:h_eec1_qconst_databins_eec :hist +k1  	: title=Pythia8 #DeltaE = -20 (GeV/c)
 
 #scale index=0 fout=EECs_fquenched_40_60.root
 
@@ -94,12 +95,13 @@ pythia8_simple_eec_output_40_60_h_20.root 		:h_eec1_qconst_eec :hist +k1  	: tit
 #logx 1
 #maxy 10
 #miny 0
-pythia8_simple_eec_output_60_80_h_0.root 		:h_eec1_eec :p  				: title=60-80 pp
-pythia8_simple_eec_output_60_80_h_7.root 		:h_eec1_qconst_eec :hist +k1  	: title=q_{const} = 7
-pythia8_simple_eec_output_60_80_h_10.root 		:h_eec1_qconst_eec :hist +k1  	: title=q_{const} = 10
-pythia8_simple_eec_output_60_80_h_12.root 		:h_eec1_qconst_eec :hist +k1  	: title=q_{const} = 12
-pythia8_simple_eec_output_60_80_h_14.root 		:h_eec1_qconst_eec :hist +k1  	: title=q_{const} = 14
-pythia8_simple_eec_output_60_80_h_20.root 		:h_eec1_qconst_eec :hist +k1  	: title=q_{const} = 20
+#pythia8_simple_eec_output_60_80_h_0.root 			:h_eec1_eec :p  				: title=60-80 pp
+pythia8_simple_eec_output_60_80_h_0.root 			:h_eec1_qconst_databins_eec :p  				: title=60-80 pp
+pythia8_simple_eec_output_60_80_h_7.root 			:h_eec1_qconst_databins_eec :hist +k1  	: title=Pythia8 #DeltaE = -7 (GeV/c)
+pythia8_simple_eec_output_60_80_h_10.root 		:h_eec1_qconst_databins_eec :hist +k1  	: title=Pythia8 #DeltaE = -10 (GeV/c)
+pythia8_simple_eec_output_60_80_h_12.root 		:h_eec1_qconst_databins_eec :hist +k1  	: title=Pythia8 #DeltaE = -12 (GeV/c)
+pythia8_simple_eec_output_60_80_h_14.root 		:h_eec1_qconst_databins_eec :hist +k1  	: title=Pythia8 #DeltaE = -14 (GeV/c)
+pythia8_simple_eec_output_60_80_h_20.root 		:h_eec1_qconst_databins_eec :hist +k1  	: title=Pythia8 #DeltaE = -20 (GeV/c)
 
 #scale index=0 fout=EECs_fquenched_60_80.root
 
@@ -114,12 +116,13 @@ pythia8_simple_eec_output_60_80_h_20.root 		:h_eec1_qconst_eec :hist +k1  	: tit
 #logx 1
 #maxy 10
 #miny 0
-pythia8_simple_eec_output_80_100_h_0.root 		:h_eec1_eec :p  				: title=80-100 pp
-pythia8_simple_eec_output_80_100_h_7.root 		:h_eec1_qconst_eec :hist +k1  	: title=q_{const} = 7
-pythia8_simple_eec_output_80_100_h_10.root 		:h_eec1_qconst_eec :hist +k1  	: title=q_{const} = 10
-pythia8_simple_eec_output_80_100_h_12.root 		:h_eec1_qconst_eec :hist +k1  	: title=q_{const} = 12
-pythia8_simple_eec_output_80_100_h_14.root 		:h_eec1_qconst_eec :hist +k1  	: title=q_{const} = 14
-pythia8_simple_eec_output_80_100_h_20.root 		:h_eec1_qconst_eec :hist +k1  	: title=q_{const} = 20
+#pythia8_simple_eec_output_80_100_h_0.root 		:h_eec1_eec :p  				: title=80-100 pp
+pythia8_simple_eec_output_80_100_h_0.root 		:h_eec1_qconst_databins_eec :p  				: title=80-100 pp
+pythia8_simple_eec_output_80_100_h_7.root 		:h_eec1_qconst_databins_eec :hist +k1  	: title=Pythia8 #DeltaE = -7 (GeV/c)
+pythia8_simple_eec_output_80_100_h_10.root 		:h_eec1_qconst_databins_eec :hist +k1  	: title=Pythia8 #DeltaE = -10 (GeV/c)
+pythia8_simple_eec_output_80_100_h_12.root 		:h_eec1_qconst_databins_eec :hist +k1  	: title=Pythia8 #DeltaE = -12 (GeV/c)
+pythia8_simple_eec_output_80_100_h_14.root 		:h_eec1_qconst_databins_eec :hist +k1  	: title=Pythia8 #DeltaE = -14 (GeV/c)
+pythia8_simple_eec_output_80_100_h_20.root 		:h_eec1_qconst_databins_eec :hist +k1  	: title=Pythia8 #DeltaE = -20 (GeV/c)
 
 #scale index=0 fout=EECs_fquenched_80_100.root
 
@@ -134,12 +137,13 @@ pythia8_simple_eec_output_80_100_h_20.root 		:h_eec1_qconst_eec :hist +k1  	: ti
 #logx 1
 #maxy 10
 #miny 0
-pythia8_simple_eec_output_100_120_h_0.root 		:h_eec1_eec :p  				: title=100-120 pp
-pythia8_simple_eec_output_100_120_h_7.root 		:h_eec1_qconst_eec :hist +k1  	: title=q_{const} = 7
-pythia8_simple_eec_output_100_120_h_10.root 		:h_eec1_qconst_eec :hist +k1  	: title=q_{const} = 10
-pythia8_simple_eec_output_100_120_h_12.root 		:h_eec1_qconst_eec :hist +k1  	: title=q_{const} = 12
-pythia8_simple_eec_output_100_120_h_14.root 		:h_eec1_qconst_eec :hist +k1  	: title=q_{const} = 14
-pythia8_simple_eec_output_100_120_h_20.root 		:h_eec1_qconst_eec :hist +k1  	: title=q_{const} = 20
+#pythia8_simple_eec_output_100_120_h_0.root 			:h_eec1_eec :p  				: title=100-120 pp
+pythia8_simple_eec_output_100_120_h_0.root 			:h_eec1_qconst_databins_eec :p  				: title=100-120 pp
+pythia8_simple_eec_output_100_120_h_7.root 			:h_eec1_qconst_databins_eec :hist +k1  	: title=Pythia8 #DeltaE = -7 (GeV/c)
+pythia8_simple_eec_output_100_120_h_10.root 		:h_eec1_qconst_databins_eec :hist +k1  	: title=Pythia8 #DeltaE = -10 (GeV/c)
+pythia8_simple_eec_output_100_120_h_12.root 		:h_eec1_qconst_databins_eec :hist +k1  	: title=Pythia8 #DeltaE = -12 (GeV/c)
+pythia8_simple_eec_output_100_120_h_14.root 		:h_eec1_qconst_databins_eec :hist +k1  	: title=Pythia8 #DeltaE = -14 (GeV/c)
+pythia8_simple_eec_output_100_120_h_20.root 		:h_eec1_qconst_databins_eec :hist +k1  	: title=Pythia8 #DeltaE = -20 (GeV/c)
 
 #scale index=0 fout=EECs_fquenched_100_120.root
 
@@ -158,11 +162,11 @@ pythia8_simple_eec_output_100_120_h_20.root 		:h_eec1_qconst_eec :hist +k1  	: t
 
 EECs_data_ratio_40_60.root 		:o_0 :p  : title=PbPb data / pp data
 
-EECs_fquenched_40_60.root 		:o_0 :hist l +k1 : title=q_{const} = 7 
-EECs_fquenched_40_60.root 		:o_1 :hist l +k1 : title=q_{const} = 10 
-EECs_fquenched_40_60.root 		:o_2 :hist l +k1 : title=q_{const} = 12 
-EECs_fquenched_40_60.root 		:o_3 :hist l +k1 : title=q_{const} = 14 
-EECs_fquenched_40_60.root 		:o_4 :hist l +k1 : title=q_{const} = 20 
+EECs_fquenched_40_60.root 		:o_0 :hist l +k1 : title=Pythia8 #DeltaE = -7  (GeV/c)
+EECs_fquenched_40_60.root 		:o_1 :hist l +k1 : title=Pythia8 #DeltaE = -10  (GeV/c)
+EECs_fquenched_40_60.root 		:o_2 :hist l +k1 : title=Pythia8 #DeltaE = -12  (GeV/c)
+EECs_fquenched_40_60.root 		:o_3 :hist l +k1 : title=Pythia8 #DeltaE = -14  (GeV/c)
+EECs_fquenched_40_60.root 		:o_4 :hist l +k1 : title=Pythia8 #DeltaE = -20  (GeV/c)
 
 #line 0,1,0.3,1,1,9,1
 
@@ -180,11 +184,11 @@ EECs_fquenched_40_60.root 		:o_4 :hist l +k1 : title=q_{const} = 20
 
 EECs_data_ratio_60_80.root 		:o_0 :p  : title=PbPb data / pp data
 
-EECs_fquenched_60_80.root 		:o_0 :hist l +k1 : title=q_{const} = 7 
-EECs_fquenched_60_80.root 		:o_1 :hist l +k1 : title=q_{const} = 10 
-EECs_fquenched_60_80.root 		:o_2 :hist l +k1 : title=q_{const} = 12 
-EECs_fquenched_60_80.root 		:o_3 :hist l +k1 : title=q_{const} = 14 
-EECs_fquenched_60_80.root 		:o_4 :hist l +k1 : title=q_{const} = 20 
+EECs_fquenched_60_80.root 		:o_0 :hist l +k1 : title=Pythia8 #DeltaE = -7  (GeV/c)
+EECs_fquenched_60_80.root 		:o_1 :hist l +k1 : title=Pythia8 #DeltaE = -10  (GeV/c)
+EECs_fquenched_60_80.root 		:o_2 :hist l +k1 : title=Pythia8 #DeltaE = -12  (GeV/c)
+EECs_fquenched_60_80.root 		:o_3 :hist l +k1 : title=Pythia8 #DeltaE = -14  (GeV/c)
+EECs_fquenched_60_80.root 		:o_4 :hist l +k1 : title=Pythia8 #DeltaE = -20  (GeV/c)
 
 #line 0,1,0.3,1,1,9,1
 
@@ -202,11 +206,11 @@ EECs_fquenched_60_80.root 		:o_4 :hist l +k1 : title=q_{const} = 20
 
 EECs_data_ratio_80_100.root 		:o_0 :p  : title=PbPb data / pp data
 
-EECs_fquenched_80_100.root 		:o_0 :hist l +k1 : title=q_{const} = 7 
-EECs_fquenched_80_100.root 		:o_1 :hist l +k1 : title=q_{const} = 10 
-EECs_fquenched_80_100.root 		:o_2 :hist l +k1 : title=q_{const} = 12 
-EECs_fquenched_80_100.root 		:o_3 :hist l +k1 : title=q_{const} = 14 
-EECs_fquenched_80_100.root 		:o_4 :hist l +k1 : title=q_{const} = 20 
+EECs_fquenched_80_100.root 		:o_0 :hist l +k1 : title=Pythia8 #DeltaE = -7  (GeV/c)
+EECs_fquenched_80_100.root 		:o_1 :hist l +k1 : title=Pythia8 #DeltaE = -10  (GeV/c)
+EECs_fquenched_80_100.root 		:o_2 :hist l +k1 : title=Pythia8 #DeltaE = -12  (GeV/c)
+EECs_fquenched_80_100.root 		:o_3 :hist l +k1 : title=Pythia8 #DeltaE = -14  (GeV/c)
+EECs_fquenched_80_100.root 		:o_4 :hist l +k1 : title=Pythia8 #DeltaE = -20  (GeV/c)
 
 #line 0,1,0.3,1,1,9,1
 
@@ -224,10 +228,10 @@ EECs_fquenched_80_100.root 		:o_4 :hist l +k1 : title=q_{const} = 20
 
 EECs_data_ratio_100_120.root 		:o_0 :p  : title=PbPb data / pp data
 
-EECs_fquenched_100_120.root 		:o_0 :hist l +k1 : title=q_{const} = 7 
-EECs_fquenched_100_120.root 		:o_1 :hist l +k1 : title=q_{const} = 10 
-EECs_fquenched_100_120.root 		:o_2 :hist l +k1 : title=q_{const} = 12 
-EECs_fquenched_100_120.root 		:o_3 :hist l +k1 : title=q_{const} = 14 
-EECs_fquenched_100_120.root 		:o_4 :hist l +k1 : title=q_{const} = 20 
+EECs_fquenched_100_120.root 		:o_0 :hist l +k1 : title=Pythia8 #DeltaE = -7  (GeV/c)
+EECs_fquenched_100_120.root 		:o_1 :hist l +k1 : title=Pythia8 #DeltaE = -10  (GeV/c)
+EECs_fquenched_100_120.root 		:o_2 :hist l +k1 : title=Pythia8 #DeltaE = -12  (GeV/c)
+EECs_fquenched_100_120.root 		:o_3 :hist l +k1 : title=Pythia8 #DeltaE = -14  (GeV/c)
+EECs_fquenched_100_120.root 		:o_4 :hist l +k1 : title=Pythia8 #DeltaE = -20  (GeV/c)
 
 #line 0,1,0.3,1,1,9,1
