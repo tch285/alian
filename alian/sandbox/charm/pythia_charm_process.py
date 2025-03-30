@@ -65,6 +65,7 @@ class Output(GenericObject):
 		self.fout.root_file.cd()
 		self.tn_norm = ROOT.TNtuple('tn_norm', 'tn_norm', 'nev:xsec:xsec_err:sum_of_weights')
 		self.tn_parton = ROOT.TNtuple('tn_parton', 'tn_parton', 'mother_pid:code:weight:pt:eta:phi:jpt:jeta:jphi')
+		self.tn_D0 = ROOT.TNtuple('tn_D0', 'tn_D0', 'mother_pid:code:weight:pt:eta:phi:jpt:jeta:jphi')
 
 		self.no_pid = 777
 
@@ -101,7 +102,7 @@ class Output(GenericObject):
 		h_z.Fill(part.pt() / jet.pt(), weight)
 		h_pt.Fill(part.pt(), weight)
 		if motherpid != self.no_pid:
-			self.fill_D0_hists(self.no_pid, part, jet)
+			self.fill_parton_hists(self.no_pid, part, jet)
 		self.tn_parton.Fill(motherpid, self.process, weight, part.pt(), part.eta(), part.phi(), jet.pt(), jet.eta(), jet.phi())
 
 	def fill_D0_hists(self, motherpid, part, jet, weight=1.0):
@@ -112,6 +113,7 @@ class Output(GenericObject):
 		h_pt.Fill(part.pt(), weight)
 		if motherpid != self.no_pid:
 			self.fill_D0_hists(self.no_pid, part, jet)
+		self.tn_D0.Fill(motherpid, self.process, weight, part.pt(), part.eta(), part.phi(), jet.pt(), jet.eta(), jet.phi())
 
 	def set_norm(self, pythia):
 		pythia_info = Pythia8.getInfo(pythia)
