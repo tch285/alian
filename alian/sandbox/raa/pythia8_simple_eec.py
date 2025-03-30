@@ -208,6 +208,8 @@ def main():
         fjp = fj.PseudoJet(p.px(), p.py(), p.pz(), p.e())
         fjp.set_user_index(p.index())
         fj_out_partons.push_back(fjp)
+      # tn_hard = ROOT.TNtuple('tn_hard', 'tn_hard', 'nev:xsec:ev_weight:x1:x2:QFac:id1:id2:id3:id4:pt3:eta3:pt4:eta4')
+      tn_hard.Fill(iev, sigmaGen, ev_weight, _info.x1(), _info.x2(), _info.QFac(), in_parton1.id(), in_parton2.id(), out_parton1.id(), out_parton1.pT(), out_parton1.eta(), out_parton2.id(), out_parton2.pT(), out_parton2.eta())
       for ij, j in enumerate(jets):
         h_jet_pt.Fill(j.perp(), ev_weight)
         pid_idx = idx_match_to_out_parton(j, fj_out_partons[0], fj_out_partons[1], jet_R0)
@@ -216,8 +218,6 @@ def main():
         # print(j.perp())
         # tn_jet = ROOT.TNtuple(f'tn_jet', 'tn_jet', 'nev:xsec:ev_weight:nj:ij:pt:eta:phi:m:ptlead')				
         tn_jet.Fill(iev, sigmaGen, ev_weight, njets, ij, j.perp(), j.eta(), j.phi(), j.m(), fj.sorted_by_pt(j.constituents())[0].perp(), pid)
-        # tn_hard = ROOT.TNtuple('tn_hard', 'tn_hard', 'nev:xsec:ev_weight:x1:x2:QFac:id1:id2:id3:id4:pt3:eta3:pt4:eta4')
-        tn_hard.Fill(iev, sigmaGen, ev_weight, _info.x1(), _info.x2(), _info.QFac(), in_parton1.id(), in_parton2.id(), out_parton1.id(), out_parton1.pT(), out_parton1.eta(), out_parton2.id(), out_parton2.pT(), out_parton2.eta())
         for ptcut in pt_cuts:
             _parts_cut = [p for p in j.constituents() if p.perp() >= ptcut]
             _pairs = list(itertools.product(_parts_cut, repeat=2))

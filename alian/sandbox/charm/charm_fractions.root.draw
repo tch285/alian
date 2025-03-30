@@ -1,0 +1,28 @@
+#-----------------------
+#figure
+#geom 500x500
+#date
+#title 10-20 GeV/c jets @ parton level
+#legend 0.619,0.451,0.91,0.653
+#y fraction
+#x z
+#maxy 1.1
+#logy 1
+/Users/ploskon/devel/alian/alian/sandbox/charm/charm_fractions.root 		:o_1 :hist +w10 +l1 +f1001 +a10 +k2   : title=prompt charm
+/Users/ploskon/devel/alian/alian/sandbox/charm/charm_fractions.root 		:o_0 :hist +w10 +l1 +f1001 +a10 +k4   : title=g #rightarrow c#bar{c}
+/Users/ploskon/devel/alian/alian/sandbox/charm/charm_fractions.root 		:o_2 :hist +w10 +l1 +f1001 +a10 +k3   : title=other (e.g., excit.)
+
+#-----------------------
+#figure
+#geom 500x500
+#date
+#title 10-20 GeV/c jets @ parton level
+#legend 0.644,0.669,0.92,0.871
+#y fraction
+#x z
+#maxy 1.1
+##logy 1
+/Users/ploskon/devel/alian/alian/sandbox/charm/charm_fractions_half.root 		:o_1 :hist +w10 +l1 +f1001 +a10 +k2 : title=prompt charm
+/Users/ploskon/devel/alian/alian/sandbox/charm/charm_fractions_half.root 		:o_0 :hist +w10 +l1 +f1001 +a10 +k4 : title=g #rightarrow c#bar{c}
+/Users/ploskon/devel/alian/alian/sandbox/charm/charm_fractions_half.root 		:o_2 :hist +w10 +l1 +f1001 +a10 +k3 : title=other (e.g., excit.)
+

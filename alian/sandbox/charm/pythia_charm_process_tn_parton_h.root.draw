@@ -1,0 +1,40 @@
+#-----------------------
+#figure
+#geom 500x500
+#date
+#title: smart group
+#legend pos=ur
+/Users/ploskon/devel/alian/alian/sandbox/charm/pythia_charm_process_tn_parton_h.root 		:j_pt_tn_parton :p  : title=j_pt_tn_parton
+#-----------------------
+#figure
+#geom 500x500
+#date
+#title: smart group
+#legend pos=ur
+/Users/ploskon/devel/alian/alian/sandbox/charm/pythia_charm_process_tn_parton_h.root 		:mother_pid_tn_parton :p  : title=mother_pid_tn_parton
+
+#-----------------------
+#figure
+#geom 500x500
+#date
+#title: smart group
+#legend pos=ur
+/Users/ploskon/devel/alian/alian/sandbox/charm/pythia_charm_process_tn_parton_h.root 		:z_all_tn_parton :p  : title=z_all_tn_parton
+/Users/ploskon/devel/alian/alian/sandbox/charm/pythia_charm_process_tn_parton_h.root 		:z_gg_tn_parton :p  : title=z_gg_tn_parton
+/Users/ploskon/devel/alian/alian/sandbox/charm/pythia_charm_process_tn_parton_h.root 		:z_charm_tn_parton :p  : title=z_charm_tn_parton
+/Users/ploskon/devel/alian/alian/sandbox/charm/pythia_charm_process_tn_parton_h.root 		:z_other_tn_parton :p  : title=z_other_tn_parton
+
+#scale index=0 fout=charm_fractions.root
+
+#-----------------------
+#figure
+#geom 500x500
+#date
+#title: smart group
+#legend pos=ur
+/Users/ploskon/devel/alian/alian/sandbox/charm/pythia_charm_process_tn_parton_h.root 		:z_all_half_tn_parton :p  : title=z_all_half_tn_parton
+/Users/ploskon/devel/alian/alian/sandbox/charm/pythia_charm_process_tn_parton_h.root 		:z_gg_half_tn_parton :p  : title=z_gg_half_tn_parton
+/Users/ploskon/devel/alian/alian/sandbox/charm/pythia_charm_process_tn_parton_h.root 		:z_charm_half_tn_parton :p  : title=z_charm_half_tn_parton
+/Users/ploskon/devel/alian/alian/sandbox/charm/pythia_charm_process_tn_parton_h.root 		:z_other_half_tn_parton :p  : title=z_other_half_tn_parton
+
+#scale index=0 fout=charm_fractions_half.root
