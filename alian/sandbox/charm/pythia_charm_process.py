@@ -49,13 +49,11 @@ def deep_charm_mother_pid(idx, pythia):
 			mother_pid = mother2_pid
 			mother_idx = mother2_idx
 	# if mother is outgpong parton
-	if mother_idx in [5, 6]:
+	# if mother_idx in [5, 6]:
+	if mother_idx in [1, 2, 3, 4, 5, 6, 90]:
 		return mother_pid
 	else:
-		# check if the mother is charm and follow it if so
-		mother_pid = pythia.event[mother_idx].id()
-		if abs(mother_pid) == 4:
-			mother_pid = deep_charm_mother_pid(mother_idx, pythia)
+		mother_pid = deep_charm_mother_pid(mother_idx, pythia)
 	return mother_pid
 
 ########### OUTPUT

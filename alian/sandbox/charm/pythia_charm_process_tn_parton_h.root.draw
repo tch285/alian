@@ -38,3 +38,33 @@
 /Users/ploskon/devel/alian/alian/sandbox/charm/pythia_charm_process_tn_parton_h.root 		:z_other_half_tn_parton :p  : title=z_other_half_tn_parton
 
 #scale index=0 fout=charm_fractions_half.root
+
+#-----------------------
+#figure
+#geom 500x500
+#date
+#title 10-20 GeV/c jets @ parton level
+#legend 0.449,0.643,0.739,0.845
+#y fraction
+#x z = p_{T}^{quark} / p_{T}^{jet}
+#maxy 1.1
+#miny 0
+#logy 0
+/Users/ploskon/devel/alian/alian/sandbox/charm/charm_fractions.root 		:o_1 :p +w1 +l1 +l +a66 +k2   : title=prompt charm
+/Users/ploskon/devel/alian/alian/sandbox/charm/charm_fractions.root 		:o_0 :p +w1 +l1 +l +a66 +k4   : title=g #rightarrow c#bar{c}
+/Users/ploskon/devel/alian/alian/sandbox/charm/charm_fractions.root 		:o_2 :p +w1 +l1 +l +a66 +k6   : title=other (e.g., excit.)
+
+#-----------------------
+#figure
+#geom 500x500
+#date
+#title 10-20 GeV/c jets @ parton level
+#legend 0.644,0.669,0.92,0.871
+#y fraction
+#x z = p_{T}^{quark} / p_{T}^{jet}
+#maxy 1.1
+#miny 0
+##logy 1
+/Users/ploskon/devel/alian/alian/sandbox/charm/charm_fractions_half.root 		:o_1 :hist +w5 +l1 +a66 +k2 : title=prompt charm
+/Users/ploskon/devel/alian/alian/sandbox/charm/charm_fractions_half.root 		:o_0 :hist +w5 +l1 +a66 +k4 : title=g #rightarrow c#bar{c}
+/Users/ploskon/devel/alian/alian/sandbox/charm/charm_fractions_half.root 		:o_2 :hist +w5 +l1 +a66 +k6 : title=other (e.g., excit.)
