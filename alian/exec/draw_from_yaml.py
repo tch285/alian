@@ -50,7 +50,10 @@ def process_yaml_file(yaml_file, defines=None):
     return new_file
 
 def evaluate_min_max(sexpr1dim, tree, condition=''):
-    _htmp_name = f'htmp_{sexpr1dim}'
+    _hname_fix = sexpr1dim
+    for x in ['/', '.', '+', '-', '*', '<', '>', '=', '(', ')']:
+        _hname_fix = _hname_fix.replace(x, '_')
+    _htmp_name = f'htmp_{_hname_fix}'
     tree.Draw(f'{sexpr1dim}>>{_htmp_name}', condition, 'goff')
     h = ROOT.gDirectory.Get(_htmp_name)
     if not h or not h.InheritsFrom(ROOT.TH1.Class()):
@@ -61,6 +64,7 @@ def evaluate_min_max(sexpr1dim, tree, condition=''):
     return rval
 
 def hsetup_from_config(hist_config, axis='x', hsetup=None, tree=None):
+    print('hsetup_from_config:', hist_config, axis)
     if hsetup is None:
         hsetup = {}
     hsetup['clone'] = False  # default
@@ -111,6 +115,7 @@ def hsetup_from_config(hist_config, axis='x', hsetup=None, tree=None):
             _nbins = hsetup[k_nbins]
             hsetup[k_bins] = logbins(float(hsetup[k_range][0]), float(hsetup[k_range][1]), int(_nbins))
             hsetup[k_nbins] = _nbins
+    print('returning hsetup:', hsetup)
     return hsetup
 
 
@@ -122,6 +127,7 @@ def build_hist(hist_config, hist_name, tree, output_file):
         print('[i] using a cloned histogram:', hist.GetName()) 
         return hist
     else:
+        print('setting up histogram:', hist_name, 'with config:', hist_config)
         hsetup = hsetup_from_config(hist_config, 'x', hsetup, tree)
         hsetup = hsetup_from_config(hist_config, 'y', hsetup, tree)
 
@@ -244,9 +250,9 @@ def main(args):
                 if 'ybins' in hist_config:
                     print ('ybins:', hist_config['ybins'])
 
-                print('x-check hist_config:', hist_config)                    
+                print('x-check hist_config:', hist_config, 'hist_name:', hist_name)
                 hist = build_hist(hist_config, hist_name, tree, output_file)
-
+                print('build_hist:', hist, 'hist_name:', hist.GetName())
                 if hist is None:
                     print('[w] Could not create histogram:', hist_name)
                     continue
