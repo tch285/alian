@@ -1,0 +1,98 @@
+{{tree}}:
+- mode: recreate
+  output: pythia_charm_process_{{tree}}_h.root
+- j_pt:
+    cond: 'jpt > 10 && jpt < 20 && mother_pid == 777'
+    file: pythia_charm_process.root
+    tree: {{tree}}
+    var: jpt
+    xbins: auto
+    xnbins: 20
+- z_all:
+    cond: 'jpt > 10 && jpt < 20 && mother_pid == 777'
+    file: pythia_charm_process.root
+    tree: {{tree}}
+    var: pt/jpt
+    xbins: log
+    xrange: [0.01, 1.1]
+    xnbins: 15
+    bw: True
+    scale: 1./j_pt.Integral()
+- z_gg:
+    cond: 'jpt > 10 && jpt < 20 && mother_pid == 21'
+    file: pythia_charm_process.root
+    tree: {{tree}}
+    var: pt/jpt
+    xbins: log
+    xrange: [0.01, 1.1]
+    xnbins: 15
+    bw: True
+    scale: 1./j_pt.Integral()
+- z_charm:
+    cond: 'jpt > 10 && jpt < 20 && abs(mother_pid) == 4'
+    file: pythia_charm_process.root
+    tree: {{tree}}
+    var: pt/jpt
+    xbins: log
+    xrange: [0.01, 1.1]
+    xnbins: 15
+    bw: True
+    scale: 1./j_pt.Integral()
+- z_other:
+    cond: 'jpt > 10 && jpt < 20 && abs(mother_pid) != 4 && mother_pid != 21 && mother_pid != 777'
+    file: pythia_charm_process.root
+    tree: {{tree}}
+    var: pt/jpt
+    xbins: log
+    xrange: [0.01, 1.1]
+    xnbins: 15
+    bw: True
+    scale: 1./j_pt.Integral()
+- z_all_half:
+    cond: 'jpt > 10 && jpt < 20 && mother_pid == 777'
+    file: pythia_charm_process.root
+    tree: {{tree}}
+    var: pt/jpt
+    xbins: linear
+    xrange: [0.0, 1.05]
+    xnbins: 2
+    bw: True
+    scale: 1./j_pt.Integral()
+- z_gg_half:
+    cond: 'jpt > 10 && jpt < 20 && mother_pid == 21'
+    file: pythia_charm_process.root
+    tree: {{tree}}
+    var: pt/jpt
+    xbins: linear
+    xrange: [0.0, 1.05]
+    xnbins: 2
+    bw: True
+    scale: 1./j_pt.Integral()
+- z_charm_half:
+    cond: 'jpt > 10 && jpt < 20 && abs(mother_pid) == 4'
+    file: pythia_charm_process.root
+    tree: {{tree}}
+    var: pt/jpt
+    xbins: linear
+    xrange: [0.0, 1.05]
+    xnbins: 2
+    bw: True
+    scale: 1./j_pt.Integral()
+- z_other_half:
+    cond: 'jpt > 10 && jpt < 20 && abs(mother_pid) != 4 && mother_pid != 21 && mother_pid != 777'
+    file: pythia_charm_process.root
+    tree: {{tree}}
+    var: pt/jpt
+    xbins: linear
+    xrange: [0.0, 1.05]
+    xnbins: 2
+    bw: True
+    scale: 1./j_pt.Integral()
+- mother_pid:
+    cond: 'jpt > 10 && jpt < 20 && mother_pid != 777'
+    file: pythia_charm_process.root
+    tree: {{tree}}
+    var: mother_pid
+    xrange: [-3000, 3000]
+    xnbins: 6000
+    scale: 1./j_pt.Integral()
