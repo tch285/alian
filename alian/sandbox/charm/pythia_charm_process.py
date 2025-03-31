@@ -222,9 +222,12 @@ def main():
 	jet_def = fj.JetDefinition(fj.antikt_algorithm, R)
 	# jet_selector= fj.SelectorPtMin(args.jet_pt_min) * fj.SelectorPtMax(args.jet_pt_min + 10.) * fj.SelectorAbsEtaMax(1 - R * 1.05)
 	jet_selector= fj.SelectorPtMin(args.jet_pt_min) * fj.SelectorAbsEtaMax(1 - R * 1.05)
+
 	parton_jet_R = 0.4
 	# parton_jet_selector= fj.SelectorPtMin(args.jet_pt_min) * fj.SelectorPtMax(args.jet_pt_min + 10.) * fj.SelectorAbsEtaMax(1 - R * 1.05)
 	parton_jet_selector= fj.SelectorPtMin(args.jet_pt_min) * fj.SelectorAbsEtaMax(1 - R * 1.05)
+	if args.D0required:
+		parton_jet_selector = fj.SelectorPtMin(args.jet_pt_min * 0.9) * fj.SelectorAbsEtaMax(1.0)
 	parton_jet_def = fj.JetDefinition(fj.antikt_algorithm, parton_jet_R)
 
 	# configure pythia
