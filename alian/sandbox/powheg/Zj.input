@@ -1,0 +1,54 @@
+# Beam settings
+ebeam1 2510.0
+ebeam2 2510.0
+ih1 1
+ih2 1
+
+# PDF
+lhapdf6maxsets 1
+lhapdf6set1 "CT10nlo"
+lhans1 11000
+lhans2 11000
+
+# Phase space
+bornktmin 20
+bornsuppfact 100
+withdamp 1
+xupbound 2      ! increase upper bound for radiation generation
+
+# Scale settings
+renscfact 1.0
+facscfact 1.0
+
+# Decay and selection
+mass_Z 91.1876
+# decaymode 11       # 11=e+e-, 13=mu+mu-
+# vdecaymode 13      # 13=mu+mu- only
+# vdecaymode  1   ! Z decay products (default 2): 1 for electronic, 2 for muonic and 3 for tauonic decay
+vdecaymode  2   ! Z decay products (default 2): 1 for electronic, 2 for muonic and 3 for tauonic decay
+
+! Parameters to allow or not the use of stored data
+use-old-grid    1 ! if 1 use old grid if file pwggrids.dat is present (<> 1 regenerate)
+use-old-ubound  1 ! if 1 use norm of upper bounding function stored in pwgubound.dat, if present; <> 1 regenerate
+
+# Integration grid # some copied from hf_b.input
+ncall1 50000   ! number of calls for initializing the integration grid
+itmx1 5        ! number of iterations for initializing the integration grid
+ncall2 50000  ! number of calls for computing the integral and finding upper bound
+itmx2 5        ! number of iterations for computing the integral and finding upper bound
+foldcsi   2      ! number of folds on x integration
+foldx 1
+foldy   5      ! number of folds on y integration
+foldphi 1      ! number of folds on phi integration
+nubound 500000  ! number of bbarra calls to setup norm of upper bounding function
+iymax 1        ! <= 10, normalization of upper bounding function in iunorm X iunorm square in y, log(m2qq)
+ixmax 1        ! <= 10, normalization of upper bounding function in iunorm X iunorm square in y, log(m2qq)
+
+# Event output
+numevts 10000
+
+pdfreweight 1
+storeinfo_rwgt 1
+withnegweights 0
+
+compress_lhe 0
