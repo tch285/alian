@@ -45,10 +45,10 @@ iymax 1        ! <= 10, normalization of upper bounding function in iunorm X iun
 ixmax 1        ! <= 10, normalization of upper bounding function in iunorm X iunorm square in y, log(m2qq)
 
 # Event output
-numevts 10000
+numevts 10000      # Number of events per file
+manyseeds 1        # Enable splitting into multiple files
+compress_lhe 0     # Disable compression for easier inspection
 
 pdfreweight 1
 storeinfo_rwgt 1
 withnegweights 0
-
-compress_lhe 0
