@@ -43,9 +43,9 @@ fi
 build_visual="-DBUILD_VISUAL=OFF"
 if [ "{{visual}}" = "on" ]; then
     build_visual=-DBUILD_VISUAL=ON
-    echo "[i] custom shower option is: ${build_visual} -- called with visual={{visual}}"
+    echo "[i] build visual option is: ${build_visual} -- called with visual={{visual}}"
 else
-  echo "[i] custom shower option is: ${build_visual} -- use '--opt visual=on' to enable it -- called with visual={{visual}}"
+  echo "[i] build visual option is: ${build_visual} -- use '--opt visual=on' to enable it -- called with visual={{visual}}"
 fi
 
 srcdir=$(abspath {{yasp.recipe_dir}}/../alian)
