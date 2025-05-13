@@ -1,0 +1,111 @@
+#-----------------------
+#figure
+#geom 500x500
+#date
+#title: smart group
+#legend pos=ur
+#logz 1
+#normalize self
+#maxz 1.1e-1
+#minz 8e-4
+#x #Delta y = y^{hadron} - y^{jet}
+#y #Delta #varphi = #varphi^{part} - #varphi^{jet}
+/Users/ploskon/devel/alian/alian/sandbox/jse/pythia_jse_output.root 		:shape_0.2_angk1a1_dydphi_low_uw :CJUST SURF3  : title=shape_0.2_angk1a1
+
+#-----------------------
+#figure
+#geom 500x500
+#date
+#title: smart group
+#legend pos=ur
+#logz 1
+#normalize self
+#maxz 1.1e-1
+#minz 8e-4
+#x #Delta y = y^{hadron} - y^{jet}
+#y #Delta #varphi = #varphi^{part} - #varphi^{jet}
+/Users/ploskon/devel/alian/alian/sandbox/jse/pythia_jse_output.root 		:shape_0.2_angk1a1_dydphi_high_uw :CJUST SURF3  : title=shape_0.2_angk1a1
+
+#-----------------------
+#figure
+#geom 500x500
+#date
+#title: smart group
+#legend pos=ur
+#logz 1
+#normalize self
+#maxz 1.1e-1
+#minz 8e-4
+#x #Delta y = y^{hadron} - y^{jet}
+#y #Delta #varphi = #varphi^{part} - #varphi^{jet}
+/Users/ploskon/devel/alian/alian/sandbox/jse/pythia_jse_output.root 		:shape_0.2_angk1a2_dydphi_low_uw :CJUST SURF3  : title=shape_0.2_angk1a2
+
+#-----------------------
+#figure
+#geom 500x500
+#date
+#title: smart group
+#legend pos=ur
+#logz 1
+#normalize self
+#maxz 1.1e-1
+#minz 8e-4
+#x #Delta y = y^{hadron} - y^{jet}
+#y #Delta #varphi = #varphi^{part} - #varphi^{jet}
+/Users/ploskon/devel/alian/alian/sandbox/jse/pythia_jse_output.root 		:shape_0.2_angk1a2_dydphi_high_uw :CJUST SURF3  : title=shape_0.2_angk1a2
+
+#-----------------------
+#figure
+#geom 500x500
+#date
+#title: smart group
+#legend pos=ur
+#logz 1
+#normalize self
+#maxz 1.1e-1
+#minz 8e-4
+#x #Delta y = y^{hadron} - y^{jet}
+#y #Delta #varphi = #varphi^{part} - #varphi^{jet}
+/Users/ploskon/devel/alian/alian/sandbox/jse/pythia_jse_output.root 		:shape_0.2_angk1a3_dydphi_low_uw :lego2  : title=shape_0.2_angk1a3
+
+#-----------------------
+#figure
+#geom 500x500
+#date
+#title: smart group
+#legend pos=ur
+#logz 1
+#normalize self
+#maxz 1.1e-1
+#minz 8e-4
+#x #Delta y = y^{hadron} - y^{jet}
+#y #Delta #varphi = #varphi^{part} - #varphi^{jet}
+/Users/ploskon/devel/alian/alian/sandbox/jse/pythia_jse_output.root 		:shape_0.2_angk1a3_dydphi_high_uw :lego2  : title=shape_0.2_angk1a3
+
+#-----------------------
+#figure
+#geom 500x500
+#date
+#title: smart group
+#legend pos=ur
+#logz 1
+#normalize self
+#maxz 1.1e-1
+#minz 8e-4
+#x #Delta y = y^{hadron} - y^{jet}
+#y #Delta #varphi = #varphi^{part} - #varphi^{jet}
+/Users/ploskon/devel/alian/alian/sandbox/jse/pythia_jse_output.root 		:shape_0.2_mjet_dydphi_low_uw :lego2  : title=shape_0.2_mjet
+
+#-----------------------
+#figure
+#geom 500x500
+#date
+#title: smart group
+#legend pos=ur
+#logz 1
+#normalize self
+#maxz 1.1e-1
+#minz 8e-4
+#x #Delta y = y^{hadron} - y^{jet}
+#y #Delta #varphi = #varphi^{part} - #varphi^{jet}
+/Users/ploskon/devel/alian/alian/sandbox/jse/pythia_jse_output.root 		:shape_0.2_mjet_dydphi_high_uw :lego2  : title=shape_0.2_mjet

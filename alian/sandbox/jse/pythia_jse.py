@@ -49,7 +49,9 @@ def main():
 	parser.add_argument('--ncorrel', help='max n correlator', type=int, default=2)
 	parser.add_argument('-o','--output', help='root output filename', default='pythia_jse_output.root', type=str)
 	parser.add_argument('--jet-pt-min', help='jet pt min', default=100.0, type=float)
+	parser.add_argument('--jet-pt-max', help='jet pt max', default=120.0, type=float)
 	parser.add_argument('--etadet', help='detector eta', default=2.5, type=float)
+	parser.add_argument('--shape', help='fill the jet shape histograms', action='store_true', default=False)
 	args = parser.parse_args()
 
 	pythia = Pythia8.Pythia()
@@ -65,6 +67,8 @@ def main():
 	for R in Rs:
 		jet_defs[R] = fj.JetDefinition(fj.antikt_algorithm, R)
 		jet_selectors[R] = fj.SelectorPtMin(args.jet_pt_min) * fj.SelectorAbsEtaMax(args.etadet - R * 1.05)
+		if args.jet_pt_max > 0:
+			jet_selectors[R] *= fj.SelectorPtMax(args.jet_pt_max) * fj.SelectorPtMin(args.jet_pt_min) * fj.SelectorAbsEtaMax(args.etadet - R * 1.05)
 	
 	jet_def_wta = fj.JetDefinition(fj.cambridge_algorithm, 1.0)
 	jet_def_wta.set_recombination_scheme(fj.WTA_pt_scheme)
@@ -82,7 +86,49 @@ def main():
 	for r, tx in tn.items():
 		fout.root_file.cd()
 		fout.add(tx)
+
+	shape_hists = {}
+	shape_hists_uw = {}
+	shape_hists_dydphi_low_uw = {}
+	shape_hists_dydphi_high_uw = {}
+	low_high_cut = {}
+	low_high_cut['angk1a1'] = 0.25
+	low_high_cut['angk1a2'] = 0.15
+	low_high_cut['angk1a3'] = 0.08
+	low_high_cut['mjet'] = 3.0
+	if args.shape:
+		for R in Rs:
+			shape_hists[R] = {}
+			shape_hists_uw[R] = {}
+			shape_hists_dydphi_low_uw[R] = {}
+			shape_hists_dydphi_high_uw[R] = {}
+			for angs in ['angk1a1', 'angk1a2', 'angk1a3', 'mjet']:
+				ymin = 0.0
+				ymax = 1.0
+				if angs == 'mjet':
+					ymin = 0.0
+					ymax = 100.0
+				fout.root_file.cd()
+
+				shape_hists[R][angs] = ROOT.TH2F(f"shape_{R}_{angs}", f"shape_{R}_{angs}", 100, 0, 1.0, 100, ymin, ymax)
+				shape_hists[R][angs].SetDirectory(0)
+				fout.add(shape_hists[R][angs])
+
+				shape_hists_uw[R][angs] = ROOT.TH2F(f"shape_{R}_{angs}_uw", f"shape_{R}_{angs}", 100, 0, 1.0, 100, ymin, ymax)
+				shape_hists_uw[R][angs].SetDirectory(0)
+				fout.add(shape_hists_uw[R][angs])
+
+				shape_hists_dydphi_low_uw[R][angs] = ROOT.TH2F(f"shape_{R}_{angs}_dydphi_low_uw", f"shape_{R}_{angs}", 41, -R-0.1, R+0.1, 41, -R-0.1, R+0.1)
+				shape_hists_dydphi_low_uw[R][angs].SetDirectory(0)
+				fout.add(shape_hists_dydphi_low_uw[R][angs])
+
+				shape_hists_dydphi_high_uw[R][angs] = ROOT.TH2F(f"shape_{R}_{angs}_dydphi_high_uw", f"shape_{R}_{angs}", 41, -R-0.1, R+0.1, 41, -R-0.1, R+0.1)
+				shape_hists_dydphi_high_uw[R][angs].SetDirectory(0)
+				fout.add(shape_hists_dydphi_high_uw[R][angs])
+
  
+	print(shape_hists)
+
 	mycfg = []
 	pythia = pyconf.create_and_init_pythia_from_args(args, mycfg)
 	if not pythia:
@@ -90,6 +136,7 @@ def main():
 		return
 	if args.nev < 10:
 		args.nev = 10
+	count_jets = 0
 	pbar = tqdm.tqdm(total=args.nev)
 	while pbar.n < args.nev:
 		if not pythia.next():
@@ -103,6 +150,7 @@ def main():
 			if R == 0.4 and len(jets) > 0:
 				pbar.update(1)
 			for j in jets:
+				count_jets += 1
 				jet_wta = reclusterer_wta.result(j)
 				jet_sd01 = sd01.result(j)
 				jet_sd02 = sd02.result(j)
@@ -114,11 +162,27 @@ def main():
 				angk1a3 = angularity(j, 3.0, 1.0, R)
 				mjet = mass(j)
 				tn[R].Fill(j.perp(), j.eta(), j.phi(), j.m(), wtastd, wtasd01, wtasd02, angk1a1, angk1a2, angk1a3, mjet)
+				if args.shape:
+					for c in j.constituents():
+						dR = c.delta_R(j)
+						z = c.perp() / j.perp()
+						for angs in ['angk1a1', 'angk1a2', 'angk1a3', 'mjet']:
+							shape_hists[R][angs].Fill(dR, eval(angs), z)
+							shape_hists_uw[R][angs].Fill(dR, eval(angs), 1.0)
+							if eval(angs) < low_high_cut[angs]:
+								shape_hists_dydphi_low_uw[R][angs].Fill(c.rap() - j.rap(), c.phi() - j.phi(), 1.0)
+							else:
+								shape_hists_dydphi_high_uw[R][angs].Fill(c.rap() - j.rap(), c.phi() - j.phi(), 1.0)
 
 	pythia.stat()
 
 	print(type(pythia))
-
+	for R in Rs:
+		for angs in ['angk1a1', 'angk1a2', 'angk1a3', 'mjet']:
+			shape_hists[R][angs].Scale(1.0 / count_jets)
+			shape_hists_uw[R][angs].Scale(1.0 / count_jets)
+			shape_hists_dydphi_low_uw[R][angs].Scale(1.0 / count_jets)
+			shape_hists_dydphi_high_uw[R][angs].Scale(1.0 / count_jets)
 	fout.close()
 
 if __name__ == '__main__':
