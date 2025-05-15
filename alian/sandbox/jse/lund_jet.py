@@ -40,7 +40,7 @@ class JetAlgoHelper(object):
 			self.sd01 = fj.contrib.SoftDrop(0, 0.1, 1.0)
 			self.sd02 = fj.contrib.SoftDrop(0, 0.2, 1.0)
 			self.lund_gen = fj.contrib.LundGenerator()
-			print('********* creating LundGenerator:', self.lund_gen)
+			print('[i] creating LundGenerator:', self.lund_gen)
 
 	@classmethod
 	def angularity(self, jet, a, k, jetR):
@@ -108,6 +108,18 @@ class LundJet(GenericObject):
 				d[key] = getattr(self, key)
 		return d
 
+	def to_basic_type_dict(self):
+		# Convert the object to a dictionary
+		d = {}
+		for key in self.__dict__:
+			if key not in self._base_props_list:
+				o = getattr(self, key)
+				if isinstance(o, fj.PseudoJet):
+					d[key] = [o.px(), o.py(), o.pz(), o.e()]
+				else:
+					d[key] = getattr(self, key)
+		return d
+
 def main():
 
 	parser = argparse.ArgumentParser(description='pythia8 fastjet on the fly', prog=os.path.basename(__file__))
@@ -165,7 +177,8 @@ def main():
 			# add the LundPlane calculation
 			# add jet and the LundPlane to the output
 			lj = LundJet(jet=j, jetR=args.jetR)
-			lj_dict = lj.to_dict()
+			# lj_dict = lj.to_dict()
+			lj_dict = lj.to_basic_type_dict()
 			jets_dicts.append(lj_dict)
 			# print(lj_dict)
 
