@@ -17,9 +17,10 @@ import argparse
 import os 
 import math
 import tqdm
+import pandas as pd
 
 # make a singleton class for JetAlgoHelper
-class JetAlgoHelper:
+class JetAlgoHelper(object):
 	_instance = None
 
 	@staticmethod
@@ -33,11 +34,13 @@ class JetAlgoHelper:
 			raise Exception("This class is a singleton!")
 		else:
 			JetAlgoHelper._instance = self
-			self.jet_def_wta 			= fj.JetDefinition(fj.cambridge_algorithm, 1.0)
+			self.jet_def_wta = fj.JetDefinition(fj.cambridge_algorithm, 1.0)
 			self.jet_def_wta.set_recombination_scheme(fj.WTA_pt_scheme)
-			self.reclusterer_wta 	=  fj.contrib.Recluster(self.jet_def_wta)
+			self.reclusterer_wta 	= fj.contrib.Recluster(self.jet_def_wta)
 			self.sd01 = fj.contrib.SoftDrop(0, 0.1, 1.0)
 			self.sd02 = fj.contrib.SoftDrop(0, 0.2, 1.0)
+			self.lund_gen = fj.contrib.LundGenerator()
+			print('********* creating LundGenerator:', self.lund_gen)
 
 	@classmethod
 	def angularity(self, jet, a, k, jetR):
@@ -48,18 +51,29 @@ class JetAlgoHelper:
 			ang += ((dr)**a) * ((pt)**k)
 		return ang
 
-	@classmethod
 	def mass(self, jet):
 		m2 = jet.e()**2 - jet.px()**2 - jet.py()**2 - jet.pz()**2
 		if m2 > 0:
 			return math.sqrt(m2)
 		return 0.0
 
+	def lund_delta_kt(self, jet):
+		return [[l.Delta(), l.kt()] for l in self.lund_gen.result(jet)]
+
+	def lund_log(self, jet):
+		return [[math.log(1./l.Delta()), math.log(l.kt())] for l in self.lund_gen.result(jet)]
 
 class LundJet(GenericObject):
 	def __init__(self, jet, jetR, **kwargs):
 		super().__init__(**kwargs)
 		self.jet = jet
+		self.pt = jet.pt()
+		self.eta = jet.eta()
+		self.y = jet.rap()
+		self.phi = jet.phi()
+		self.e = jet.e()
+		self.m = jet.m()
+		self.nconst = jet.constituents().size()
 		self.jetR = jetR
 
 		self._jalgo = JetAlgoHelper.get_instance()
@@ -74,6 +88,8 @@ class LundJet(GenericObject):
 		self.angk1a2 	= self._jalgo.angularity(jet, 2.0, 1.0, self.jetR)
 		self.angk1a3 	= self._jalgo.angularity(jet, 3.0, 1.0, self.jetR)
 		self.mjet 		= self._jalgo.mass(jet)
+		self.lund_delta_kt = self._jalgo.lund_delta_kt(jet)
+		self.lund_log = self._jalgo.lund_log(jet)
 
 		self._base_props_list = []
 		self._base_props_list = self._gen_base_props_list()
@@ -129,10 +145,12 @@ def main():
 	if not pythia:
 		print("[e] pythia initialization failed.")
 		return
+
 	if args.nev < 10:
 		args.nev = 10
 	count_jets = 0
 	pbar = tqdm.tqdm(total=args.nev)
+	jets_dicts = []
 	while pbar.n < args.nev:
 		if not pythia.next():
 			continue
@@ -148,9 +166,13 @@ def main():
 			# add jet and the LundPlane to the output
 			lj = LundJet(jet=j, jetR=args.jetR)
 			lj_dict = lj.to_dict()
-			print(lj_dict)
+			jets_dicts.append(lj_dict)
+			# print(lj_dict)
 
 	pythia.stat()
+
+	df = pd.DataFrame(jets_dicts)
+	df.to_parquet("jets.parquet", engine="pyarrow")
 
 if __name__ == "__main__":
 	main()
