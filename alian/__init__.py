@@ -28,7 +28,11 @@ libs = set(['alian_' + os.path.basename(os.path.dirname(h)) for h in headers])
 
 from yasp.cppyyhelper import YaspCppyyHelper
 YaspCppyyHelper().load(packs, libs, headers)
-print(YaspCppyyHelper())
+import yasp
+if yasp.debug:
+	print('[heppyy-i] cppyy loaded packages:', YaspCppyyHelper().loaded_packages)
+	print('[heppyy-i] cppyy loaded libs:', YaspCppyyHelper().loaded_libs)
+	print(YaspCppyyHelper())
 
 # import heppyy
 # alian = heppyy.load_cppyy('alian')
