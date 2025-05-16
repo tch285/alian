@@ -15,7 +15,7 @@ from cppyy.gbl import Pythia8
 
 if yasp.in_jupyter_notebook():
 	from tqdm.notebook import tqdm	
-	print("[i-PythiaInput] Running in Jupyter Notebook, using tqdm.notebook")
+	print("[i-alian.io.pythia_io] Running in Jupyter Notebook, using tqdm.notebook")
 else:
 	from tqdm import tqdm
 
