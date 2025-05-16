@@ -3,7 +3,7 @@
 import yaml
 import os
 import heppyy
-from tqdm import tqdm
+import yasp
 from yasp import GenericObject
 
 fj = heppyy.load_cppyy('fastjet')
@@ -12,6 +12,12 @@ std = heppyy.load_cppyy('std')
 import heppyy.util.pythia8_cppyy
 import heppyy.util.heppyy_cppyy
 from cppyy.gbl import Pythia8
+
+if yasp.in_jupyter_notebook():
+	from tqdm.notebook import tqdm	
+	print("[i-PythiaInput] Running in Jupyter Notebook, using tqdm.notebook")
+else:
+	from tqdm import tqdm
 
 def psj_from_particle_with_index(particle, index):
 	psj = fj.PseudoJet(particle.px(), particle.py(), particle.pz(), particle.e())
@@ -54,15 +60,15 @@ class PythiaInput(GenericObject):
 			self.pythia.readString(setting)
 		self.init = False
 		if self.pythia.init():
-			print("Pythia initialized successfully.")
+			print("[i-PythiaInput] Pythia initialized successfully.")
 			self.init = True
 		else:
-			raise RuntimeError("Pythia initialization failed.")
+			raise RuntimeError("[i-PythiaInput] Pythia initialization failed.")
 		if self.n_events is None:
 			self.n_events = -1
 	
 	# Efficiently iterate over the tree as a generator
-	def next_event(self):
+	def next_event_obsolete(self):
 		self.event = None
 		pbar_total = None
 		if self.n_events > 0:
@@ -83,7 +89,18 @@ class PythiaInput(GenericObject):
 				yield self.event
 			else:
 				break
-  
+
+	def next_event(self):
+		ntry = 100
+		gen_ok = False
+		while ntry > 0:
+			if self.pythia.next():
+				gen_ok = True
+				ntry = 0
+				return gen_ok
+			ntry -= 1
+		return gen_ok
+
 	def __del__(self):
 		if self.pythia and self.init:
 			self.pythia.stat()
