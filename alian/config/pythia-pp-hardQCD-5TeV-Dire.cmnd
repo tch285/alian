@@ -1,4 +1,4 @@
-! List of all modified PYTHIA 8.310 settings.
+! Beam settings
 Beams:eCM = 5000.000
 Beams:idA = 2212
 Beams:idB = 2212
