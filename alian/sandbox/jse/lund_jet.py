@@ -175,7 +175,8 @@ def main():
 	while pbar.n < args.nev:
 		if not pythia.next():
 			continue
-		parts = vector[fj.PseudoJet]([fj.PseudoJet(p.px(), p.py(), p.pz(), p.e()) for p in pythia.event if p.isFinal() and p.isCharged()])
+		# parts = vector[fj.PseudoJet]([fj.PseudoJet(p.px(), p.py(), p.pz(), p.e()) for p in pythia.event if p.isFinal() and p.isCharged()])
+		parts = vector[fj.PseudoJet]([fj.PseudoJet(p.px(), p.py(), p.pz(), p.e()) for p in pythia.event if p.isFinal() and p.isVisible()])
 		# parts = pythiafjext.vectorize(pythia, True, -1, 1, False)
 
 		jets = jet_selector(jet_def(parts))
