@@ -63,6 +63,14 @@ class JetAlgoHelper(object):
 	def lund_log(self, jet):
 		return [[math.log(1./l.Delta()), math.log(l.kt())] for l in self.lund_gen.result(jet)]
 
+	def lunds_dict_list(self, jet):
+		lunds = []
+		for i, l in enumerate(self.lund_gen.result(jet)):
+			lunds.append({'i': i, 'pt': l.pair().perp(), 
+                 		'pt1': l.harder().perp(), 'pt2': l.softer().perp(), 'eta': l.pair().eta(), 
+                   	'kt': l.kt(), 'delta': l.Delta(), 'kappa': l.kappa(), 'psi': l.psi(), 'z': l.z(), 'm': l.m()})
+		return lunds
+
 class LundJet(GenericObject):
 	def __init__(self, jet, jetR, **kwargs):
 		super().__init__(**kwargs)
@@ -88,8 +96,9 @@ class LundJet(GenericObject):
 		self.angk1a2 	= self._jalgo.angularity(jet, 2.0, 1.0, self.jetR)
 		self.angk1a3 	= self._jalgo.angularity(jet, 3.0, 1.0, self.jetR)
 		self.mjet 		= self._jalgo.mass(jet)
-		self.lund_delta_kt = self._jalgo.lund_delta_kt(jet)
-		self.lund_log = self._jalgo.lund_log(jet)
+		# self.lund_delta_kt = self._jalgo.lund_delta_kt(jet)
+		# self.lund_log = self._jalgo.lund_log(jet)
+		self.lunds = self._jalgo.lunds_dict_list(jet)
 
 		self._base_props_list = []
 		self._base_props_list = self._gen_base_props_list()
@@ -126,12 +135,12 @@ def main():
 	pyconf.add_standard_pythia_args(parser)
 	parser.add_argument('-v', '--verbose', help="be verbose", default=False, action='store_true')
 	parser.add_argument('--ncorrel', help='max n correlator', type=int, default=2)
-	parser.add_argument('-o','--output', help='root output filename', default='pythia_jse_output.root', type=str)
 	parser.add_argument('--jet-pt-min', help='jet pt min', default=100.0, type=float)
 	parser.add_argument('--jet-pt-max', help='jet pt max', default=120.0, type=float)
 	parser.add_argument('--etadet', help='detector eta', default=2.5, type=float)
 	parser.add_argument('--shape', help='fill the jet shape histograms', action='store_true', default=False)
 	parser.add_argument('--jetR', help='jet radius', default=0.4, type=float)
+	parser.add_argument('--output', '-o', help='output file name', default='pythia_lund_jet.parquet', type=str)
 	args = parser.parse_args()
 
 	pythia = Pythia8.Pythia()
@@ -185,7 +194,7 @@ def main():
 	pythia.stat()
 
 	df = pd.DataFrame(jets_dicts)
-	df.to_parquet("jets.parquet", engine="pyarrow")
+	df.to_parquet(args.output, engine="pyarrow")
 
 if __name__ == "__main__":
 	main()
