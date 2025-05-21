@@ -25,7 +25,7 @@ def trajectory_current(fname, s_kt_or_kappa='kt', njets=0,
 	None
 	"""
 	# Load your parquet file
-	df_jets = pd.read_parquet('pythia_lund_jet.parquet')
+	df_jets = pd.read_parquet(fname)
 
 	# limit the number of jets based on the njets parameter
 	if njets > 0:
@@ -132,7 +132,7 @@ if __name__ == "__main__":
 	args = parser.parse_args()
 
 	s_kt_or_kappa = 'kappa' if args.kappa else 'kt'
-	trajectory_current('pythia_lund_jet.parquet', 
+	trajectory_current(args.file,
                     	s_kt_or_kappa='kt', njets=args.njets, 
                     	y_limit_high=args.y_high, y_limit_low=args.y_low,
 											n_bins_x=args.n_bins_x, n_bins_y=args.n_bins_y, savefig=args.png, 

@@ -18,6 +18,40 @@ import os
 import math
 import tqdm
 import pandas as pd
+import numpy as np
+
+def generate_boltzmann_particles_mult(n, mean_pt, mass=0.139, eta_range=(-2, 2)):
+		"""
+		Generate n particles with transverse momenta (pT) drawn from a Boltzmann distribution
+		with a given mean pT. Optionally specify the particle mass (default: pion mass in GeV).
+		Returns a list of dicts with px, py, pz, E for each particle.
+		"""
+		# The Boltzmann distribution for pT: f(pT) ~ pT * exp(-pT/T)
+		# The mean pT = 2*T, so T = mean_pt / 2
+		# T = mean_pt / 2.0
+		T = mean_pt
+		# Sample pT
+		pT = np.random.exponential(scale=T, size=n)
+		# Sample phi uniformly
+		phi = np.random.uniform(0, 2*np.pi, size=n)
+		px = pT * np.cos(phi)
+		py = pT * np.sin(phi)
+		# Sample eta uniformly in some range (e.g., -1 to 1)
+		eta = np.random.uniform(eta_range[0], eta_range[1], size=n)
+		pz = pT * np.sinh(eta)
+		E = np.sqrt(px**2 + py**2 + pz**2 + mass**2)
+		# particles = [{'px': px[i], 'py': py[i], 'pz': pz[i], 'E': E[i] , 'pT': pT[i], 'phi': phi[i], 'eta': eta[i]} for i in range(n)]
+		particles = {'px': px, 'py': py, 'pz': pz, 'E': E , 'pT': pT, 'phi': phi, 'eta': eta}
+		return particles
+
+def generate_boltzmann_particles_dndeta(dndeta, mean_pt, mass=0.139, eta_range=(-2, 2)):
+	n = int(dndeta * (eta_range[1] - eta_range[0]))
+	return generate_boltzmann_particles_mult(n, mean_pt, mass, eta_range)
+
+def generate_boltzmann_pseudojets(dndeta, mean_pt, mass=0.139, eta_range=(-2, 2)):
+	ps = generate_boltzmann_particles_dndeta(dndeta, mean_pt, mass, eta_range)
+	psjv = vector[fj.PseudoJet]([fj.PseudoJet(ps['px'][i], ps['py'][i], ps['pz'][i], ps['E'][i]) for i in range(len(ps['px']))])
+	return psjv
 
 # make a singleton class for JetAlgoHelper
 class JetAlgoHelper(object):
@@ -72,7 +106,7 @@ class JetAlgoHelper(object):
 		return lunds
 
 class LundJet(GenericObject):
-	def __init__(self, jet, jetR, **kwargs):
+	def __init__(self, jet, jetR, label=None, **kwargs):
 		super().__init__(**kwargs)
 		self.jet = jet
 		self.pt = jet.pt()
@@ -83,6 +117,7 @@ class LundJet(GenericObject):
 		self.m = jet.m()
 		self.nconst = jet.constituents().size()
 		self.jetR = jetR
+		self.label = label
 
 		self._jalgo = JetAlgoHelper.get_instance()
 
@@ -129,6 +164,24 @@ class LundJet(GenericObject):
 					d[key] = getattr(self, key)
 		return d
 
+
+def merge_events(levents, offsets):
+	psjv = vector[fj.PseudoJet]()
+	for i, e in enumerate(levents):
+		for ip in range(e.size()):
+			p = fj.PseudoJet(e[ip].px(), e[ip].py(), e[ip].pz(), e[ip].e())
+			p.set_user_index(ip + offsets[i])
+			psjv.push_back(p)
+	return psjv
+
+def match_z(jet, jets):
+	for j in jets:
+		if jet.delta_R(j) < 0.1:
+			# print(f'[i] jet pT={jet.perp()} eta={jet.eta()} matched with pT={j.perp()} eta={j.eta()}')
+			return j
+	# print(f'[e] no match found for jet with pT={jet.perp()} eta={jet.eta()}')
+	return None
+
 def main():
 
 	parser = argparse.ArgumentParser(description='pythia8 fastjet on the fly', prog=os.path.basename(__file__))
@@ -141,6 +194,8 @@ def main():
 	parser.add_argument('--shape', help='fill the jet shape histograms', action='store_true', default=False)
 	parser.add_argument('--jetR', help='jet radius', default=0.4, type=float)
 	parser.add_argument('--output', '-o', help='output file name', default='pythia_lund_jet.parquet', type=str)
+	parser.add_argument('--fixed-label', help='label the jets with a fixed value', default=-1, type=int)
+	parser.add_argument('--thermal', help='embed jets into a thermal (Boltzmann) background', action='store_true', default=False)
 	args = parser.parse_args()
 
 	pythia = Pythia8.Pythia()
@@ -161,6 +216,8 @@ def main():
 	sd01 = fj.contrib.SoftDrop(0, 0.1, 1.0)
 	sd02 = fj.contrib.SoftDrop(0, 0.2, 1.0)
 
+	bg_event = None
+
 	mycfg = []
 	pythia = pyconf.create_and_init_pythia_from_args(args, mycfg)
 	if not pythia:
@@ -170,8 +227,12 @@ def main():
 	if args.nev < 10:
 		args.nev = 10
 	count_jets = 0
+	count_jets_emb = 0
+
 	pbar = tqdm.tqdm(total=args.nev)
 	jets_dicts = []
+	jets_dicts_emb = []
+
 	while pbar.n < args.nev:
 		if not pythia.next():
 			continue
@@ -179,23 +240,52 @@ def main():
 		parts = vector[fj.PseudoJet]([fj.PseudoJet(p.px(), p.py(), p.pz(), p.e()) for p in pythia.event if p.isFinal() and p.isVisible()])
 		# parts = pythiafjext.vectorize(pythia, True, -1, 1, False)
 
-		jets = jet_selector(jet_def(parts))
+		jets = fj.sorted_by_pt(jet_selector(jet_def(parts)))
 		if len(jets) > 0:
 			pbar.update(1)
+		else:
+			pbar.update(0)
+			continue
+		# print('number of jets in the pythia event:', len(jets), 'leading jet pT:', jets[0].perp())
 		for j in jets:
 			count_jets += 1
 			# add the LundPlane calculation
 			# add jet and the LundPlane to the output
-			lj = LundJet(jet=j, jetR=args.jetR)
+			lj = LundJet(jet=j, jetR=args.jetR, label=args.fixed_label)
 			# lj_dict = lj.to_dict()
 			lj_dict = lj.to_basic_type_dict()
 			jets_dicts.append(lj_dict)
 			# print(lj_dict)
+   
+		# idea for photons: make jets single particle and embed them into the event ...
+		# write to the separate file...
+
+		if args.thermal:
+			dndeta = 2200
+			mean_pt = 0.7
+			bg_event = generate_boltzmann_pseudojets(dndeta, mean_pt, mass=0.139, eta_range=(-args.etadet, args.etadet))
+			merged_event = merge_events([parts, bg_event], [0, 10000])
+			jets_emb = fj.sorted_by_pt(jet_def(merged_event))
+			# print('number of jets in the embedded event:', len(jets_emb), 'leading jet pT:', jets_emb[0].perp())
+			for j in jets:
+				jmatched = match_z(j, jets_emb)
+				if jmatched is None:
+					continue
+				# add the LundPlane calculation
+				count_jets_emb += 1
+				lj_emb = LundJet(jet=jmatched, jetR=args.jetR, label=args.fixed_label)
+				lj_dict_emb = lj_emb.to_basic_type_dict()
+				jets_dicts_emb.append(lj_dict_emb)
 
 	pythia.stat()
 
 	df = pd.DataFrame(jets_dicts)
+	print(f'number of jets: {len(jets_dicts)}')
 	df.to_parquet(args.output, engine="pyarrow")
+
+	df_emb = pd.DataFrame(jets_dicts_emb)
+	print(f'number of jets embedded: {len(jets_dicts_emb)}')
+	df_emb.to_parquet(args.output.replace('.parquet', '_emb.parquet'), engine="pyarrow")
 
 if __name__ == "__main__":
 	main()
