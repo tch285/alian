@@ -7,6 +7,9 @@
 # two-steps:
 
 1. generate .lhe file with powheg
+```
+pwhg_Zj
+```
 2. shower+hadronize (analyze) with pythia8
 ```
 if [ -e "pwgevents.lhe" ]; then
