@@ -232,6 +232,7 @@ def main():
 	pbar = tqdm.tqdm(total=args.nev)
 	jets_dicts = []
 	jets_dicts_emb = []
+	jets_dicts_emb_single_part = []
 
 	while pbar.n < args.nev:
 		if not pythia.next():
@@ -277,6 +278,18 @@ def main():
 				lj_dict_emb = lj_emb.to_basic_type_dict()
 				jets_dicts_emb.append(lj_dict_emb)
 
+				# now make the selected jet a single particle and embed it into the event
+				j_psjv = fj.PseudoJet(j.px(), j.py(), j.pz(), j.e())
+				psjv = vector[fj.PseudoJet]([j_psjv])
+				merged_event_single_part = merge_events([psjv, bg_event], [0, 10000])
+				jets_emb_single_part = fj.sorted_by_pt(jet_def(merged_event_single_part))
+				jmatched_single_part = match_z(j_psjv, jets_emb_single_part)
+				if jmatched_single_part is None:
+					continue
+				lj_emb_single_part = LundJet(jet=jmatched_single_part, jetR=args.jetR, label=args.fixed_label)
+				lj_dict_emb_single_part = lj_emb_single_part.to_basic_type_dict()
+				jets_dicts_emb_single_part.append(lj_dict_emb_single_part)
+
 	pythia.stat()
 
 	df = pd.DataFrame(jets_dicts)
@@ -286,6 +299,10 @@ def main():
 	df_emb = pd.DataFrame(jets_dicts_emb)
 	print(f'number of jets embedded: {len(jets_dicts_emb)}')
 	df_emb.to_parquet(args.output.replace('.parquet', '_emb.parquet'), engine="pyarrow")
+
+	df_emb_single_part = pd.DataFrame(jets_dicts_emb_single_part)
+	print(f'number of single part jets embedded: {len(jets_dicts_emb_single_part)}')
+	df_emb_single_part.to_parquet(args.output.replace('.parquet', '_emb_single_part.parquet'), engine="pyarrow")
 
 if __name__ == "__main__":
 	main()
