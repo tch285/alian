@@ -207,7 +207,7 @@ def main():
 	argparser.add_argument("--recoilWeight", type=float, default=0.0, help="recoilWeight")
 	argparser.add_argument("--angleBias", type=float, default=0.0, help="angleBias")
 	argparser.add_argument("--alphaModifier", type=float, default=0.0, help="alphaModifier")
-	
+	argparser.add_argument("--hadronize", action='store_true', help="Hadronize the event")	
 												
 	
 	args = argparser.parse_args()
@@ -231,6 +231,10 @@ def main():
 	pythia.setShowerModelPtr(myShowerPtr)
 	extras = ["Next:numberCount = 0", "Next:numberShowEvent = 0", "Next:numberShowInfo = 0", "Next:numberShowProcess = 0", "Stat:showProcessLevel = on"]
 	mycfg = [f'PhaseSpace:pThatMin = {args.ptMin}', 'HardQCD:all = on', "Beams:eCM = 13000."]
+	if args.hadronize:
+		mycfg.append("HadronLevel:all = on")
+	else:
+		mycfg.append("HadronLevel:all = off")
 	mycfg.extend(extras)
 	# Initialize with settings
 	for c in mycfg:
