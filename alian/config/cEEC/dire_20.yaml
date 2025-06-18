@@ -1,0 +1,14 @@
+eta_max: 0.9
+min_part_trk_pT: 0.15
+min_jet_pT: 5.0
+
+thr: 1.0
+RL_binning: [1.0E-3, 1, 30] # the period is important as otherwise PyYAML will read it as a string
+pT_binning: [0, 200, 200]
+
+shower: dire
+# shower: vincia
+custom_tune: True
+# custom_tune: False
+reject_tail: True
+scale_by_xsec: True
