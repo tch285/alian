@@ -1,0 +1,15 @@
+eta_max: 0.9
+min_part_trk_pT: 0.15
+min_jet_pT: 5.0
+
+thr: 1.0
+RL_binning: [1.0E-3, 1, 30] # the period is important as otherwise PyYAML will read it as a string
+pT_binning: [0, 200, 200]
+
+jet_matching_fraction: 1.5        # Match PseudoJets with deltaR < jet_matching_distance*jetR
+# jet_matching_fraction: 0.6        # Match PseudoJets with deltaR < jet_matching_distance*jetR
+parton_ids: [1, 2, 3, 4, 5, 21]
+# shower: dire
+# shower: simple
+# custom_tune: True
+# custom_tune: False
