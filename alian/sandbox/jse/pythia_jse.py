@@ -177,12 +177,13 @@ def main():
 	pythia.stat()
 
 	print(type(pythia))
-	for R in Rs:
-		for angs in ['angk1a1', 'angk1a2', 'angk1a3', 'mjet']:
-			shape_hists[R][angs].Scale(1.0 / count_jets)
-			shape_hists_uw[R][angs].Scale(1.0 / count_jets)
-			shape_hists_dydphi_low_uw[R][angs].Scale(1.0 / count_jets)
-			shape_hists_dydphi_high_uw[R][angs].Scale(1.0 / count_jets)
+	if args.shape:
+		for R in Rs:
+			for angs in ['angk1a1', 'angk1a2', 'angk1a3', 'mjet']:
+				shape_hists[R][angs].Scale(1.0 / count_jets)
+				shape_hists_uw[R][angs].Scale(1.0 / count_jets)
+				shape_hists_dydphi_low_uw[R][angs].Scale(1.0 / count_jets)
+				shape_hists_dydphi_high_uw[R][angs].Scale(1.0 / count_jets)
 	fout.close()
 
 if __name__ == '__main__':
