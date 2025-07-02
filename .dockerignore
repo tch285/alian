@@ -1,0 +1,16 @@
+Makefile
+.git
+.github
+__pycache__
+.dockerignore
+.gitignore
+Dockerfile
+Makefile
+README.md
+*.pyc
+*.pyo
+*.png
+*.jpg
+*.pdf
+*.log
+*.root
