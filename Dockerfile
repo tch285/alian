@@ -46,7 +46,8 @@ COPY yasp_recipe/ /opt/alian/yasp_recipe
 COPY install_with_yasp.sh /opt/alian/
 RUN . /etc/profile.d/z00_lmod.sh \
  && ./yasp/yaspenv.sh \
-   "module load heppyy bundle/hepbase \
- && ./alian/install_with_yasp.sh"
+   "module load bundle/hepbase heppyy \
+ && ./alian/install_with_yasp.sh" \
+ && chmod -R 757 /opt/alian /opt/heppyy /opt/yasp
 ENTRYPOINT [ "/opt/apps/entrypoint.sh" ]
 CMD [ "/usr/bin/bash", "-l" ]
