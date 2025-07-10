@@ -37,9 +37,8 @@ def part_w_charge(pyp):
     return pj
 
 class PythiaOTFENC(object):
-    def __init__(self, config, odir, ofn, nev, verbose):
+    def __init__(self, config, odir, ofn, nev):
         self.config = config
-        self.verbose = verbose
         self.output_path = f"{odir}/{ofn}"
         if nev < 10:
             logger.warning(f"Number of events ({nev}) too low, setting to 10.")
@@ -78,7 +77,7 @@ class PythiaOTFENC(object):
         self.hists = {}
         self.hists['evw'] = ROOT.TH1F("evw", "evw;evw;cts", 100, -3.0, 3.0)
         self.hists['nev'] = ROOT.TH1F("hnev", "nev", 2, -0.5, 1.5)
-        
+
         for ptype in ["T", "Q", "P", "M", "PM"]:
             self.hists[ptype] = ROOT.TH2D(
                 f"E2C_{ptype}_{self.thr}",
@@ -186,13 +185,15 @@ class PythiaOTFENC(object):
             logger.info("Pythia configured and initialized.")
 
         self.simulate(pythia)
-        logger.info(f"Simulation step completed in {time.perf_counter() - self.start} sec.")
+        logger.info(f"Simulation step completed in {time.perf_counter() - self.start:.2f} sec.")
 
         self.finalize(pythia)
-        logger.info(f"Histogram scaling/saving completed in {time.perf_counter() - self.start} sec.")
+        logger.info(f"Simulation completed in {time.perf_counter() - self.start:.2f} sec.")
 
     def simulate(self, pythia):
         iev = 0
+        # ping every 10% of total events
+        ping = self.nev // 10
         while iev < self.nev:
             if not pythia.next():
                 self.nfailed += 1
@@ -214,13 +215,15 @@ class PythiaOTFENC(object):
             # Some "accepted" events don't survive hadronization step -- keep track here
             self.hists['nev'].Fill(0, self.evw)
             self.hists['evw'].Fill(self.evw)
-            
+
             # logger.info('NEW EVENT:')
             # logger.info(f"Sum of weights (histogram): {self.hists['nev'].GetBinContent(1)}")
             # logger.info(f"Sum of weights (Pythia): {pythia.info.weightSum()}")
             iev += 1
             # if iev == 10:
             #     break
+            if iev % ping == 0:
+                logger.log(15, f"Completed {iev} events.")
 
     def analyze_event(self, parts, pthat):
         jets = fj.sorted_by_pt(
@@ -274,24 +277,25 @@ class PythiaOTFENC(object):
         logger.info(f"Number of successful events (histogram): {self.hists['nev'].GetEntries()}")
         # with open(f"{self.output_dir}/scales.txt", 'w') as f:
         #     f.write(f"{scale_f}")
+        logger.info(
+            f"N total final events: {self.hists['nev'].GetBinContent(1)} with {pythia.info.nAccepted() - self.hists['nev'].GetBinContent(1)} events rejected."
+        )
 
         if self.scale_by_xsec:
             self._scale_hists(scale_f)
         self._save_hists()
 
-        logger.info(
-            f"N total final events: {self.hists['nev'].GetBinContent(1)} with {pythia.info.nAccepted() - self.hists['nev'].GetBinContent(1)} events rejected."
-        )
-
     def _scale_hists(self, scale_f):
         for ptype in ["T", "Q", "P", "M", "PM"]:
             self.hists[ptype].Scale(scale_f)
         self.hists["jet_pT"].Scale(scale_f)
+        logger.info(f"Histograms scaled.")
 
     def _save_hists(self):
         with ROOT.TFile(self.output_path, "RECREATE") as f:
             for hist in self.hists.values():
                 f.WriteTObject(hist)
+        logger.info(f"Histograms saved.")
 
 
 def main():
@@ -311,20 +315,20 @@ def main():
         type=str,
     )
     # parser.add_argument("-n", "--nev", help="Number of events", default=10, type=int)
-    parser.add_argument("-v", "--verbose", help="be verbose", action="store_true")
+    parser.add_argument("-t", "--track", help="Print event generation information", action="store_true")
     args = parser.parse_args()
-    
+
+    level = 20 # INFO level by default
+    if args.track:
+        level = 15
     handler = logging.StreamHandler()
-    formatter = logging.Formatter(
-        "%(asctime)s - %(filename)s:%(lineno)d - %(levelname)s - %(funcName)s - %(message)s"
-    )
-    handler.setFormatter(formatter)
-    handler.setLevel(logging.INFO)
+    handler.setFormatter(logging.Formatter("%(asctime)s - %(filename)s:%(lineno)d - %(levelname)s - %(funcName)s - %(message)s"))
+    handler.setLevel(level)
     logger.addHandler(handler)
     logger.setLevel(logging.DEBUG)
 
     proc = PythiaOTFENC(
-        args.config, args.output_dir, args.output_filename, args.nev, args.verbose
+        args.config, args.output_dir, args.output_filename, args.nev
     )
     proc.generate(args)
 
