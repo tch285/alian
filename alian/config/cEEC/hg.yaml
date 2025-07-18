@@ -13,3 +13,4 @@ ew_binning: [1.0e-3, 1, 40]
 # custom_tune: False
 
 scale_by_xsec: True
+do_shuffle: True
