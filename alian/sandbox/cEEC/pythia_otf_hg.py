@@ -68,6 +68,7 @@ class PythiaOTFENC(object):
         self.custom_tune = config["custom_tune"] if 'custom_tune' in config else False
         self.resonance_decay = config['resonance_decay'] if 'resonance_decay' in config else True
         self.strange_decay = config['strange_decay'] if 'strange_decay' in config else True
+        self.do_shuffle = config['do_shuffle'] if 'do_shuffle' in config else True
         self.reject_tail = config['reject_tail'] if 'reject_tail' in config else False
         self.scale_by_xsec = config['scale_by_xsec'] if 'scale_by_xsec' in config else True
 
@@ -77,8 +78,10 @@ class PythiaOTFENC(object):
         self.ew_bins = logbins(self.ew_min, self.ew_max, self.ew_nbins)
 
         self.hists = {}
+        self.hists_to_scale = []
         self.hists['evw'] = ROOT.TH1F("evw", "evw;evw;cts", 100, -3.0, 3.0)
         self.hists['nev'] = ROOT.TH1F("hnev", "nev", 2, -0.5, 1.5)
+        self.hists_to_scale += ['evw']
 
         self.hists["ew"] = ROOT.TH1D("ew", "ew;ew;cts", self.ew_nbins, self.ew_bins)
         self.hists["q"] = ROOT.TH1D("q", "q;q;cts", 3, -1.5, 1.5)
@@ -91,6 +94,7 @@ class PythiaOTFENC(object):
                 self.RL_nbins,
                 self.RL_bins,
             )
+        self.hists_to_scale += ['ew', 'q', "T", "Q", "P", "M", "PM"]
 
         self.hists["hg_ew"] = ROOT.TH1D("hg_ew", "hg_ew;ew;cts", self.ew_nbins, self.ew_bins)
         self.hists["hg_q"] = ROOT.TH1D("hg_q", "hg_q;q;cts", 3, -1.5, 1.5)
@@ -103,9 +107,11 @@ class PythiaOTFENC(object):
                 self.RL_nbins,
                 self.RL_bins,
             )
+        self.hists_to_scale += ['hg_ew', 'hg_q', "hg_T", "hg_Q", "hg_P", "hg_M", "hg_PM"]
         self.hists["jet_pT"] = ROOT.TH1D(
             "jet_pT", "jet pt;pt gev;cts", self.pT_nbins, self.pT_bins
         )
+        self.hists_to_scale += ['jet_pT']
 
         self.jet_def = fj.JetDefinition(fj.antikt_algorithm, self.jetR)
 
@@ -261,8 +267,9 @@ class PythiaOTFENC(object):
         pTs = np.array([p.perp() for p in constituents])
         qs = np.array([p.user_index() for p in constituents])
         nconst = len(constituents)
-        self.rng.shuffle(pTs)
-        self.rng.shuffle(qs)
+        if self.do_shuffle:
+            self.rng.shuffle(pTs)
+            self.rng.shuffle(qs)
         for p1, p2 in permutations(constituents, 2):
             q1 = p1.user_index()
             q2 = p2.user_index()
@@ -334,9 +341,11 @@ class PythiaOTFENC(object):
         self._save_hists()
 
     def _scale_hists(self, scale_f):
-        for ptype in ["T", "Q", "P", "M", "PM"]:
-            self.hists[ptype].Scale(scale_f)
-        self.hists["jet_pT"].Scale(scale_f)
+        # for ptype in ["T", "Q", "P", "M", "PM"]:
+        logger.info(f"Histograms to scale: {self.hists_to_scale}")
+        for key in self.hists_to_scale:
+            self.hists[key].Scale(scale_f)
+        # self.hists["jet_pT"].Scale(scale_f)
         logger.info(f"Histograms scaled.")
 
     def _save_hists(self):
