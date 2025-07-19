@@ -68,7 +68,8 @@ class PythiaOTFENC(object):
         self.custom_tune = config["custom_tune"] if 'custom_tune' in config else False
         self.resonance_decay = config['resonance_decay'] if 'resonance_decay' in config else True
         self.strange_decay = config['strange_decay'] if 'strange_decay' in config else True
-        self.do_shuffle = config['do_shuffle'] if 'do_shuffle' in config else True
+        self.shuffle_pt = config['shuffle_pt'] if 'shuffle_pt' in config else True
+        self.shuffle_q = config['shuffle_q'] if 'shuffle_q' in config else True
         self.reject_tail = config['reject_tail'] if 'reject_tail' in config else False
         self.scale_by_xsec = config['scale_by_xsec'] if 'scale_by_xsec' in config else True
 
@@ -267,8 +268,9 @@ class PythiaOTFENC(object):
         pTs = np.array([p.perp() for p in constituents])
         qs = np.array([p.user_index() for p in constituents])
         nconst = len(constituents)
-        if self.do_shuffle:
+        if self.shuffle_pt:
             self.rng.shuffle(pTs)
+        if self.shuffle_q:
             self.rng.shuffle(qs)
         for p1, p2 in permutations(constituents, 2):
             q1 = p1.user_index()
