@@ -13,5 +13,5 @@ ew_binning: [1.0e-3, 1, 40]
 # custom_tune: False
 
 scale_by_xsec: True
-shuffle_pt: True
-shuffle_q: False
+shuffle_pt: False
+shuffle_q: True
