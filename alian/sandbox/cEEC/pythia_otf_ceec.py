@@ -67,6 +67,7 @@ class PythiaOTFENC(object):
         self.custom_tune = config["custom_tune"] if 'custom_tune' in config else False
         self.resonance_decay = config['resonance_decay'] if 'resonance_decay' in config else True
         self.strange_decay = config['strange_decay'] if 'strange_decay' in config else True
+        self.strong_decay = config['strong_decay'] if 'strong_decay' in config else True
         self.reject_tail = config['reject_tail'] if 'reject_tail' in config else False
         self.scale_by_xsec = config['scale_by_xsec'] if 'scale_by_xsec' in config else True
 
@@ -147,6 +148,25 @@ class PythiaOTFENC(object):
             logger.info("Strange decays turned OFF.")
         else:
             logger.info("Strange decays turned ON.")
+
+        if not self.strong_decay:
+            pdg_codes = [
+                223,  # omega
+                213,  # rho+
+                -213, # rho-
+                113,  # rho0
+                333,  # phi
+                221,  # eta
+                331,  # eta'
+                1114, # Delta-
+                2114, # Delta0
+                2214, # Delta+
+            ]
+            for pdg_code in pdg_codes:
+                self.user_config.append(f"{pdg_code}:mayDecay = off")
+            logger.info("Strong decays turned OFF.")
+        else:
+            logger.info("Strong decays turned ON.")
 
         if self.reject_tail:
             if self.reject_tail is True: # check specifically for True value, not just truthiness
