@@ -68,6 +68,7 @@ class PythiaOTFENC(object):
 
         self.isocone_R = config.get('isocone_R', self.jetR) # radius of isocone
         self.isocone_pT_max = config.get('isocone_pT_max', 2) # maximum pT in isocone for iso photons
+        self.isocone_pT_density_max = self.isocone_pT_max / (np.pi * self.isocone_R * self.isocone_R) # maximum isocone pT density
         self.photon_jet_dphi_min = config.get('photon_jet_dphi_min', 0.75) * np.pi
                 # minimum delta phi (in units of pi) between jets and photons to ensure back-to-back
 
@@ -175,11 +176,20 @@ class PythiaOTFENC(object):
 
 
     def get_iso_photons(self, parts_ch, photons):
-        return [ph for ph in photons if self.get_isocone_pT(ph, parts_ch) < self.isocone_pT_max]
+        """Return set of isolated photons from all photons and charged particles within acceptance."""
+        return [ph for ph in photons if self.get_isocone_pT(ph, parts_ch) / self.get_isocone_area(ph) < self.isocone_pT_density_max]
     def get_isocone_pT(self, photon, parts_ch):
+        """For a given photon and set of charged particles, get the total pT of the isolation cone."""
         return np.sum([part_ch.perp() for part_ch in parts_ch if deltaR(part_ch, photon) < self.isocone_R])
+    def get_isocone_area(self, ph):
+        """Get area of photon isolation cone, taking edge effects into account."""
+        eta = np.abs(ph.eta())
+        if eta < (self.trk_eta_max - self.isocone_R):
+            return np.pi * self.isocone_R * self.isocone_R
+        else:
+            return (self.trk_eta_max - eta) * np.sqrt(self.isocone_R**2 - (self.trk_eta_max - eta)**2 ) + np.pi * self.isocone_R**2 * (1 - 1 / np.pi * np.arccos((self.trk_eta_max - eta) / self.isocone_R))
     def get_b2b_jets(self, jets, iso_photons):
-        # get all jets that are back-to-back with at least one photon
+        """Get all jets that are back-to-back with at least one photon"""
         return [jet for jet in jets if self.is_b2b(jet, iso_photons)]
     def is_b2b(self, jet, iso_photons):
         for iso_ph in iso_photons:
