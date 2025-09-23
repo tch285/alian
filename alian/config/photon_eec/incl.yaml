@@ -1,0 +1,13 @@
+trk_eta_max: 0.9
+trk_pT_min: 0.15
+trk_pT_max: 100
+
+jet_pT_min: 5.0
+
+jetR: 0.4
+
+thr: 1.0
+RL_binning: [1.0E-3, 1, 30] # the period is important as otherwise PyYAML will read it as a string
+pT_binning: [0, 200, 200]
+
+scale_hists: True
