@@ -64,12 +64,13 @@ class PythiaOTFENC(object):
                 f"Shower model {self.shower} not recognized, defaulting to simple."
             )
             self.shower = "simple"
-        self.custom_tune = config["custom_tune"] if 'custom_tune' in config else False
-        self.resonance_decay = config['resonance_decay'] if 'resonance_decay' in config else True
-        self.strange_decay = config['strange_decay'] if 'strange_decay' in config else True
-        self.strong_decay = config['strong_decay'] if 'strong_decay' in config else True
-        self.reject_tail = config['reject_tail'] if 'reject_tail' in config else False
-        self.scale_by_xsec = config['scale_by_xsec'] if 'scale_by_xsec' in config else True
+        self.custom_tune = config.get("custom_tune", False)
+        self.resonance_decay = config.get('resonance_decay', True)
+        self.strange_decay = config.get('strange_decay', True)
+        self.strong_decay = config.get('strong_decay', True)
+        self.Kstarphi_decay = config.get('Kstarphi_decay', True)
+        self.reject_tail = config.get('reject_tail', False)
+        self.scale_by_xsec = config.get('scale_by_xsec', True)
 
     def prepare(self):
         self.RL_bins = logbins(self.RL_min, self.RL_max, self.RL_nbins)
@@ -101,7 +102,7 @@ class PythiaOTFENC(object):
         self.part_pT_selector = fj.SelectorPtMin(self.min_part_trk_pT)
         self.thr_selector = fj.SelectorPtMin(self.thr)
 
-        self.user_config = ['Init:showProcesses = off', 'Init:showChangedParticleData = off']
+        self.user_config = ['Init:showProcesses = off', 'Init:showChangedParticleData = on']
         if self.shower == "vincia":
             logger.info("Shower model: Vincia")
             self.user_config.append("PartonShowers:Model = 2")
@@ -148,6 +149,17 @@ class PythiaOTFENC(object):
             logger.info("Strange decays turned OFF.")
         else:
             logger.info("Strange decays turned ON.")
+
+        if not self.Kstarphi_decay:
+            pdg_codes = [
+                313,  # K*(892)
+                333,  # phi(1020)
+            ]
+            for pdg_code in pdg_codes:
+                self.user_config.append(f"{pdg_code}:mayDecay = off")
+            logger.info("Kstar and phi decays turned OFF.")
+        else:
+            logger.info("Kstar and phi decays turned ON.")
 
         if not self.strong_decay:
             pdg_codes = [
