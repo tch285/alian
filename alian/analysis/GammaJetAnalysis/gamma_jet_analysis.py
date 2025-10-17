@@ -519,7 +519,7 @@ def findTracks(tracks: List[Track]) -> List[Track]:
 def isIsolatedPhotonCandidate(candidate: Cluster, tracks: List[Track]) -> bool:
 	total_pt = 0
 	for track in tracks:
-    delta_phi = continuousAngleDiff(candidate.phi, track.phi)
+		delta_phi = continuousAngleDiff(candidate.phi, track.phi)
 		if np.sqrt((candidate.eta - track.eta) ** 2 + (delta_phi ** 2)) < cuts.cluster.isolation_cone_radius:
 			total_pt += track.pt
 	# Fill corresponding histogram
@@ -546,7 +546,7 @@ def computePhotonJetCorrelations(photon_candidates: List[Cluster], jets: List[fj
 			# x: jet pT (100 bins, from 0 to 80)
 			# y: photon pT (100 bins, from 0 to 80)
 			hists.h_photon_jet_pt.Fill(jet.perp(), photon.energy)
-      delta_phi = continuousAngleDiff(photon.phi, jet.phi())
+			delta_phi = continuousAngleDiff(photon.phi, jet.phi())
 			# x: delta phi (50 bins, from -pi to pi)
 			# y: jet pT (50 bins, from 0 to 80)
 			# z: photon pT (200 bins, from 0 to 80)
