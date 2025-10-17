@@ -23,10 +23,34 @@ class SingleRootFile(object):
             self.objects.append(obj)
 
     def __del__(self):
-        if SingleRootFile.__instance:
-            if SingleRootFile.__instance.root_file:
-                log.info(f'closing {SingleRootFile.__instance.root_file.GetName()}')
-                SingleRootFile.__instance.close()
+        # Safely get the instance using getattr to avoid attribute errors during shutdown
+        inst = getattr(SingleRootFile, '__instance', None)
+        if inst is None:
+            return
+        
+        # Safely get root_file using getattr
+        root_file = getattr(inst, 'root_file', None)
+        if root_file is None:
+            return
+        
+        # Use try/except block to safely check if file is open and get name
+        try:
+            is_open_func = getattr(root_file, 'IsOpen', None)
+            if callable(is_open_func) and is_open_func():
+                get_name_func = getattr(root_file, 'GetName', None)
+                file_name = get_name_func() if callable(get_name_func) else ''
+                # Wrap logging and close in try/except for shutdown safety
+                try:
+                    log.info(f'closing {file_name}')
+                except:
+                    pass
+                try:
+                    inst.close()
+                except:
+                    pass
+        except (AttributeError, TypeError):
+            # Silently handle errors during interpreter shutdown
+            pass
 
     def write(self):
         _rfile = self.root_file
