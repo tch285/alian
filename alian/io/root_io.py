@@ -39,8 +39,15 @@ class SingleRootFile(object):
             if callable(is_open_func) and is_open_func():
                 get_name_func = getattr(root_file, 'GetName', None)
                 file_name = get_name_func() if callable(get_name_func) else ''
-                log.info(f'closing {file_name}')
-                inst.close()
+                # Wrap logging and close in try/except for shutdown safety
+                try:
+                    log.info(f'closing {file_name}')
+                except:
+                    pass
+                try:
+                    inst.close()
+                except:
+                    pass
         except (AttributeError, TypeError):
             # Silently handle errors during interpreter shutdown
             pass
