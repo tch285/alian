@@ -16,7 +16,6 @@ from alian.utils import data_fj
 from alian.analysis.base import AnalysisSelector, Event, Track, Cluster, BaseAnalysis
 import numpy as np
 import ROOT
-import math
 from typing import List
 
 #### DATA STRUCTURES ####
@@ -85,7 +84,7 @@ class Histograms:
         self.h_jet_rapidity_vs_pt = {}
         # Other QA Histograms
         self.h_total_track_pt_in_isolation_cone = ROOT.TH1F("Total photon candidate pT within isolation cone", "Photon pT; GeV; counts", self.photon_energy_nbins, self.min_photon_energy_range, self.max_photon_energy_range)
-        self.h_photon_jet_phi = ROOT.TH3F("Delta Phi separation between photons and jets", "Delta Phi separation between photons and jets", 50, 0, math.pi, 50, 0, 80, 200, 0, 80)
+        self.h_photon_jet_phi = ROOT.TH3F("Delta Phi separation between photons and jets", "Delta Phi separation between photons and jets", 50, 0, np.pi, 50, 0, 80, 200, 0, 80)
         self.h_photon_jet_pt = ROOT.TH2F("Jet-Photon pair pT", "Jet-Photon pair pT", 100, 0, 80, 100, 0, 80)
 
     def fillQAStatistics(self, name: str, count: int):
@@ -105,7 +104,7 @@ class Histograms:
 
         if label not in self.h_cluster_energy:
             self.h_cluster_energy[label] = ROOT.TH1F("cluster_energy_" + hist_label, "Cluster Energy (" + label + "); GeV; counts", self.photon_energy_nbins, self.min_photon_energy_range, self.max_photon_energy_range)
-            self.h_cluster_phi_vs_energy[label] = ROOT.TH2F("cluster_phi_vs_energy_" + hist_label, "Cluster Phi (" + label + "); counts", 360, 0, 2*math.pi, self.photon_energy_nbins, self.min_photon_energy_range, self.max_photon_energy_range)
+            self.h_cluster_phi_vs_energy[label] = ROOT.TH2F("cluster_phi_vs_energy_" + hist_label, "Cluster Phi (" + label + "); counts", 360, 0, 2*np.pi, self.photon_energy_nbins, self.min_photon_energy_range, self.max_photon_energy_range)
             self.h_cluster_eta_vs_energy[label] = ROOT.TH2F("cluster_eta_vs_energy_" + hist_label, "Cluster Eta (" + label + "); counts", 100, -1.5, 1.5, self.photon_energy_nbins, self.min_photon_energy_range, self.max_photon_energy_range)
             self.h_cluster_m02_vs_energy[label] = ROOT.TH2F("cluster_m02_vs_energy_" + hist_label, "Cluster M02 (" + label + "); counts", 100, 0, 3, self.photon_energy_nbins, self.min_photon_energy_range, self.max_photon_energy_range)
             self.h_cluster_m20_vs_energy[label] = ROOT.TH2F("cluster_m20_vs_energy_" + hist_label, "Cluster M20 (" + label + "); counts", 100, 0, 1, self.photon_energy_nbins, self.min_photon_energy_range, self.max_photon_energy_range)
@@ -139,7 +138,7 @@ class Histograms:
 
         if label not in self.h_track_pt:
             self.h_track_pt[label] = ROOT.TH1F("track_pt_" + hist_label, "Track pT (" + label + "); GeV; counts", self.track_pt_nbins, self.min_track_pt_range, self.max_track_pt_range)
-            self.h_track_phi_vs_pt[label] = ROOT.TH2F("track_phi_vs_pt_" + hist_label, "Track Phi (" + label + "); counts", 360, 0, 2*math.pi, self.track_pt_nbins, self.min_track_pt_range, self.max_track_pt_range)
+            self.h_track_phi_vs_pt[label] = ROOT.TH2F("track_phi_vs_pt_" + hist_label, "Track Phi (" + label + "); counts", 360, 0, 2*np.pi, self.track_pt_nbins, self.min_track_pt_range, self.max_track_pt_range)
             self.h_track_eta_vs_pt[label] = ROOT.TH2F("track_eta_vs_pt_" + hist_label, "Track Eta (" + label + "); counts", 100, -1.5, 1.5, self.track_pt_nbins, self.min_track_pt_range, self.max_track_pt_range)
         for track in tracks:
             self.h_track_pt[label].Fill(track.pt)
@@ -157,7 +156,7 @@ class Histograms:
             self.h_jet_energy[label] = ROOT.TH1F("jet_energy_" + hist_label, "Jet Energy (" + label + "); GeV; counts", 200, 0, 50)
             self.h_jet_energy_t[label] = ROOT.TH1F("jet_energy_t_" + hist_label, "Jet Transverse Energy (" + label + "); GeV; counts", 200, 0, 50)
             self.h_jet_pt[label] = ROOT.TH1F("jet_pt_" + hist_label, "Jet Transverse Momentum (" + label + "); GeV; counts", self.jet_pt_nbins, self.min_jet_pt_range, self.max_jet_pt_range)
-            self.h_jet_phi_vs_pt[label] = ROOT.TH2F("jet_phi_" + hist_label, "Jet Phi (" + label + "); GeV; counts", 360, 0, 2*math.pi, self.jet_pt_nbins, self.min_jet_pt_range, self.max_jet_pt_range)
+            self.h_jet_phi_vs_pt[label] = ROOT.TH2F("jet_phi_" + hist_label, "Jet Phi (" + label + "); GeV; counts", 360, 0, 2*np.pi, self.jet_pt_nbins, self.min_jet_pt_range, self.max_jet_pt_range)
             self.h_jet_eta_vs_pt[label] = ROOT.TH2F("jet_eta_" + hist_label, "Jet Eta (" + label + "); GeV; counts", 100, -1.5, 1.5, self.jet_pt_nbins, self.min_jet_pt_range, self.max_jet_pt_range)
             self.h_jet_rapidity_vs_pt[label] = ROOT.TH2F("jet_rapidity_" + hist_label, "Jet Rapidity (" + label + "); counts", 200, 0, 10, self.jet_pt_nbins, self.min_jet_pt_range, self.max_jet_pt_range)
         for jet in jets:
@@ -179,13 +178,14 @@ class Histograms:
 
 def continuousAngleDiff(theta_1, theta_2):
     theta_diff = abs(theta_1 - theta_2)
-    return theta_diff if theta_diff < math.pi else 2*math.pi - theta_diff
+    return theta_diff if theta_diff < np.pi else 2*np.pi - theta_diff
 
 def shouldSelectEvent(event: Event) -> bool:
-    if not event.event_selection & cuts.event.event_selection:
+    ev_pass, evsel_pass, trgsel_pass = cuts.event.selects(event, verbose = True)
+    if not evsel_pass:
         hists.fillQAStatistics("Number of Rejected Events due to event selection (event_selection)", 1)
         return False
-    if not event.triggersel & cuts.event.triggersel:
+    if not trgsel_pass:
         hists.fillQAStatistics("Number of Rejected Events due to event selection (triggersel)", 1)
         return False
     return True
@@ -239,12 +239,13 @@ def findPhotonCandidates(clusters: List[Cluster], tracks: List[Track]) -> List[C
     return candidates
 
 def shouldSelectTrack(track: Track) -> bool:
-    if not track.tracksel & cuts.track.tracksel:
+    track_pass, tracksel_pass, pt_min_pass = cuts.track.selects(track, verbose = True)
+    if not tracksel_pass:
     # if not isAnyBitSet(track.tracksel, cuts.track.tracksel):
         hists.fillQAStatistics("Number of tracks excluded due to track selection bit", 1)
         return False
     hists.fillTrackQA(track, "After Track Selection Cut")
-    if track.pt < cuts.track.min_pt:
+    if not pt_min_pass:
         hists.fillQAStatistics("Number of tracks excluded due to pT cutoff", 1)
         return False
     hists.fillTrackQA(track, "After Track pT Cut")

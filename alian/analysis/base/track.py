@@ -1,7 +1,7 @@
 import numpy as np
 from collections import namedtuple as nt
 
-from alian.analysis.base.selections import TrackSel
+from alian.analysis.base.selection import TrackSel
 
 _fields = ['pt', 'eta', 'phi', 'label', 'tracksel']
 

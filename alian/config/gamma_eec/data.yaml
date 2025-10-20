@@ -3,7 +3,7 @@ event_cuts:
   event_selection: sel8
   triggersel: GammaHighPtEMCAL,GammaHighPtDCAL
 track_cuts:
-  min_pt: 0.150
+  pt_min: 0.150
   tracksel: globalTrack
 cluster_cuts:
   E_min: 0.7
@@ -15,3 +15,10 @@ cluster_cuts:
   delta_eta: 0.05
   energy_pt_ratio_threshold: 1.75
   iso_pt_threshold: 1.5
+
+bins:
+  pT_bins: ['c', [5, 10, 20, 40, 60, 80, 100, 150]]
+  RL_bins: ['log', 1.0e-3, 1, 30]
+
+hists:
+  a/b/photon_pT: [2, "det eec T;ew;R_{L}", RL_bins, pT_bins]

@@ -1,6 +1,6 @@
 from alian.analysis.base.track import get_tracks
 from alian.analysis.base.cluster import get_clusters
-from alian.analysis.base.selections import EvSel, TrgSel
+from alian.analysis.base.selection import EvSel, TrgSel
 
 class Event:
     def __init__(self, event_struct):

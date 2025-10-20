@@ -1,7 +1,6 @@
 from enum import Flag, auto
 from numpy import number
 
-# selections from O2Physics::daily-20240910-0200
 
 class Selection(Flag):
     @classmethod
@@ -20,6 +19,7 @@ class Selection(Flag):
             raise TypeError(f"Cannot parse {cls.__name__} '{value}' of type {type(value)}")
         return res
 
+# selections from O2Physics::daily-20240910-0200
 class TrgSel(Selection):
     noTrigSel = auto()
     JetChLowPt = auto()
@@ -44,6 +44,7 @@ class TrgSel(Selection):
     GammaVeryLowPtEMCAL = auto()
     GammaVeryLowPtDCAL = auto()
 
+# selections from O2Physics::daily-20240910-0200
 class EvSel(Selection):
     sel8 = auto()
     sel8Full = auto()
@@ -56,6 +57,7 @@ class EvSel(Selection):
     sel7 = auto()
     sel7KINT7 = auto()
 
+# selections from O2Physics::daily-20240910-0200
 class TrackSel(Selection):
     trackSign = auto() # 1 = positive, 0 = negative
     globalTrack = auto()

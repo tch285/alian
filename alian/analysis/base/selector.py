@@ -1,6 +1,6 @@
 import yaml
 
-import alian.analysis.base.selections as sel
+import alian.analysis.base.selection as sel
 
 class Selector:
     _defaults = {}
@@ -30,9 +30,11 @@ class Selector:
             print(f"{self._selfid}: invalid cuts given, will be ignored: {', '.join(bad_sels)}")
         return {sel: val for sel, val in selections.items() if sel in self._defaults}
 
+    def selects(self, obj):
+        raise NotImplementedError
+
     def dump(self):
         print(f"{self._selfid}:\n" + "\n".join([f"\t{key}: {getattr(self, key)}" for key in self._defaults]))
-
 
 class EventSelector(Selector):
     _defaults = {
@@ -46,6 +48,14 @@ class EventSelector(Selector):
             self.event_selection = sel.EvSel(selections["event_selection"])
         if "triggersel" in selections:
             self.triggersel = sel.TrgSel(selections["triggersel"])
+
+    def selects(self, ev, verbose = False):
+        evsel_pass = bool(self.event_selection & ev.event_selection)
+        trgsel_pass = bool(self.triggersel & ev.triggersel)
+        if verbose:
+            return evsel_pass and trgsel_pass, evsel_pass, trgsel_pass
+        else:
+            return evsel_pass and trgsel_pass
 
 class ClusterSelector(Selector):
     _defaults = {
@@ -67,18 +77,34 @@ class ClusterSelector(Selector):
         for name, val in selections.items():
             setattr(self, name, val)
 
+    def selects(self, ev, verbose = False):
+        pass_evsel = self.event_selection & ev.event_selection
+        pass_trgsel = self.triggersel & ev.triggersel
+        if verbose:
+            return pass_evsel and pass_trgsel, pass_evsel, pass_trgsel
+        else:
+            return pass_evsel and pass_trgsel
+
 class TrackSelector(Selector):
     _defaults = {
-        'min_pt': .150, # GeV
+        'pt_min': .150, # GeV
         'tracksel': sel.TrackSel.globalTrack
     }
     _selfid = 'Track selector'
 
     def _update_selection(self, **selections):
-        if "min_pt" in selections:
-            self.min_pt = selections["min_pt"]
+        if "pt_min" in selections:
+            self.pt_min = selections["pt_min"]
         if "tracksel" in selections:
             self.tracksel = sel.TrackSel(selections["tracksel"])
+
+    def selects(self, track, verbose = True):
+        tracksel_pass = bool(self.tracksel & track.tracksel)
+        pt_min_pass = track.pt > self.pt_min
+        if verbose:
+            return tracksel_pass and pt_min_pass, tracksel_pass, pt_min_pass
+        else:
+            return tracksel_pass and pt_min_pass
 
 class AnalysisSelector:
     def __init__(self, event = None, track = None, cluster = None):
