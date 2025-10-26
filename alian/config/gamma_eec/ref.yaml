@@ -1,0 +1,17 @@
+# Event cuts
+event_cuts:
+  event_selection: sel8
+  triggersel: GammaHighPtEMCAL,GammaHighPtDCAL
+track_cuts:
+  min_pt: 0.150
+  tracksel: globalTrack
+cluster_cuts:
+  min_E: 0.7
+  min_time: -30
+  max_time: 35
+  min_m02: 0.1
+  max_m02: 0.3
+  delta_phi: 0.05
+  delta_eta: 0.05
+  energy_pt_ratio_threshold: 1.75
+  isolation_pt_threshold: 1.5
