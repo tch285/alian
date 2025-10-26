@@ -2,6 +2,7 @@ eventTree:
   branches:
   - run_number
   - event_selection
+  - triggersel
   - centrality
   - multiplicity
   - track_data_eta
