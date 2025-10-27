@@ -1,0 +1,17 @@
+# Event cuts
+event_cuts:
+  event_selection: sel8
+  triggersel: GammaHighPtEMCAL,GammaHighPtDCAL
+track_cuts:
+  pt_min: 0.150
+  tracksel: globalTrack
+cluster_cuts:
+  E_min: 0.7
+  time_min: -30
+  time_max: 35
+  m02_min: 0.1
+  m02_max: 0.3
+  delta_phi: 0.05
+  delta_eta: 0.05
+  e_pt_max: 1.75
+  iso_pt_max: 1.5
