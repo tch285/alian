@@ -19,6 +19,12 @@ import ROOT
 from alian.analysis.base import AnalysisSelector
 from alian.analysis.base.logging import setup_logger
 
+def linbins(xmin, xmax, nbins):
+    return np.linspace(xmin, xmax, nbins+1)
+def logbins(xmin, xmax, nbins):
+    return np.logspace(np.log10(xmin), np.log10(xmax), nbins+1)
+
+ROOT.TH1.SetDefaultSumw2() # applies to TH2 and TH3 as well
 
 class AnalysisQA:
     def __init__(self, inf, outf, cfg):
@@ -69,24 +75,40 @@ class AnalysisQA:
         fill_and_save() is called.
         """
         self.histos['track_pt'] = self.df_track.Histo1D(
-            ("track_pt", 'Track #it{p}_T;track #it{p}_T (GeV);Counts', 50, 0, 30),
+            ("track_pt", 'Track #it{p}_T;track #it{p}_{T} (GeV);Counts', 300, logbins(0.15, 100, 300)),
             "pt"
         )
         self.histos['track_eta'] = self.df_track.Histo1D(
-            ("track_eta", 'Track #eta;track #eta;Counts', 50, -0.9, 0.9),
+            ("track_eta", 'Track #eta;track #eta;Counts', 100, -0.9, 0.9),
             "eta"
         )
         self.histos['track_phi'] = self.df_track.Histo1D(
-            ("track_phi", 'Track #phi;track #phi;Counts', 50, 0, 2*np.pi),
+            ("track_phi", 'Track #phi;track #phi;Counts', 200, 0, 2*np.pi),
             "phi"
         )
         self.histos['track_eta_phi'] = self.df_track.Histo2D(
-            ("track_eta_phi", '#eta-#phi distribution;#eta;#phi', 50, -0.9, 0.9, 50, 0, 2*np.pi),
+            ("track_eta_phi", 'Track #eta-#phi distribution;#eta;#phi', 200, -0.9, 0.9, 200, 0, 2*np.pi),
             "eta", "phi"
         )
         self.histos['cluster_E'] = self.df_cluster.Histo1D(
-            ("cluster_E", 'Cluster energy distribution;#it{E} (GeV);Counts', 50, 0, 25),
+            ("cluster_E", 'Cluster energy distribution (no cut);#it{E} (GeV);Counts', 200, 0, 80),
+            "cluster_data_energy"
+        )
+        self.histos['cluster_E_wcut'] = self.df_cluster.Histo1D(
+            ("cluster_E_wcut", 'Cluster energy distribution (with cut);#it{E} (GeV);Counts', 200, 0, 80),
             "energy"
+        )
+        self.histos['clus_m02_E'] = self.df_track.Histo2D(
+            ("clus_m02_E", 'm02 vs. E;#it{m}_{02};E_{#gamma} (GeV)', 400, 0, 2, 14, 10, 80),
+            "cluster_data_m02", "cluster_data_energy"
+        )
+        self.histos['clus_time_E'] = self.df_track.Histo2D(
+            ("clus_time_E", 'time vs E;time (ns);E_{#gamma} (GeV)', 400, -100, 100, 14, 10, 80),
+            "cluster_data_time", "cluster_data_energy"
+        )
+        self.histos['clus_eta_phi'] = self.df_track.Histo2D(
+            ("clus_eta_phi", 'Cluster #eta-#phi distribution;#eta;#phi', 200, -0.9, 0.9, 200, 0, 2*np.pi),
+            "cluster_data_eta", "cluster_data_phi"
         )
         self.note_time("Histograms defined")
 
@@ -99,6 +121,7 @@ class AnalysisQA:
             for h in self.histos.values():
                 h.Write()
         self.note_time("Histograms saved")
+        logger.info(f"Output: {self.outf}")
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(
@@ -107,9 +130,9 @@ if __name__ == '__main__':
     parser.add_argument("-i", "--input", type=str, help="Input file or file containing a list of input files.", required = True)
     parser.add_argument("-o", "--output", type=str, help="File to write the analysis.", required = True)
     parser.add_argument("-c", "--config", type=str, help="YAML file describing the cuts to be applied to the data.", default=None)
-
     args = parser.parse_args()
     logger = setup_logger(__name__)
 
+    ROOT.EnableImplicitMT()
     analysis = AnalysisQA(args.input, args.output, args.config)
     analysis.analyze()

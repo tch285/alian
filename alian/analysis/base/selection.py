@@ -10,6 +10,9 @@ class Selection(IntFlag):
     def max_value(cls):
         return 2 ** len(cls) - 1
 
+    def __invert__(self):
+        return self.__class__(self.__class__.max_value() - int(self))
+
     @classmethod
     def _missing_(cls, value):
         if isinstance(value, str):

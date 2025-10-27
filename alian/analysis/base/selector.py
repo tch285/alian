@@ -4,30 +4,38 @@ import alian.analysis.base.selection as sel
 
 class Selector:
     _defaults = {}
+    _nosel = {}
     _selfid = ''
-    def __init__(self, **selections):
-        self.set_selection(**selections)
+    def __init__(self, use_defaults = False, **selections):
+        self.set_selection(use_defaults = use_defaults, **selections)
 
-    def set_selection(self, **selections):
-        """Set selections. Unspecified selections are set to default values."""
-        self.reset_selection()
+    def set_selection(self, use_defaults, **selections):
+        """Set selections. Unspecified selections are set to extremal (no cut) values."""
+        self.reset_selection(use_defaults)
         self.update_selection(**selections)
 
-    def reset_selection(self):
-        """Reset selection to defaults."""
-        for selection, value in self._defaults.items():
-            setattr(self, selection, value)
+    def reset_selection(self, use_defaults = False):
+        """Reset selection to default or no-selection values."""
+        if use_defaults:
+            for selection, value in self._defaults.items():
+                setattr(self, selection, value)
+        else:
+            for selection, value in self._nosel.items():
+                setattr(self, selection, value)
 
     def update_selection(self, **selections):
-        valid_sels = self._validate(**selections)
+        valid_sels = self._validate_selection(**selections)
         self._update_selection(**valid_sels)
+
     def _update_selection(self, **selections):
         raise NotImplementedError
 
     def apply_to(self, df):
+        """Apply cuts to the event RDataFrame."""
         raise NotImplementedError
 
-    def _validate(self, **selections):
+    def _validate_selection(self, **selections):
+        """Validate the passed selection, and raise warnings if invalid selections were given."""
         bad_sels = [sel for sel in selections.keys() if sel not in self._defaults]
         if bad_sels:
             print(f"{self._selfid}: invalid cuts given, will be ignored: {', '.join(bad_sels)}")
@@ -44,6 +52,10 @@ class EventSelector(Selector):
         "event_selection": sel.EvSel.sel8,
         "triggersel": sel.TrgSel.GammaHighPtEMCAL
     }
+    _nosel = {
+        "event_selection": ~sel.EvSel(0),
+        "triggersel": ~sel.TrgSel(0)
+    }
     _selfid = "Event selector"
 
     def _update_selection(self, **selections):
@@ -53,9 +65,8 @@ class EventSelector(Selector):
             self.triggersel = sel.TrgSel(selections["triggersel"])
 
     def apply_to(self, df):
-        evsel = int(self.event_selection)
-        trgsel = int(self.triggersel)
-        return df.Filter(f"(event_selection & {evsel}) && (triggersel & {trgsel})")
+        """Apply event selections to the event RDataFrame."""
+        return df.Filter(f"(event_selection & {self.event_selection}) && (triggersel & {self.triggersel})")
 
     def selects(self, ev, verbose = False):
         evsel_pass = bool(self.event_selection & ev.event_selection)
@@ -89,6 +100,29 @@ class ClusterSelector(Selector):
         "distancebadchannel": 0, # min distance to a bad EMC channel
         "nlm": 1, # max number of cluster local maxima
     }
+    _nosel = {
+        # cluster cuts
+        "E_min": -1, #  min cluster energy (GeV)
+        "m02_min": -1, # min m02
+        "m02_max": 10000, # max m02
+        "time_min": -5000, # min relative timing (ns)
+        "time_max": 5000, # max relative timing (ns)
+        "ncells_min": -1, # min number of cells
+        # FIXME: these cuts are filled with dummy values in JE derived data,
+        # so these should be optimized once they are properly implemented
+        # in O2Physics.
+        #   distancebadchannel currently filled with 1024
+        #   nlm currently filled with zeros
+        "distancebadchannel": -1, # min distance to a bad EMC channel
+        "nlm": 100, # max number of cluster local maxima
+        # track-cluster matching cuts
+        "delta_phi": -1, # min angle in phi to track match
+        "delta_eta": -1, # min distance in pseudorapidity to track match
+        "e_pt_max": -1, # max Eclus/track pT ratio to track match
+        # isolation cuts
+        "iso_cone_R": 0.4, # isocone radius
+        "iso_pt_max": 5000, # max isocone pT (GeV)
+    }
     _selfid = 'Cluster selector'
 
     def _update_selection(self, **selections):
@@ -116,16 +150,21 @@ class ClusterSelector(Selector):
 
     def is_geo_matched(self, cluster, track):
         # TODO: phi* matching instead of phi
-        # TODO: or figure out how to use matchingTrackIndex from AO2D
+        # TODO: KDTree based matching
+        # TODO: use matchedTrackIndex from AO2D
         """Checks if a cluster and track match in eta and phi."""
         return np.abs(cluster.delta_eta(track)) <= self.delta_eta and \
             np.abs(cluster.delta_phi(track)) <= self.delta_phi
     def is_e_pt_matched(self, cluster, track):
         """Checks if a cluster and track match in energy."""
         return cluster.energy / track.p <= self.e_pt_max
+    def is_not_in_sector_edge(self, cluster, track):
+        # TODO: implement TPC sector edge cut from LF
+        return True
     def is_matched(self, cluster, track):
         """Checks if a cluster and track match."""
-        return self.is_geo_matched(cluster, track) and self.is_e_pt_matched(cluster, track)
+        return self.is_geo_matched(cluster, track) and self.is_e_pt_matched(cluster, track) \
+            and self.is_not_in_sector_edge(cluster, track)
     def pass_shape(self, cluster):
         """Checks if the cluster passes the shape cut."""
         return cluster.m02 > self.m02_min and cluster.m02 < self.m02_max
@@ -173,6 +212,10 @@ class TrackSelector(Selector):
         'pt_min': .150, # GeV
         'tracksel': sel.TrackSel.globalTrack
     }
+    _nosel = {
+        'pt_min': -1, # GeV
+        'tracksel': ~sel.TrackSel(0)
+    }
     _selfid = 'Track selector'
 
     def _update_selection(self, **selections):
@@ -182,9 +225,8 @@ class TrackSelector(Selector):
             self.tracksel = sel.TrackSel(selections["tracksel"])
 
     def apply_to(self, df):
-        trksel = int(self.tracksel)
         mask = (f"(track_data_pt >= {self.pt_min}) "
-             f"&& (track_data_tracksel & {trksel}) "
+             f"&& (track_data_tracksel & {self.tracksel}) "
              )
         ret = df.Define('track_mask', mask)
         for colname, newname in {"track_data_eta": "eta",
