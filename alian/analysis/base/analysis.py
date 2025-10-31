@@ -1,4 +1,4 @@
-import heppyy 
+import heppyy
 
 class BaseAnalysis(heppyy.GenericObject):
     _defaults = {}

@@ -246,22 +246,24 @@ class TrackSelector(Selector):
 
 class AnalysisSelector:
     def __init__(self, event = None, track = None, cluster = None):
-        self.event = event
-        self.track = track
-        self.cluster = cluster
+        self.event = EventSelector()
+        self.track = TrackSelector()
+        self.cluster = ClusterSelector()
 
     @classmethod
     def from_file(cls, file: str):
         selector = cls()
         if file is not None:
             with open(file) as stream:
-                cuts = yaml.safe_load(stream)
-            if "event_cuts" in cuts:
-                selector.event = EventSelector(**cuts["event_cuts"])
-            if "track_cuts" in cuts:
-                selector.track = TrackSelector(**cuts["track_cuts"])
-            if "cluster_cuts" in cuts:
-                selector.cluster = ClusterSelector(**cuts["cluster_cuts"])
+                cfg = yaml.safe_load(stream)
+        selections = cfg['selections']
+        use_defaults = cfg.get('defaults', False)
+        if "event" in selections:
+            selector.event.set_selection(use_defaults = use_defaults, **selections["event"])
+        if "track" in selections:
+            selector.track.set_selection(use_defaults = use_defaults, **selections["track"])
+        if "cluster" in selections:
+            selector.cluster.set_selection(use_defaults = use_defaults, **selections["cluster"])
         return selector
 
     @property
