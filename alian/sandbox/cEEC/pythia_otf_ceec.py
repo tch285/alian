@@ -108,6 +108,7 @@ class PythiaOTFENC(object):
             self.user_config.append("PartonShowers:Model = 2")
             if self.custom_tune:
                 logger.info("Shower tune: using Vincia tune")
+                self.user_config.append("Vincia:Tune = 0")
             else:
                 logger.info("Shower tune: using default (non-Vincia) tune")
                 self.user_config.append("Vincia:Tune = -1")
@@ -116,6 +117,7 @@ class PythiaOTFENC(object):
             self.user_config.append("PartonShowers:Model = 3")
             if self.custom_tune:
                 logger.info("Shower tune: using Dire tune")
+                self.user_config.append("Dire:Tune = 1") # is different from Vincia
             else:
                 logger.info("Shower tune: using default (non-Dire) tune")
                 self.user_config.append("Dire:Tune = -1")
