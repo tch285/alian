@@ -1,0 +1,16 @@
+eta_max: 0.9
+min_part_trk_pT: 0.15
+min_jet_pT: 5.0
+
+thr: 1.0
+# RL_binning: [1.0E-3, 1, 30] # the period is important as otherwise PyYAML will read it as a string
+# RL_binning: [1.0E-2, 0.4, 20] # the period is important as otherwise PyYAML will read it as a string
+part_pT_binning: [0.15, 30, 200]
+# jet_pT_binning: [0, 200, 200]
+jet_pT_binning: [20, 80, 3]
+
+# shower: dire
+shower: simple
+# resonance_decay: False
+# custom_tune: True
+# custom_tune: False
