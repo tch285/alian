@@ -47,7 +47,8 @@ def get_src(pythia, p8p):
     # 6 beam remnant
     if -3 in types:
         return 3
-    elif -2 in types:
+    # elif -2 in types:
+    elif -2 in types and -5 in types:
         return 2
     elif -4 in types:
         return 4
@@ -107,7 +108,7 @@ class PythiaOTFENC(object):
         # 6 beam remnant
         for src in [2, 3, 4, 6, 0]:
             self.hists[src] = {}
-            for sgn in ["P", "M"]:
+            for sgn in ["P", "M", "J"]:
                 self.hists[src][sgn] = ROOT.TH2D(
                     f"pt_{src}_{sgn}",
                     f"pT_{src}_{sgn};part p_{{T}};jet p_{{T}}",
@@ -297,9 +298,9 @@ class PythiaOTFENC(object):
             jets = [jet for jet in jets if jet.pt() < self.reject_tail * self.pThat]
 
         for jet in jets:
-            self.analyze_cones(parts, jet)
+            self.analyze_jets_and_cones(parts, jet)
 
-    def analyze_cones(self, parts, jet):
+    def analyze_jets_and_cones(self, parts, jet):
         # coneR = np.sqrt(jet.area() / np.pi) if self.matched_cone else jetR
         coneR = self.jetR
         angle = np.pi / 2
@@ -309,12 +310,13 @@ class PythiaOTFENC(object):
         rot_jet_2.reset_PtYPhiM(jet.pt(), jet.rap(), jet.phi() - angle, jet.m())
         for part in parts:
             if np.sqrt((rot_jet_1.eta() - part.eta()) ** 2 + (rot_jet_1.delta_phi_to(part)) ** 2) <= coneR:
-                self.analyze_cone_part(part, "P", jet.pt())
+                self.analyze_part(part, "P", jet.pt())
             # particles can only be in one cone or the other, so we can use elif
             elif np.sqrt((rot_jet_2.eta() - part.eta()) ** 2 + (rot_jet_2.delta_phi_to(part)) ** 2) <= coneR:
-                self.analyze_cone_part(part, "M", jet.pt())
-
-    def analyze_cone_part(self, part, sgn, jet_pT):
+                self.analyze_part(part, "M", jet.pt())
+        for c in jet.constituents():
+            self.analyze_part(c, "J", jet.pt())
+    def analyze_part(self, part, sgn, jet_pT):
         p8part = pythiafjtools.getPythia8Particle(part)
         src = get_src(self.pythia, p8part)
         self.hists[src][sgn].Fill(part.pt(), jet_pT)
@@ -350,7 +352,7 @@ class PythiaOTFENC(object):
 
     def _scale_hists(self, scale_f):
         for src in [2, 3, 4, 6, 0]:
-            for sgn in ["P", "M"]:
+            for sgn in ["P", "M", "J"]:
                 self.hists[src][sgn].Scale(scale_f)
         # for ptype in ["T", "Q", "P", "M", "PM"]:
         #     self.hists[ptype].Scale(scale_f)
@@ -360,7 +362,7 @@ class PythiaOTFENC(object):
     def _save_hists(self):
         with ROOT.TFile(self.output_path, "RECREATE") as f:
             for src in [2, 3, 4, 6, 0]:
-                for sgn in ["P", "M"]:
+                for sgn in ["P", "M", "J"]:
                     f.WriteTObject(self.hists[src][sgn])
         logger.info("Histograms saved.")
 
