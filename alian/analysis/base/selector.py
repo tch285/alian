@@ -253,9 +253,8 @@ class AnalysisSelector:
     @classmethod
     def from_file(cls, file: str):
         selector = cls()
-        if file is not None:
-            with open(file) as stream:
-                cfg = yaml.safe_load(stream)
+        with open(file) as stream:
+            cfg = yaml.safe_load(stream)
         selections = cfg['selections']
         use_defaults = cfg.get('defaults', False)
         if "event" in selections:
@@ -266,10 +265,6 @@ class AnalysisSelector:
             selector.cluster.set_selection(use_defaults = use_defaults, **selections["cluster"])
         return selector
 
-    @property
-    def active(self):
-        sels = ['event', 'track', 'cluster']
-        return [sel for sel in sels if getattr(self, sel) is not None]
-
     def dump(self):
-        [getattr(self, sel).dump() for sel in self.active]
+        sels = ['event', 'track', 'cluster']
+        [getattr(self, sel).dump() for sel in sels]
