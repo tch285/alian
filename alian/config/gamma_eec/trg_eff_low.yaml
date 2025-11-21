@@ -1,0 +1,7 @@
+# Event cuts
+selections:
+  event:
+    event_selection: sel8
+    # triggersel: GammaHighPtEMCAL, GammaHighPtDCAL
+    triggersel: GammaLowPtEMCAL, GammaLowPtDCAL
+    # triggersel: GammaVeryLowPtEMCAL, GammaVeryLowPtDCAL
