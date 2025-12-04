@@ -88,7 +88,7 @@ class ClusterSelector(Selector):
         # track-cluster matching cuts
         "delta_phi": 0.05, # min angle in phi to track match
         "delta_eta": 0.05, # min distance in pseudorapidity to track match
-        "e_pt_max": 1.75, # max Eclus/track pT ratio to track match
+        "ep_max": 1.75, # max Eclus/track pT ratio to track match
         # isolation cuts
         "iso_cone_R": 0.4, # isocone radius
         "iso_pt_max": 1.5, # max isocone pT (GeV)
@@ -118,7 +118,7 @@ class ClusterSelector(Selector):
         # track-cluster matching cuts
         "delta_phi": -1, # min angle in phi to track match
         "delta_eta": -1, # min distance in pseudorapidity to track match
-        "e_pt_max": -1, # max Eclus/track pT ratio to track match
+        "ep_max": -1, # max Eclus/track pT ratio to track match
         # isolation cuts
         "iso_cone_R": 0.4, # isocone radius
         "iso_pt_max": 5000, # max isocone pT (GeV)
@@ -149,21 +149,19 @@ class ClusterSelector(Selector):
         return ret
 
     def is_geo_matched(self, cluster, track):
-        # TODO: phi* matching instead of phi
-        # TODO: KDTree based matching
         # TODO: use matchedTrackIndex from AO2D
         """Checks if a cluster and track match in eta and phi."""
         return np.abs(cluster.delta_eta(track)) <= self.delta_eta and \
             np.abs(cluster.delta_phi(track)) <= self.delta_phi
-    def is_e_pt_matched(self, cluster, track):
+    def is_ep_matched(self, cluster, track):
         """Checks if a cluster and track match in energy."""
-        return cluster.energy / track.p <= self.e_pt_max
+        return cluster.energy / track.p <= self.ep_max
     def is_not_in_sector_edge(self, cluster, track):
         # TODO: implement TPC sector edge cut from LF
         return True
     def is_matched(self, cluster, track):
         """Checks if a cluster and track match."""
-        return self.is_geo_matched(cluster, track) and self.is_e_pt_matched(cluster, track) \
+        return self.is_geo_matched(cluster, track) and self.is_ep_matched(cluster, track) \
             and self.is_not_in_sector_edge(cluster, track)
     def pass_shape(self, cluster):
         """Checks if the cluster passes the shape cut."""
@@ -225,6 +223,7 @@ class TrackSelector(Selector):
             self.tracksel = sel.TrackSel(selections["tracksel"])
 
     def apply_to(self, df):
+        """Apply selections to RDataFrame df."""
         mask = (f"(track_data_pt >= {self.pt_min}) "
              f"&& (track_data_tracksel & {self.tracksel}) "
              )

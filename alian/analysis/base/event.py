@@ -5,7 +5,6 @@ from alian.analysis.base.selection import EvSel, TrgSel
 class Event:
     def __init__(self, event_struct):
         self.run_number = event_struct.data['run_number']
-        # use .item() to safely convert numpy uint to Python int
         self.event_selection = EvSel(event_struct.data['event_selection'])
         self.triggersel = TrgSel(event_struct.data['triggersel'])
         self.centrality = event_struct.data['centrality']

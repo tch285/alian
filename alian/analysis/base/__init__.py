@@ -4,6 +4,7 @@ from .track import Track
 from .event import Event
 from .selector import AnalysisSelector
 from .histogram import Histogram, HistogramCollection
+from .jet_finder import JetFinder
 # from .csubtractor import CEventSubtractor
 
 __all__ = ['BaseAnalysis',
@@ -12,4 +13,5 @@ __all__ = ['BaseAnalysis',
            'Event',
            'AnalysisSelector',
            'Histogram',
-           'HistogramCollection']
+           'HistogramCollection',
+           'JetFinder']

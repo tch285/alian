@@ -13,6 +13,9 @@ class Selection(IntFlag):
     def __invert__(self):
         return self.__class__(self.__class__.max_value() - int(self))
 
+    def __format__(self, format_spec):
+        return str(self)
+
     @classmethod
     def _missing_(cls, value):
         if isinstance(value, str):

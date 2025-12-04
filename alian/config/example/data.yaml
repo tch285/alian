@@ -1,0 +1,143 @@
+# Event cuts
+selections:
+  event:
+    event_selection: sel8
+    triggersel: GammaHighPtEMCAL, GammaHighPtDCAL
+  track:
+    pt_min: 0.150
+    tracksel: globalTrack
+  cluster:
+    E_min: 0.7
+    time_min: -30
+    time_max: 35
+    m02_min: 0.1
+    m02_max: 0.3
+    delta_phi: 0.05
+    delta_eta: 0.05
+    ep_max: 1.75
+    iso_pt_max: 1.5
+
+analysis:
+  do_iso: True
+  photon_jet_angle_min: 0.75
+
+bins:
+  pT_bins: ['c', [5, 10, 20, 40, 60, 80, 100, 150]]
+  RL_bins: ['log', 1.0e-3, 1, 30]
+  named_bins: ['lin', 0, 1, 1]
+  dphi_bins: ['lin', 0, 3.1415, 50]
+  jet_pT_bins: ['lin', 0, 80, 50]
+  photon_E_bins: ['lin', 0, 80, 200]
+  jet_pT_bins2: ['lin', 0, 80, 100]
+  photon_E_bins2: ['lin', 0, 80, 100]
+  photon_E_bins3: ['lin', 0, 50, 200]
+
+hists:
+  Track Hists (Raw Tracks): 
+    track_pt_raw_tracks: [2, "track_pt_raw_tracks", RL_bins, pT_bins]
+    track_phi_vs_pt_raw_tracks: [2, "track_phi_vs_pt_raw_tracks", RL_bins, pT_bins]
+    track_eta_vs_pt_raw_tracks: [2, "track_eta_vs_pt_raw_tracks", RL_bins, pT_bins]
+  Track Hists (After Track Selection Cut):
+    track_pt_after_track_selection_cut: [2, "track_pt_after_track_selection_cut", RL_bins, pT_bins]
+    track_phi_vs_pt_after_track_selection_cut: [2, "track_phi_vs_pt_after_track_selection_cut", RL_bins, pT_bins]
+    track_eta_vs_pt_after_track_selection_cut: [2, "track_eta_vs_pt_after_track_selection_cut", RL_bins, pT_bins]
+  Track Hists (After Track pT Cut):
+    track_pt_after_track_cut: [2, "track_pt_after_track_cut", RL_bins, pT_bins]
+    track_phi_vs_pt_after_track_cut: [2, "track_phi_vs_pt_after_track_cut", RL_bins, pT_bins]
+    track_eta_vs_pt_after_track_cut: [2, "track_eta_vs_pt_after_track_cut", RL_bins, pT_bins]
+  Track Hists (Selected Tracks):
+    track_pt_selected_tracks: [2, "track_pt_selected_tracks", RL_bins, pT_bins]
+    track_phi_vs_pt_selected_tracks: [2, "track_phi_vs_pt_selected_tracks", RL_bins, pT_bins]
+    track_eta_vs_pt_selected_tracks: [2, "track_eta_vs_pt_selected_tracks", RL_bins, pT_bins]
+  Cluster Hists (Raw Clusters):
+    cluster_energy_raw_clusters: [2, "cluster_energy_raw_clusters", RL_bins, pT_bins]
+    cluster_phi_vs_energy_raw_clusters: [2, "cluster_phi_vs_energy_raw_clusters", RL_bins, pT_bins]
+    cluster_eta_vs_energy_raw_clusters: [2, "cluster_eta_vs_energy_raw_clusters", RL_bins, pT_bins]
+    cluster_m02_vs_energy_raw_clusters: [2, "cluster_m02_vs_energy_raw_clusters", RL_bins, pT_bins]
+    cluster_m20_vs_energy_raw_clusters: [2, "cluster_m20_vs_energy_raw_clusters", RL_bins, pT_bins]
+    cluster_ncells_vs_energy_raw_clusters: [2, "cluster_ncells_vs_energy_raw_clusters", RL_bins, pT_bins]
+    cluster_time_vs_energy_raw_clusters: [2, "cluster_time_vs_energy_raw_clusters", RL_bins, pT_bins]
+    cluster_isexotic_vs_energy_raw_clusters: [2, "cluster_isexotic_vs_energy_raw_clusters", RL_bins, pT_bins]
+  Cluster Hists (Photon Candidates):
+    cluster_energy_photon_candidates: [2, "cluster_energy_photon_candidates", RL_bins, pT_bins]
+    cluster_phi_vs_energy_photon_candidates: [2, "cluster_phi_vs_energy_photon_candidates", RL_bins, pT_bins]
+    cluster_eta_vs_energy_photon_candidates: [2, "cluster_eta_vs_energy_photon_candidates", RL_bins, pT_bins]
+    cluster_m02_vs_energy_photon_candidates: [2, "cluster_m02_vs_energy_photon_candidates", RL_bins, pT_bins]
+    cluster_m20_vs_energy_photon_candidates: [2, "cluster_m20_vs_energy_photon_candidates", RL_bins, pT_bins]
+    cluster_ncells_vs_energy_photon_candidates: [2, "cluster_ncells_vs_energy_photon_candidates", RL_bins, pT_bins]
+    cluster_time_vs_energy_photon_candidates: [2, "cluster_time_vs_energy_photon_candidates", RL_bins, pT_bins]
+    cluster_isexotic_vs_energy_photon_candidates: [2, "cluster_isexotic_vs_energy_photon_candidates", RL_bins, pT_bins]
+  Cluster Hists (Isolated Photon Candidates):
+    cluster_energy_isolated_photon_candidates: [2, "cluster_energy_isolated_photon_candidates", RL_bins, pT_bins]
+    cluster_phi_vs_energy_isolated_photon_candidates: [2, "cluster_phi_vs_energy_isolated_photon_candidates", RL_bins, pT_bins]
+    cluster_eta_vs_energy_isolated_photon_candidates: [2, "cluster_eta_vs_energy_isolated_photon_candidates", RL_bins, pT_bins]
+    cluster_m02_vs_energy_isolated_photon_candidates: [2, "cluster_m02_vs_energy_isolated_photon_candidates", RL_bins, pT_bins]
+    cluster_m20_vs_energy_isolated_photon_candidates: [2, "cluster_m20_vs_energy_isolated_photon_candidates", RL_bins, pT_bins]
+    cluster_ncells_vs_energy_isolated_photon_candidates: [2, "cluster_ncells_vs_energy_isolated_photon_candidates", RL_bins, pT_bins]
+    cluster_time_vs_energy_isolated_photon_candidates: [2, "cluster_time_vs_energy_isolated_photon_candidates", RL_bins, pT_bins]
+    cluster_isexotic_vs_energy_isolated_photon_candidates: [2, "cluster_isexotic_vs_energy_isolated_photon_candidates", RL_bins, pT_bins]
+  Cluster Hists (After Cluster Shape Cut):
+    cluster_energy_after_cluster_shape_cut: [2, "cluster_energy_after_cluster_shape_cut", RL_bins, pT_bins]
+    cluster_phi_vs_energy_after_cluster_shape_cut: [2, "cluster_phi_vs_energy_after_cluster_shape_cut", RL_bins, pT_bins]
+    cluster_eta_vs_energy_after_cluster_shape_cut: [2, "cluster_eta_vs_energy_after_cluster_shape_cut", RL_bins, pT_bins]
+    cluster_m02_vs_energy_after_cluster_shape_cut: [2, "cluster_m02_vs_energy_after_cluster_shape_cut", RL_bins, pT_bins]
+    cluster_m20_vs_energy_after_cluster_shape_cut: [2, "cluster_m20_vs_energy_after_cluster_shape_cut", RL_bins, pT_bins]
+    cluster_ncells_vs_energy_after_cluster_shape_cut: [2, "cluster_ncells_vs_energy_after_cluster_shape_cut", RL_bins, pT_bins]
+    cluster_time_vs_energy_after_cluster_shape_cut: [2, "cluster_time_vs_energy_after_cluster_shape_cut", RL_bins, pT_bins]
+    cluster_isexotic_vs_energy_after_cluster_shape_cut: [2, "cluster_isexotic_vs_energy_after_cluster_shape_cut", RL_bins, pT_bins]
+  Cluster Hists (After Cluster Time Cut):
+    cluster_energy_after_cluster_time_cut: [2, "cluster_energy_after_cluster_time_cut", RL_bins, pT_bins]
+    cluster_phi_vs_energy_after_cluster_time_cut: [2, "cluster_phi_vs_energy_after_cluster_time_cut", RL_bins, pT_bins]
+    cluster_eta_vs_energy_after_cluster_time_cut: [2, "cluster_eta_vs_energy_after_cluster_time_cut", RL_bins, pT_bins]
+    cluster_m02_vs_energy_after_cluster_time_cut: [2, "cluster_m02_vs_energy_after_cluster_time_cut", RL_bins, pT_bins]
+    cluster_m20_vs_energy_after_cluster_time_cut: [2, "cluster_m20_vs_energy_after_cluster_time_cut", RL_bins, pT_bins]
+    cluster_ncells_vs_energy_after_cluster_time_cut: [2, "cluster_ncells_vs_energy_after_cluster_time_cut", RL_bins, pT_bins]
+    cluster_time_vs_energy_after_cluster_time_cut: [2, "cluster_time_vs_energy_after_cluster_time_cut", RL_bins, pT_bins]
+    cluster_isexotic_vs_energy_after_cluster_time_cut: [2, "cluster_isexotic_vs_energy_after_cluster_time_cut", RL_bins, pT_bins]
+  Cluster Hists (After Cluster Cell Number Cut):
+    cluster_energy_after_cluster_cell_number_cut: [2, "cluster_energy_after_cluster_cell_number_cut", RL_bins, pT_bins]
+    cluster_phi_vs_energy_after_cluster_cell_number_cut: [2, "cluster_phi_vs_energy_after_cluster_cell_number_cut", RL_bins, pT_bins]
+    cluster_eta_vs_energy_after_cluster_cell_number_cut: [2, "cluster_eta_vs_energy_after_cluster_cell_number_cut", RL_bins, pT_bins]
+    cluster_m02_vs_energy_after_cluster_cell_number_cut: [2, "cluster_m02_vs_energy_after_cluster_cell_number_cut", RL_bins, pT_bins]
+    cluster_m20_vs_energy_after_cluster_cell_number_cut: [2, "cluster_m20_vs_energy_after_cluster_cell_number_cut", RL_bins, pT_bins]
+    cluster_ncells_vs_energy_after_cluster_cell_number_cut: [2, "cluster_ncells_vs_energy_after_cluster_cell_number_cut", RL_bins, pT_bins]
+    cluster_time_vs_energy_after_cluster_cell_number_cut: [2, "cluster_time_vs_energy_after_cluster_cell_number_cut", RL_bins, pT_bins]
+    cluster_isexotic_vs_energy_after_cluster_cell_number_cut: [2, "cluster_isexotic_vs_energy_after_cluster_cell_number_cut", RL_bins, pT_bins]
+  Cluster Hists (After Cluster Energy Cut):
+    cluster_energy_after_cluster_energy_cut: [2, "cluster_energy_after_cluster_energy_cut", RL_bins, pT_bins]
+    cluster_phi_vs_energy_after_cluster_energy_cut: [2, "cluster_phi_vs_energy_after_cluster_energy_cut", RL_bins, pT_bins]
+    cluster_eta_vs_energy_after_cluster_energy_cut: [2, "cluster_eta_vs_energy_after_cluster_energy_cut", RL_bins, pT_bins]
+    cluster_m02_vs_energy_after_cluster_energy_cut: [2, "cluster_m02_vs_energy_after_cluster_energy_cut", RL_bins, pT_bins]
+    cluster_m20_vs_energy_after_cluster_energy_cut: [2, "cluster_m20_vs_energy_after_cluster_energy_cut", RL_bins, pT_bins]
+    cluster_ncells_vs_energy_after_cluster_energy_cut: [2, "cluster_ncells_vs_energy_after_cluster_energy_cut", RL_bins, pT_bins]
+    cluster_time_vs_energy_after_cluster_energy_cut: [2, "cluster_time_vs_energy_after_cluster_energy_cut", RL_bins, pT_bins]
+    cluster_isexotic_vs_energy_after_cluster_energy_cut: [2, "cluster_isexotic_vs_energy_after_cluster_energy_cut", RL_bins, pT_bins]
+  Cluster Hists (After Cluster Exoticity Cut):
+    cluster_energy_after_cluster_exoticity_cut: [2, "cluster_energy_after_cluster_exoticity_cut", RL_bins, pT_bins]
+    cluster_phi_vs_energy_after_cluster_exoticity_cut: [2, "cluster_phi_vs_energy_after_cluster_exoticity_cut", RL_bins, pT_bins]
+    cluster_eta_vs_energy_after_cluster_exoticity_cut: [2, "cluster_eta_vs_energy_after_cluster_exoticity_cut", RL_bins, pT_bins]
+    cluster_m02_vs_energy_after_cluster_exoticity_cut: [2, "cluster_m02_vs_energy_after_cluster_exoticity_cut", RL_bins, pT_bins]
+    cluster_m20_vs_energy_after_cluster_exoticity_cut: [2, "cluster_m20_vs_energy_after_cluster_exoticity_cut", RL_bins, pT_bins]
+    cluster_ncells_vs_energy_after_cluster_exoticity_cut: [2, "cluster_ncells_vs_energy_after_cluster_exoticity_cut", RL_bins, pT_bins]
+    cluster_time_vs_energy_after_cluster_exoticity_cut: [2, "cluster_time_vs_energy_after_cluster_exoticity_cut", RL_bins, pT_bins]
+    cluster_isexotic_vs_energy_after_cluster_exoticity_cut: [2, "cluster_isexotic_vs_energy_after_cluster_exoticity_cut", RL_bins, pT_bins]
+  Cluster Hists (After Cluster Charged Particle Cut):
+    cluster_energy_after_cluster_charged_particle_cut: [2, "cluster_energy_after_cluster_charged_particle_cut", RL_bins, pT_bins]
+    cluster_phi_vs_energy_after_cluster_charged_particle_cut: [2, "cluster_phi_vs_energy_after_cluster_charged_particle_cut", RL_bins, pT_bins]
+    cluster_eta_vs_energy_after_cluster_charged_particle_cut: [2, "cluster_eta_vs_energy_after_cluster_charged_particle_cut", RL_bins, pT_bins]
+    cluster_m02_vs_energy_after_cluster_charged_particle_cut: [2, "cluster_m02_vs_energy_after_cluster_charged_particle_cut", RL_bins, pT_bins]
+    cluster_m20_vs_energy_after_cluster_charged_particle_cut: [2, "cluster_m20_vs_energy_after_cluster_charged_particle_cut", RL_bins, pT_bins]
+    cluster_ncells_vs_energy_after_cluster_charged_particle_cut: [2, "cluster_ncells_vs_energy_after_cluster_charged_particle_cut", RL_bins, pT_bins]
+    cluster_time_vs_energy_after_cluster_charged_particle_cut: [2, "cluster_time_vs_energy_after_cluster_charged_particle_cut", RL_bins, pT_bins]
+    cluster_isexotic_vs_energy_after_cluster_charged_particle_cut: [2, "cluster_isexotic_vs_energy_after_cluster_charged_particle_cut", RL_bins, pT_bins]
+  Jet Hists (All Jets):
+    jet_energy_all_jets: [2, "jet_energy_all_jets", RL_bins, pT_bins]
+    jet_energy_t_all_jets: [2, "jet_energy_t_all_jets", RL_bins, pT_bins]
+    jet_pt_all_jets: [2, "jet_pt_all_jets", RL_bins, pT_bins]
+    jet_phi_all_jets: [2, "jet_phi_all_jets", RL_bins, pT_bins]
+    jet_eta_all_jets: [2, "jet_eta_all_jets", RL_bins, pT_bins]
+    jet_rapidity_all_jets: [2, "jet_rapidity_all_jets", RL_bins, pT_bins]
+  QA Statistics Histograms: [1, "Counts", named_bins]
+  Total photon candidate pT within isolation cone: [1, Photon pT;GeV;counts, photon_E_bins3]
+  Delta Phi separation between photons and jets: [3, "Delta Phi separation between photons and jets", dphi_bins, jet_pT_bins, photon_E_bins]
+  Jet-Photon pair pT: [2, "Jet-Photon pair pT", jet_pT_bins2, photon_E_bins2]
