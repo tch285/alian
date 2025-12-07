@@ -75,10 +75,12 @@ class PythiaOTFENC(object):
     def prepare(self):
         self.RL_bins = logbins(self.RL_min, self.RL_max, self.RL_nbins)
         self.pT_bins = linbins(self.pT_min, self.pT_max, self.pT_nbins)
+        self.trk_pT_bins = linbins(10, 200, 190)
 
         self.hists = {}
         self.hists['evw'] = ROOT.TH1F("evw", "evw;evw;cts", 100, -3.0, 3.0)
         self.hists['nev'] = ROOT.TH1F("hnev", "nev", 2, -0.5, 1.5)
+        self.hists['pT'] = ROOT.TH1F("track pT", "track pT;track p_{T} (GeV);", 190, self.trk_pT_bins)
 
         for ptype in ["T", "Q", "P", "M", "PM"]:
             self.hists[ptype] = ROOT.TH2D(
@@ -265,7 +267,8 @@ class PythiaOTFENC(object):
         )
         if self.reject_tail:
             jets = [jet for jet in jets if jet.pt() < self.reject_tail * pthat]
-
+        for p in self.part_pT_selector(parts):
+            self.hists['pT'].Fill(p.pt(), self.evw)
         for jet in jets:
             self.analyze_jet(jet)
 
@@ -323,13 +326,14 @@ class PythiaOTFENC(object):
         for ptype in ["T", "Q", "P", "M", "PM"]:
             self.hists[ptype].Scale(scale_f)
         self.hists["jet_pT"].Scale(scale_f)
+        self.hists["pT"].Scale(scale_f)
         logger.info(f"Histograms scaled.")
 
     def _save_hists(self):
         with ROOT.TFile(self.output_path, "RECREATE") as f:
             for hist in self.hists.values():
                 f.WriteTObject(hist)
-        logger.info(f"Histograms saved.")
+        logger.info(f"Histograms saved to: {self.output_path}")
 
 
 def main():
