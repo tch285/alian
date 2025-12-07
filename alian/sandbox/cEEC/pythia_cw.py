@@ -79,6 +79,7 @@ class PythiaOTFCW(object):
     def prepare(self):
         self.RL_bins = logbins(self.RL_min, self.RL_max, self.RL_nbins)
         self.pT_bins = linbins(self.pT_min, self.pT_max, self.pT_nbins)
+        self.trk_pT_bins = linbins(10, 200, 190)
 
         self.hists = {}
         self.hists['evw'] = ROOT.TH1F("evw", "evw;evw;cts", 100, 0, 50.)
@@ -95,6 +96,9 @@ class PythiaOTFCW(object):
             )
         self.hists["jet_pT"] = ROOT.TH1D(
             "jet_pT", "jet pt;pt gev;cts", self.pT_nbins, self.pT_bins
+        )
+        self.hists["trk_pT"] = ROOT.TH1D(
+            "track pT", "track pt;pt gev;cts", len(self.trk_pT_bins) - 1, self.trk_pT_bins
         )
 
         self.jet_def = fj.JetDefinition(fj.antikt_algorithm, self.jetR)
@@ -261,6 +265,8 @@ class PythiaOTFCW(object):
                 logger.log(15, f"Completed {iev} events.")
 
     def analyze_event(self, parts, pthat):
+        for part in parts:
+            self.hists["trk_pT"].Fill(part.pt(), self.evw)
         jets = fj.sorted_by_pt(
             self.jet_selector(self.jet_def(self.part_pT_selector(parts)))
         )
