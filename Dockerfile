@@ -36,10 +36,11 @@ RUN apt-get update -qq \
  && git clone --depth 1 --branch main --single-branch https://github.com/matplo/yasp.git \
  && ./yasp/yaspenv.sh \
    "python3 -m pip install --no-cache-dir -r apps/requirements.txt \
- && yasp -mi bundle/hepbase --opt rootspec=ubuntu22.04 pythiaver=8312 n_cores=2 \
+ && yasp -mi bundle/hepbase --opt rootspec=ubuntu22.04 pythiaver=8311 n_cores=2 \
  && module use yasp/software/modules \
  && module load yasp bundle/hepbase \
  && git clone --depth 1 --branch main --single-branch https://github.com/matplo/heppyy.git \
+ && sed -i 's@/tmp@/opt/yasp/.workdir/bundle/hepbase/pythia8/default/pythia8311@g' /opt/heppyy/heppyy/cmake/Modules/FindPythia8.cmake \
  && ./heppyy/install_with_yasp.sh"
 COPY alian/ /opt/alian/alian
 COPY yasp_recipe/ /opt/alian/yasp_recipe
