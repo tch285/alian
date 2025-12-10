@@ -266,7 +266,11 @@ class PythiaOTFENC(object):
             self.jet_selector(self.jet_def(self.part_pT_selector(parts)))
         )
         if self.reject_tail:
+            njets = len(jets)
             jets = [jet for jet in jets if jet.pt() < self.reject_tail * pthat]
+            n_rejected_jets = njets - len(jets)
+            if n_rejected_jets != 0:
+                logger.warning(f"{n_rejected_jets} jets rejected (unphysical).")
         for p in self.part_pT_selector(parts):
             self.hists['pT'].Fill(p.pt(), self.evw)
         for jet in jets:
