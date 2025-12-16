@@ -75,6 +75,8 @@ class PythiaOTFCW(object):
         self.pThat_min = config.get('pTHat_min', 5)
         self.pThat_max = config.get('pTHat_max', 600)
         self.bias_pow = config.get('bias_pow', 4)
+        self.limit_tau0 = config.get('limit_tau0', False)
+        self.tau0_max = config.get('tau0_max', 10)
 
     def prepare(self):
         self.RL_bins = logbins(self.RL_min, self.RL_max, self.RL_nbins)
@@ -198,6 +200,14 @@ class PythiaOTFCW(object):
         else:
             logger.info("Strong decays turned ON.")
 
+        if self.limit_tau0:
+            logger.info("tau0 limit turned ON.")
+            self.user_config.append(f"ParticleDecays:limitTau0 = on")
+            logger.info(f"tau0 maximum set to: {self.tau0_max}")
+            self.user_config.append(f"ParticleDecays:tau0Max = {self.tau0_max}")
+        else:
+            logger.info("tau0 limit turned OFF.")
+
         if self.reject_tail:
             if self.reject_tail is True: # check specifically for True value, not just truthiness
                 self.reject_tail = 4.5 # default to JE criteria
@@ -265,14 +275,18 @@ class PythiaOTFCW(object):
                 logger.log(15, f"Completed {iev} events.")
 
     def analyze_event(self, parts, pthat):
-        for part in parts:
-            self.hists["trk_pT"].Fill(part.pt(), self.evw)
         jets = fj.sorted_by_pt(
             self.jet_selector(self.jet_def(self.part_pT_selector(parts)))
         )
-        if self.reject_tail:
-            jets = [jet for jet in jets if jet.pt() < self.reject_tail * pthat]
+        # reject event if rejection is on
+        # AND there is at least one jet
+        # AND the leading jet has too high pT
+        if self.reject_tail and jets and jets[0].pt() > self.reject_tail * pthat:
+            logger.warning(f"Found abnormal event (skipping):\n\tpThat={pthat:.3f} GeV\n\tjets: {[j.pt() for j in jets]}, ratio {jets[0].pt() / self.reject_tail:.3f}")
+            return
 
+        for part in parts:
+            self.hists["trk_pT"].Fill(part.pt(), self.evw)
         for jet in jets:
             self.analyze_jet(jet)
 
