@@ -279,7 +279,7 @@ class PythiaOTFENC(object):
         # AND there is at least one jet
         # AND the leading jet has too high pT
         if self.reject_tail and jets and jets[0].pt() > self.reject_tail * pthat:
-            logger.warning(f"Found abnormal event (skipping):\n\tpThat={pthat:.3f} GeV\n\tjets: {[j.pt() for j in jets]}, ratio {jets[0].pt() / self.reject_tail:.3f}")
+            logger.warning(f"Found abnormal event (skipping):\n\tpThat={pthat:.3f} GeV\n\tjets: {[j.pt() for j in jets]}, ratio {jets[0].pt() / pthat:.3f}")
             return
 
         for p in self.part_pT_selector(parts):
