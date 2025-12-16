@@ -237,10 +237,10 @@ class PythiaOTFENC(object):
         logger.info(f"Simulation completed in {time.perf_counter() - self.start:.2f} sec.")
 
     def simulate(self, pythia):
-        iev = 0
+        self.iev = 0
         # ping every 10% of total events
         ping = self.nev // 10
-        while iev < self.nev:
+        while self.iev < self.nev:
             if not pythia.next():
                 self.nfailed += 1
                 continue
@@ -265,11 +265,11 @@ class PythiaOTFENC(object):
             # logger.info('NEW EVENT:')
             # logger.info(f"Sum of weights (histogram): {self.hists['nev'].GetBinContent(1)}")
             # logger.info(f"Sum of weights (Pythia): {pythia.info.weightSum()}")
-            iev += 1
-            # if iev == 10:
+            self.iev += 1
+            # if self.iev == 10:
             #     break
-            if iev % ping == 0:
-                logger.log(15, f"Completed {iev} events.")
+            if self.iev % ping == 0:
+                logger.log(15, f"Completed {self.iev} events.")
 
     def analyze_event(self, parts, pthat):
         jets = fj.sorted_by_pt(
@@ -279,7 +279,7 @@ class PythiaOTFENC(object):
         # AND there is at least one jet
         # AND the leading jet has too high pT
         if self.reject_tail and jets and jets[0].pt() > self.reject_tail * pthat:
-            logger.warning(f"Found abnormal event (skipping):\n\tpThat={pthat:.3f} GeV\n\tjets: {[j.pt() for j in jets]}, ratio {jets[0].pt() / pthat:.3f}")
+            logger.warning(f"Found abnormal event {self.iev} (skipping):\n\tpThat={pthat:.3f} GeV\n\tjets: {[j.pt() for j in jets]}, ratio {jets[0].pt() / pthat:.3f}")
             return
 
         for p in self.part_pT_selector(parts):
