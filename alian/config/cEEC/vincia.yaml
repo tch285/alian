@@ -8,6 +8,7 @@ RL_binning: [1.0E-2, 0.4, 20] # the period is important as otherwise PyYAML will
 pT_binning: [0, 200, 200]
 
 reject_tail: 2.5
+limit_tau0: True
 
 # shower: dire
 shower: vincia
