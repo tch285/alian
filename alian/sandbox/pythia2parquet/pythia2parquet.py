@@ -7,6 +7,7 @@ import os
 import numpy as np
 import sys
 import json
+import pandas as pd
 import yasp
 import cppyy
 
@@ -81,13 +82,19 @@ def main():
   if args.debug:
     log.set_level(logging.DEBUG)
 
-  if args.output == 'pythia8_simple_eec_output.root':
+  if args.output is None:
+    args.output = os.path.basename(__file__).replace('.py', '.root')
+    if args.py_pthatmin > 0:
+      args.output = args.output.replace('.root', f'_pthat{args.py_pthatmin}.root')
     if args.py_vincia:
       args.output = args.output.replace('.root', '_vincia.root')
     if args.py_dire:
       args.output = args.output.replace('.root', '_dire.root')
     print("[w] using [modified] default output file:", args.output)
   else:
+    # Ensure the ROOT file always has .root extension
+    base_name = os.path.splitext(args.output)[0]
+    args.output = base_name + '.root'
     print("[w] using specified output file:", args.output)
 
   rf = SingleRootFile(fname=args.output)
@@ -209,29 +216,54 @@ def main():
   h_jet_pt.Scale(sigma_gen / sum_weights)
   rf.close()
   
-  #now save also to parquet
-  import pandas as pd
-  df = pd.DataFrame(jets_out)
-  
-  # convert to more efficient types
-  # # Option 1: Convert float64 columns to float32 (half precision)
-  # float_columns = ['xsec', 'ev_weight', 'pt', 'eta', 'phi', 'm', 'ptlead', 'angk1a1', 'angk1a2', 'angk1a3']
-  # for col in float_columns:
-  #   if col in df.columns:
-  #     df[col] = df[col].astype('float32')
-  # 
-  # # Also convert constituent data to float32
-  # if 'constituents' in df.columns:
-  #   for idx, constituents in enumerate(df['constituents']):
-  #     if constituents:
-  #       for part in constituents:
-  #         for key in ['pt', 'eta', 'phi', 'm']:
-  #           if key in part:
-  #             part[key] = float(np.float32(part[key]))
-  
-  pq_file = args.output.replace('.root', '.parquet')
-  # Save with compression and additional options for better storage efficiency
-  df.to_parquet(pq_file, compression='snappy', index=False)
+  #now save also to parquet  
+  print(f'[i] Converting {len(jets_out)} jets to DataFrame...')
+  try:
+    df = pd.DataFrame(jets_out)
+    print(f'[i] DataFrame created with shape: {df.shape}')
+    
+    # convert to more efficient types
+    # # Option 1: Convert float64 columns to float32 (half precision)
+    # float_columns = ['xsec', 'ev_weight', 'pt', 'eta', 'phi', 'm', 'ptlead', 'angk1a1', 'angk1a2', 'angk1a3']
+    # for col in float_columns:
+    #   if col in df.columns:
+    #     df[col] = df[col].astype('float32')
+    # 
+    # # Also convert constituent data to float32
+    # if 'constituents' in df.columns:
+    #   for idx, constituents in enumerate(df['constituents']):
+    #     if constituents:
+    #       for part in constituents:
+    #         for key in ['pt', 'eta', 'phi', 'm']:
+    #           if key in part:
+    #             part[key] = float(np.float32(part[key]))
+    
+    # Ensure ROOT and Parquet files have different names
+    # Remove any extension and add .parquet explicitly
+    base_name = os.path.splitext(args.output)[0]
+    pq_file = base_name + '.parquet'
+    print(f'[i] Writing Parquet file to: {pq_file}')
+    
+    # Save with compression and additional options for better storage efficiency
+    # Use pyarrow engine explicitly for better control
+    df.to_parquet(pq_file, 
+                  engine='pyarrow',
+                  compression='snappy', 
+                  index=False,
+                  write_statistics=True)
+    
+    print(f'[i] ✅ Parquet file written successfully!')
+    
+    # Verify the file was written correctly
+    import pyarrow.parquet as pq
+    parquet_file = pq.ParquetFile(pq_file)
+    print(f'[i] Verification: {parquet_file.metadata.num_rows} rows, {parquet_file.metadata.num_columns} columns')
+    
+  except Exception as e:
+    print(f'[e] ❌ Error writing Parquet file: {e}')
+    import traceback
+    traceback.print_exc()
+    print(f'[e] Parquet file may be corrupted or incomplete!')
 
 if __name__ == '__main__':
   main()

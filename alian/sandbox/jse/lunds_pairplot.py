@@ -3,6 +3,8 @@
 Create seaborn pair plot for lunds variables from parquet file
 """
 
+import argparse
+
 import pandas as pd
 import numpy as np
 import seaborn as sns
@@ -121,8 +123,14 @@ def main():
     """
     Main function to create the pair plot
     """
+    parser = argparse.ArgumentParser(description='Create pair plot for lunds variables from parquet file', prog=Path(__file__).name)
+    parser.add_argument('-f', '--file', help='input parquet file with lunds data', default='lunds_data.parquet', type=str)
+    parser.add_argument('-o', '--output', help='output file name for the pair plot', default='lunds_pairplot.png', type=str)
+    args = parser.parse_args()
+    
     # Define the parquet file path
-    parquet_file = "/Users/ploskon/devel/alian/alian/sandbox/jse/sample_lundjet_1000/lund_jet_hardQCDgluons.parquet"
+    # parquet_file = "/Users/ploskon/devel/alian/alian/sandbox/jse/sample_lundjet_1000/lund_jet_hardQCDgluons.parquet"
+    parquet_file = args.file
     
     # Check if file exists
     if not Path(parquet_file).exists():
@@ -135,7 +143,7 @@ def main():
     print_data_summary(lunds_df)
     
     print("\nCreating pair plot...")
-    g = create_lunds_pairplot(lunds_df)
+    g = create_lunds_pairplot(lunds_df, output_file=args.output)
     
     # Also create a correlation matrix plot
     key_vars = ['delta', 'eta', 'kappa', 'kt', 'm', 'pt', 'z']
