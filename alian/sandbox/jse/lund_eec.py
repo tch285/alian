@@ -4,27 +4,49 @@ lund_eec.py — Primary Lund plane + subjet-resolved E2C analysis.
 
 Input modes
 -----------
-  Pythia8  (default, standard pyconf args)
-  File     (--input file.root, JEWEL ROOT file via JewelReader)
+  Pythia8  (default, standard pyconf args: --nev, --py-pthatmin, cmnd file, etc.)
+  File     (--input file.root [file2.root ...] or glob "jewel_*.root"; enables file mode)
+            --max-events N  : max events per file (not total)
 
-For each primary Lund splitting that passes a kT and/or kappa threshold,
-four E2C distributions are accumulated (binned in ln ΔR):
+Jet selection
+-------------
+  --jetR         jet radius (default 0.4)
+  --jet-pt-min / --jet-pt-max   (default 100 / 120 GeV)
+  --etadet       detector eta (default 2.5)
 
+Splitting selections → E2C
+--------------------------
+  --kt-cuts 0,1,2,5       threshold on kT [GeV]; all splittings passing kt > threshold
+  --kappa-cuts 0,...       paired kappa threshold (matched to --kt-cuts, padded with 0)
+  --max-kt-eec             single splitting: highest kT per jet
+  --soft-drop-eec          single splitting: first z > --z-sd (default 0.1)
+  --symmetric-eec          all splittings with z > --z-sym (default 0.3)
+
+For each selected splitting, four E2C distributions are filled (binned in ln ΔR):
   eec_AA  : pairs both within harder subjet A
-  eec_BB  : pairs both within softer subjet B (the emission)
-  eec_AB  : cross pairs — one constituent from A, one from B
-  eec_all : all pairs from A ∪ B  (AA + BB + AB, each unordered pair once)
+  eec_BB  : pairs both within softer subjet B
+  eec_AB  : cross pairs — one from A, one from B
+  eec_all : all pairs from A ∪ B (AA + BB + AB, each unordered pair once)
+  weight  : pT_i * pT_j / pT_jet²,  normalised per jet
 
-Optional single-splitting selections (one splitting chosen per jet):
-  --max-kt-eec   : use the primary splitting with the largest kT
-  --soft-drop-eec: use the first primary splitting satisfying z > --z-sd (default 0.1)
+Output files  (<stem> = --output without .parquet extension)
+--------------------------------------------------------------
+  <stem>_eec.parquet            EEC histograms, all selections, tidy DataFrame
+                                columns: ln_dR, bin_lo, bin_hi, eec_AA, eec_BB,
+                                         eec_AB, eec_all, n_jets, n_splits,
+                                         label, kt_cut, kappa_cut, selection,
+                                         jet_pt_min, jet_pt_max
+  <stem>_lundplane.npy          2-D density Lund plane H[ix,iy] (weight=1/splitting)
+  <stem>_lundplane_xedges.npy   x bin edges: ln(1/Δ)
+  <stem>_lundplane_yedges.npy   y bin edges: ln(kt)
+  <stem>_lundplane_weighted.npy 2-D energy-weighted Lund plane (weight=pT_A*pT_B/pT_jet²)
 
-Output
-------
-  <stem>_eec.parquet         — EEC histograms (all selections), tidy DataFrame
-  <stem>_lundplane.npy       — 2-D Lund plane histogram (H[ix, iy])
-  <stem>_lundplane_xedges.npy
-  <stem>_lundplane_yedges.npy
+Parquet selection column values
+--------------------------------
+  'threshold'            kt/kappa threshold-based (one row-group per kt_cut value)
+  'max_kt'               max-kT splitting
+  'soft_drop_z>{z_sd}'   soft-drop selected splitting
+  'symmetric_z>{z_sym}'  symmetric splittings (all z > z_sym)
 """
 
 from __future__ import print_function
@@ -167,6 +189,19 @@ def select_soft_drop(lund_seq, z_cut):
 	return None
 
 
+def select_symmetric_splittings(lund_seq, z_min):
+	"""
+	Return all primary Lund splittings with z > z_min (symmetric selection).
+
+	z is the softer-branch momentum fraction (range 0–0.5); larger z means
+	a more equal pT sharing between the two subjets.  Typical choices:
+	  z_min = 0.2  — moderately symmetric
+	  z_min = 0.3  — fairly symmetric
+	  z_min = 0.4  — nearly equal pT split
+	"""
+	return [l for l in lund_seq if l.z() > z_min]
+
+
 # ── per-jet analysis ──────────────────────────────────────────────────────────
 
 def _fill_splitting(l, accum, jet_pt2):
@@ -180,7 +215,8 @@ def _fill_splitting(l, accum, jet_pt2):
 
 
 def process_jet(jet, lund_gen, eec_accums, lund_accum, kt_cuts, kappa_cuts,
-                eec_maxkt=None, eec_sd=None, z_sd=0.1, lund_accum_w=None):
+                eec_maxkt=None, eec_sd=None, z_sd=0.1, lund_accum_w=None,
+                eec_sym=None, z_sym=0.3):
 	"""
 	Run the Lund + E2C analysis for a single jet.
 
@@ -196,6 +232,8 @@ def process_jet(jet, lund_gen, eec_accums, lund_accum, kt_cuts, kappa_cuts,
 	eec_sd       : EECAccum or None   filled with the soft-drop splitting
 	z_sd         : float              soft-drop z threshold (default 0.1)
 	lund_accum_w : LundPlaneAccum or None  energy-weighted Lund plane
+	eec_sym      : EECAccum or None   filled with all splittings where z > z_sym
+	z_sym        : float              symmetry z threshold (default 0.3)
 	"""
 	lund_seq = lund_gen.result(jet)
 	jet_pt2  = jet.pt() ** 2
@@ -224,6 +262,12 @@ def process_jet(jet, lund_gen, eec_accums, lund_accum, kt_cuts, kappa_cuts,
 		l = select_soft_drop(lund_seq, z_sd)
 		if l is not None:
 			_fill_splitting(l, eec_sd, jet_pt2)
+
+	# ── symmetric splittings (all with z > z_sym) ──────────────────────────
+	if eec_sym is not None:
+		eec_sym.n_jets += 1
+		for l in select_symmetric_splittings(lund_seq, z_sym):
+			_fill_splitting(l, eec_sym, jet_pt2)
 
 
 # ── event sources ─────────────────────────────────────────────────────────────
@@ -305,7 +349,8 @@ def main():
 
 	parser.add_argument('--input',       default=None, nargs='+',
 	                    help='JEWEL ROOT file(s) or glob pattern(s); enables file mode')
-	parser.add_argument('--max-events',  default=None,      type=int)
+	parser.add_argument('--max-events',  default=None,      type=int,
+	                    help='Max events per file (applied independently to each input file)')
 	parser.add_argument('--output',      default='lund_eec_output.parquet', type=str)
 	parser.add_argument('--jetR',        default=0.4,       type=float)
 	parser.add_argument('--jet-pt-min',  default=100.0,     type=float)
@@ -320,8 +365,12 @@ def main():
 	                    help='Also compute E2C for the max-kT primary splitting per jet')
 	parser.add_argument('--soft-drop-eec', action='store_true', default=False,
 	                    help='Also compute E2C for the soft-drop selected splitting per jet')
-	parser.add_argument('--z-sd',        default=0.1,       type=float,
+	parser.add_argument('--z-sd',          default=0.1,       type=float,
 	                    help='Soft-drop z threshold (default 0.1, used with --soft-drop-eec)')
+	parser.add_argument('--symmetric-eec', action='store_true', default=False,
+	                    help='Also compute E2C for all splittings with z > --z-sym')
+	parser.add_argument('--z-sym',         default=0.3,       type=float,
+	                    help='Symmetry z threshold (default 0.3, used with --symmetric-eec)')
 	args = parser.parse_args()
 
 	# jet finder + Lund generator
@@ -344,9 +393,11 @@ def main():
 	lund_accum_w = LundPlaneAccum()
 	eec_maxkt    = EECAccum() if args.max_kt_eec    else None
 	eec_sd       = EECAccum() if args.soft_drop_eec else None
+	eec_sym      = EECAccum() if args.symmetric_eec else None
 
 	if eec_maxkt: print('[i] max-kT EEC enabled')
 	if eec_sd:    print(f'[i] soft-drop EEC enabled  (z_sd > {args.z_sd})')
+	if eec_sym:   print(f'[i] symmetric EEC enabled  (z_sym > {args.z_sym})')
 
 	# event loop
 	events = file_events(args.input, max_events=args.max_events) if args.input \
@@ -358,38 +409,51 @@ def main():
 		for jet in jets:
 			process_jet(jet, lund_gen, eec_accums, lund_accum, kt_cuts, kappa_cuts,
 			            eec_maxkt=eec_maxkt, eec_sd=eec_sd, z_sd=args.z_sd,
-			            lund_accum_w=lund_accum_w)
+			            lund_accum_w=lund_accum_w,
+			            eec_sym=eec_sym, z_sym=args.z_sym)
 
 	# ── output ────────────────────────────────────────────────────────────────
 	stem = os.path.splitext(args.output)[0]
 
+	bare_label = args.label if args.label else 'default'
 	frames = []
 	for (kt_cut, kappa_cut), accum in eec_accums.items():
 		accum.normalise()
-		lbl = f'{args.label}_kt>{kt_cut}_kappa>{kappa_cut}' if args.label \
-		      else f'kt>{kt_cut}_kappa>{kappa_cut}'
-		df = accum.to_df(label=lbl, kt_cut=kt_cut)
+		df = accum.to_df(label=bare_label, kt_cut=kt_cut)
 		df['kappa_cut']  = kappa_cut
 		df['selection']  = 'threshold'
+		df['jet_pt_min'] = args.jet_pt_min
+		df['jet_pt_max'] = args.jet_pt_max
 		frames.append(df)
 
 	if eec_maxkt is not None:
 		eec_maxkt.normalise()
-		lbl = f'{args.label}_max_kt' if args.label else 'max_kt'
-		df  = eec_maxkt.to_df(label=lbl)
+		df  = eec_maxkt.to_df(label=bare_label)
 		df['kt_cut']    = float('nan')
 		df['kappa_cut'] = float('nan')
 		df['selection'] = 'max_kt'
+		df['jet_pt_min'] = args.jet_pt_min
+		df['jet_pt_max'] = args.jet_pt_max
 		frames.append(df)
 
 	if eec_sd is not None:
 		eec_sd.normalise()
-		lbl = f'{args.label}_soft_drop_z>{args.z_sd}' if args.label \
-		      else f'soft_drop_z>{args.z_sd}'
-		df  = eec_sd.to_df(label=lbl)
+		df  = eec_sd.to_df(label=bare_label)
 		df['kt_cut']    = float('nan')
 		df['kappa_cut'] = float('nan')
 		df['selection'] = f'soft_drop_z>{args.z_sd}'
+		df['jet_pt_min'] = args.jet_pt_min
+		df['jet_pt_max'] = args.jet_pt_max
+		frames.append(df)
+
+	if eec_sym is not None:
+		eec_sym.normalise()
+		df  = eec_sym.to_df(label=bare_label)
+		df['kt_cut']    = float('nan')
+		df['kappa_cut'] = float('nan')
+		df['selection'] = f'symmetric_z>{args.z_sym}'
+		df['jet_pt_min'] = args.jet_pt_min
+		df['jet_pt_max'] = args.jet_pt_max
 		frames.append(df)
 
 	eec_df   = pd.concat(frames, ignore_index=True)
