@@ -15,9 +15,13 @@ four E2C distributions are accumulated (binned in ln ΔR):
   eec_AB  : cross pairs — one constituent from A, one from B
   eec_all : all pairs from A ∪ B  (AA + BB + AB, each unordered pair once)
 
+Optional single-splitting selections (one splitting chosen per jet):
+  --max-kt-eec   : use the primary splitting with the largest kT
+  --soft-drop-eec: use the first primary splitting satisfying z > --z-sd (default 0.1)
+
 Output
 ------
-  <stem>_eec.parquet         — EEC histograms per kT cut, as a tidy DataFrame
+  <stem>_eec.parquet         — EEC histograms (all selections), tidy DataFrame
   <stem>_lundplane.npy       — 2-D Lund plane histogram (H[ix, iy])
   <stem>_lundplane_xedges.npy
   <stem>_lundplane_yedges.npy
@@ -135,9 +139,42 @@ class LundPlaneAccum:
 				self.h2[xi, yi] += 1
 
 
+# ── single-splitting selectors ────────────────────────────────────────────────
+
+def select_max_kt(lund_seq):
+	"""Return the primary Lund splitting with the largest kT, or None."""
+	best = None
+	for l in lund_seq:
+		if best is None or l.kt() > best.kt():
+			best = l
+	return best
+
+
+def select_soft_drop(lund_seq, z_cut):
+	"""
+	Return the first primary Lund splitting satisfying z > z_cut (soft-drop
+	condition with beta=0), or None if no splitting passes.
+	"""
+	for l in lund_seq:
+		if l.z() > z_cut:
+			return l
+	return None
+
+
 # ── per-jet analysis ──────────────────────────────────────────────────────────
 
-def process_jet(jet, lund_gen, eec_accums, lund_accum, kt_cuts, kappa_cuts):
+def _fill_splitting(l, accum, jet_pt2):
+	"""Fill accum from a single LundDeclustering object."""
+	try:
+		parts_a = list(l.harder().constituents())
+		parts_b = list(l.softer().constituents())
+	except Exception:
+		return
+	accum.fill(parts_a, parts_b, jet_pt2)
+
+
+def process_jet(jet, lund_gen, eec_accums, lund_accum, kt_cuts, kappa_cuts,
+                eec_maxkt=None, eec_sd=None, z_sd=0.1):
 	"""
 	Run the Lund + E2C analysis for a single jet.
 
@@ -145,26 +182,39 @@ def process_jet(jet, lund_gen, eec_accums, lund_accum, kt_cuts, kappa_cuts):
 	----------
 	jet        : fj.PseudoJet
 	lund_gen   : fj.contrib.LundGenerator
-	eec_accums : dict { (kt_cut, kappa_cut) -> EECAccum }
+	eec_accums : dict { (kt_cut, kappa_cut) -> EECAccum }  threshold-based
 	lund_accum : LundPlaneAccum
-	kt_cuts    : list of float   (matched 1-to-1 with eec_accums keys)
+	kt_cuts    : list of float
 	kappa_cuts : list of float
+	eec_maxkt  : EECAccum or None   filled with the max-kT splitting
+	eec_sd     : EECAccum or None   filled with the soft-drop splitting
+	z_sd       : float              soft-drop z threshold (default 0.1)
 	"""
 	lund_seq = lund_gen.result(jet)
 	lund_accum.fill(lund_seq)
 	jet_pt2 = jet.pt() ** 2
 
+	# ── threshold-based (all splittings passing cuts) ──────────────────────
 	for (kt_cut, kappa_cut), accum in eec_accums.items():
 		accum.n_jets += 1
 		for l in lund_seq:
 			if l.kt()    < kt_cut:    continue
 			if l.kappa() < kappa_cut: continue
-			try:
-				parts_a = list(l.harder().constituents())
-				parts_b = list(l.softer().constituents())
-			except Exception:
-				continue
-			accum.fill(parts_a, parts_b, jet_pt2)
+			_fill_splitting(l, accum, jet_pt2)
+
+	# ── max-kT splitting ───────────────────────────────────────────────────
+	if eec_maxkt is not None:
+		eec_maxkt.n_jets += 1
+		l = select_max_kt(lund_seq)
+		if l is not None:
+			_fill_splitting(l, eec_maxkt, jet_pt2)
+
+	# ── soft-drop splitting ────────────────────────────────────────────────
+	if eec_sd is not None:
+		eec_sd.n_jets += 1
+		l = select_soft_drop(lund_seq, z_sd)
+		if l is not None:
+			_fill_splitting(l, eec_sd, jet_pt2)
 
 
 # ── event sources ─────────────────────────────────────────────────────────────
@@ -235,6 +285,12 @@ def main():
 	parser.add_argument('--kappa-cuts',  default='0',       type=str,
 	                    help='Comma-separated kappa minima (matched to --kt-cuts, padded with 0)')
 	parser.add_argument('--label',       default='',        type=str)
+	parser.add_argument('--max-kt-eec',  action='store_true', default=False,
+	                    help='Also compute E2C for the max-kT primary splitting per jet')
+	parser.add_argument('--soft-drop-eec', action='store_true', default=False,
+	                    help='Also compute E2C for the soft-drop selected splitting per jet')
+	parser.add_argument('--z-sd',        default=0.1,       type=float,
+	                    help='Soft-drop z threshold (default 0.1, used with --soft-drop-eec)')
 	args = parser.parse_args()
 
 	# jet finder + Lund generator
@@ -254,6 +310,11 @@ def main():
 
 	eec_accums = {(kt, kp): EECAccum() for kt, kp in zip(kt_cuts, kappa_cuts)}
 	lund_accum = LundPlaneAccum()
+	eec_maxkt  = EECAccum() if args.max_kt_eec    else None
+	eec_sd     = EECAccum() if args.soft_drop_eec else None
+
+	if eec_maxkt: print('[i] max-kT EEC enabled')
+	if eec_sd:    print(f'[i] soft-drop EEC enabled  (z_sd > {args.z_sd})')
 
 	# event loop
 	events = file_events(args.input, max_events=args.max_events) if args.input \
@@ -263,7 +324,8 @@ def main():
 		cseq = fj.ClusterSequence(parts, jet_def)
 		jets = fj.sorted_by_pt(jet_sel(cseq.inclusive_jets()))
 		for jet in jets:
-			process_jet(jet, lund_gen, eec_accums, lund_accum, kt_cuts, kappa_cuts)
+			process_jet(jet, lund_gen, eec_accums, lund_accum, kt_cuts, kappa_cuts,
+			            eec_maxkt=eec_maxkt, eec_sd=eec_sd, z_sd=args.z_sd)
 
 	# ── output ────────────────────────────────────────────────────────────────
 	stem = os.path.splitext(args.output)[0]
@@ -274,7 +336,27 @@ def main():
 		lbl = f'{args.label}_kt>{kt_cut}_kappa>{kappa_cut}' if args.label \
 		      else f'kt>{kt_cut}_kappa>{kappa_cut}'
 		df = accum.to_df(label=lbl, kt_cut=kt_cut)
-		df['kappa_cut'] = kappa_cut
+		df['kappa_cut']  = kappa_cut
+		df['selection']  = 'threshold'
+		frames.append(df)
+
+	if eec_maxkt is not None:
+		eec_maxkt.normalise()
+		lbl = f'{args.label}_max_kt' if args.label else 'max_kt'
+		df  = eec_maxkt.to_df(label=lbl)
+		df['kt_cut']    = float('nan')
+		df['kappa_cut'] = float('nan')
+		df['selection'] = 'max_kt'
+		frames.append(df)
+
+	if eec_sd is not None:
+		eec_sd.normalise()
+		lbl = f'{args.label}_soft_drop_z>{args.z_sd}' if args.label \
+		      else f'soft_drop_z>{args.z_sd}'
+		df  = eec_sd.to_df(label=lbl)
+		df['kt_cut']    = float('nan')
+		df['kappa_cut'] = float('nan')
+		df['selection'] = f'soft_drop_z>{args.z_sd}'
 		frames.append(df)
 
 	eec_df   = pd.concat(frames, ignore_index=True)
