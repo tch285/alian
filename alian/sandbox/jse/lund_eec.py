@@ -244,28 +244,50 @@ def pythia_events(args):
 			continue
 		yield vector[fj.PseudoJet]([
 			fj.PseudoJet(p.px(), p.py(), p.pz(), p.e())
-			for p in pythia.event if p.isFinal() and p.isCharged()
+			for p in pythia.event if p.isFinal() and p.isVisible()
+			# for p in pythia.event if p.isFinal() and p.isCharged()
 		])
 		pbar.update(1)
 	pythia.stat()
 
 
-def file_events(file_path, max_events=None):
-	"""Yield vector<PseudoJet> per event from a JEWEL ROOT file."""
-	import uproot
+def file_events(file_paths, max_events=None):
+	"""
+	Yield vector<PseudoJet> per event from one or more JEWEL ROOT files.
 
-	with uproot.open(file_path) as f:
-		tracks_df     = f['tracks'].arrays(library='pd')
-		event_info_df = f['event_info'].arrays(library='pd')
-	events_df = pd.merge(tracks_df, event_info_df, on='eventID', how='inner')
+	file_paths : list of str  — explicit paths or glob patterns.
+	max_events : int or None  — max events *per file* (None = all).
+	"""
+	import uproot, glob as _glob
 
-	for n, (_, ev) in enumerate(tqdm.tqdm(events_df.groupby('eventID'))):
-		if max_events is not None and n >= max_events:
-			break
-		yield vector[fj.PseudoJet]([
-			fj.PseudoJet(px, py, pz, e)
-			for px, py, pz, e in zip(ev['px'], ev['py'], ev['pz'], ev['energy'])
-		])
+	# expand any glob patterns and sort for reproducibility
+	expanded = []
+	for p in file_paths:
+		matches = sorted(_glob.glob(p))
+		expanded.extend(matches if matches else [p])
+
+	if not expanded:
+		raise FileNotFoundError(f'No files matched: {file_paths}')
+
+	print(f'[i] processing {len(expanded)} file(s):')
+	for p in expanded:
+		print(f'    {p}')
+
+	for file_path in expanded:
+		print(f'[i] reading {file_path}')
+		with uproot.open(file_path) as f:
+			tracks_df     = f['tracks'].arrays(library='pd')
+			event_info_df = f['event_info'].arrays(library='pd')
+		events_df = pd.merge(tracks_df, event_info_df, on='eventID', how='inner')
+
+		for n, (_, ev) in enumerate(tqdm.tqdm(events_df.groupby('eventID'),
+		                                       desc=os.path.basename(file_path))):
+			if max_events is not None and n >= max_events:
+				break
+			yield vector[fj.PseudoJet]([
+				fj.PseudoJet(px, py, pz, e)
+				for px, py, pz, e in zip(ev['px'], ev['py'], ev['pz'], ev['energy'])
+			])
 
 
 # ── main ──────────────────────────────────────────────────────────────────────
@@ -281,8 +303,8 @@ def main():
 	except Exception:
 		pass
 
-	parser.add_argument('--input',       default=None,
-	                    help='JEWEL ROOT file (enables file mode, overrides Pythia)')
+	parser.add_argument('--input',       default=None, nargs='+',
+	                    help='JEWEL ROOT file(s) or glob pattern(s); enables file mode')
 	parser.add_argument('--max-events',  default=None,      type=int)
 	parser.add_argument('--output',      default='lund_eec_output.parquet', type=str)
 	parser.add_argument('--jetR',        default=0.4,       type=float)
