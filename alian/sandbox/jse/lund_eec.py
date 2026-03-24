@@ -151,16 +151,24 @@ class LundPlaneAccum:
 		self.yedges = np.linspace(*lnkt_range,   nbins + 1)  # ln(kt)
 		self.h2     = np.zeros((nbins, nbins))
 
-	def fill(self, lund_seq, jet_pt2=None):
+	def fill(self, lund_seq, jet_pt2=None, local_weight=False):
 		"""
-		Fill the histogram.  If jet_pt2 is given each splitting is weighted by
-		pT_harder * pT_softer / pT_jet^2  (energy-weighted Lund plane);
-		otherwise every splitting contributes weight 1 (density).
+		Fill the histogram.
+
+		jet_pt2=None, local_weight=False  → weight = 1 per splitting (density)
+		jet_pt2 provided                  → weight = pT_A * pT_B / pT_jet²
+		local_weight=True                 → weight = pT_A * pT_B / pT_pair²  (z*(1-z) local)
 		"""
 		for l in lund_seq:
 			if l.Delta() <= 0 or l.kt() <= 0:
 				continue
-			w = l.harder().pt() * l.softer().pt() / jet_pt2 if jet_pt2 is not None else 1.0
+			if local_weight:
+				pair_pt2 = l.pair().pt() ** 2
+				w = l.harder().pt() * l.softer().pt() / pair_pt2 if pair_pt2 > 0 else 0.0
+			elif jet_pt2 is not None:
+				w = l.harder().pt() * l.softer().pt() / jet_pt2
+			else:
+				w = 1.0
 			xi = np.searchsorted(self.xedges, math.log(1.0 / l.Delta()), side='right') - 1
 			yi = np.searchsorted(self.yedges, math.log(l.kt()),           side='right') - 1
 			if 0 <= xi < self.h2.shape[0] and 0 <= yi < self.h2.shape[1]:
@@ -216,7 +224,7 @@ def _fill_splitting(l, accum, jet_pt2):
 
 def process_jet(jet, lund_gen, eec_accums, lund_accum, kt_cuts, kappa_cuts,
                 eec_maxkt=None, eec_sd=None, z_sd=0.1, lund_accum_w=None,
-                eec_sym=None, z_sym=0.3):
+                eec_sym=None, z_sym=0.3, lund_accum_lw=None):
 	"""
 	Run the Lund + E2C analysis for a single jet.
 
@@ -231,15 +239,18 @@ def process_jet(jet, lund_gen, eec_accums, lund_accum, kt_cuts, kappa_cuts,
 	eec_maxkt    : EECAccum or None   filled with the max-kT splitting
 	eec_sd       : EECAccum or None   filled with the soft-drop splitting
 	z_sd         : float              soft-drop z threshold (default 0.1)
-	lund_accum_w : LundPlaneAccum or None  energy-weighted Lund plane
+	lund_accum_w : LundPlaneAccum or None  energy-weighted Lund plane (pT_A*pT_B/pT_jet²)
 	eec_sym      : EECAccum or None   filled with all splittings where z > z_sym
 	z_sym        : float              symmetry z threshold (default 0.3)
+	lund_accum_lw: LundPlaneAccum or None  local-weight Lund plane (pT_A*pT_B/pT_pair²)
 	"""
 	lund_seq = lund_gen.result(jet)
 	jet_pt2  = jet.pt() ** 2
 	lund_accum.fill(lund_seq)
 	if lund_accum_w is not None:
 		lund_accum_w.fill(lund_seq, jet_pt2=jet_pt2)
+	if lund_accum_lw is not None:
+		lund_accum_lw.fill(lund_seq, local_weight=True)
 
 	# ── threshold-based (all splittings passing cuts) ──────────────────────
 	for (kt_cut, kappa_cut), accum in eec_accums.items():
@@ -361,6 +372,8 @@ def main():
 	parser.add_argument('--kappa-cuts',  default='0',       type=str,
 	                    help='Comma-separated kappa minima (matched to --kt-cuts, padded with 0)')
 	parser.add_argument('--label',       default='',        type=str)
+	parser.add_argument('--lund-local-weight', action='store_true', default=False,
+	                    help='Also compute local-weight Lund plane (pT_A*pT_B/pT_pair² per splitting)')
 	parser.add_argument('--max-kt-eec',  action='store_true', default=False,
 	                    help='Also compute E2C for the max-kT primary splitting per jet')
 	parser.add_argument('--soft-drop-eec', action='store_true', default=False,
@@ -388,13 +401,15 @@ def main():
 	kappa_vals = [float(x) for x in args.kappa_cuts.split(',')]
 	kappa_cuts = [kappa_vals[i] if i < len(kappa_vals) else 0.0 for i in range(len(kt_cuts))]
 
-	eec_accums   = {(kt, kp): EECAccum() for kt, kp in zip(kt_cuts, kappa_cuts)}
-	lund_accum   = LundPlaneAccum()
-	lund_accum_w = LundPlaneAccum()
-	eec_maxkt    = EECAccum() if args.max_kt_eec    else None
-	eec_sd       = EECAccum() if args.soft_drop_eec else None
-	eec_sym      = EECAccum() if args.symmetric_eec else None
+	eec_accums    = {(kt, kp): EECAccum() for kt, kp in zip(kt_cuts, kappa_cuts)}
+	lund_accum    = LundPlaneAccum()
+	lund_accum_w  = LundPlaneAccum()
+	lund_accum_lw = LundPlaneAccum() if args.lund_local_weight else None
+	eec_maxkt     = EECAccum() if args.max_kt_eec    else None
+	eec_sd        = EECAccum() if args.soft_drop_eec else None
+	eec_sym       = EECAccum() if args.symmetric_eec else None
 
+	if lund_accum_lw: print('[i] local-weight Lund plane enabled  (pT_A*pT_B/pT_pair²)')
 	if eec_maxkt: print('[i] max-kT EEC enabled')
 	if eec_sd:    print(f'[i] soft-drop EEC enabled  (z_sd > {args.z_sd})')
 	if eec_sym:   print(f'[i] symmetric EEC enabled  (z_sym > {args.z_sym})')
@@ -409,7 +424,7 @@ def main():
 		for jet in jets:
 			process_jet(jet, lund_gen, eec_accums, lund_accum, kt_cuts, kappa_cuts,
 			            eec_maxkt=eec_maxkt, eec_sd=eec_sd, z_sd=args.z_sd,
-			            lund_accum_w=lund_accum_w,
+			            lund_accum_w=lund_accum_w, lund_accum_lw=lund_accum_lw,
 			            eec_sym=eec_sym, z_sym=args.z_sym)
 
 	# ── output ────────────────────────────────────────────────────────────────
@@ -470,6 +485,11 @@ def main():
 	lund_w_path = stem + '_lundplane_weighted.npy'
 	np.save(lund_w_path,                      lund_accum_w.h2)
 	print(f'[i] Lund plane (weighted) -> {lund_w_path}')
+
+	if lund_accum_lw is not None:
+		lund_lw_path = stem + '_lundplane_localweighted.npy'
+		np.save(lund_lw_path, lund_accum_lw.h2)
+		print(f'[i] Lund plane (local-weighted) -> {lund_lw_path}')
 
 
 if __name__ == '__main__':
