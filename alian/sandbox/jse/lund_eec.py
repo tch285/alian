@@ -146,7 +146,7 @@ class EECAccum:
 class LundPlaneAccum:
 	"""2-D histogram of ln(1/Δ) vs ln(kt) for the primary Lund plane."""
 
-	def __init__(self, nbins=50, lninvd_range=(0, 5), lnkt_range=(-5, 3)):
+	def __init__(self, nbins=50, lninvd_range=(0, 5), lnkt_range=(-4, 6)):
 		self.xedges = np.linspace(*lninvd_range, nbins + 1)  # ln(1/Δ)
 		self.yedges = np.linspace(*lnkt_range,   nbins + 1)  # ln(kt)
 		self.h2     = np.zeros((nbins, nbins))
