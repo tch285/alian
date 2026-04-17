@@ -264,7 +264,7 @@ class PythiaOTFCW(object):
                 [part_w_charge(p) for p in pythia.event if p.isFinal() and p.isCharged()]
             )
             self.evw = pythia.info.weight()
-            self.analyze_event(parts_ch, pythia.info.pTHat())
+            self.analyze_event(parts_ch, pythia)
 
             # Some "accepted" events don't survive hadronization step -- keep track here
             self.hists['nev'].Fill(0, self.evw)
@@ -274,16 +274,21 @@ class PythiaOTFCW(object):
             if self.iev % ping == 0:
                 logger.log(15, f"Completed {self.iev} events.")
 
-    def analyze_event(self, parts, pthat):
+    def analyze_event(self, parts, pythia):
         jets = fj.sorted_by_pt(
             self.jet_selector(self.jet_def(self.part_pT_selector(parts)))
         )
         # reject event if rejection is on
         # AND there is at least one jet
         # AND the leading jet has too high pT
-        if self.reject_tail and jets and jets[0].pt() > self.reject_tail * pthat:
+        pthat = pythia.info.pTHat()
+        if jets and jets[0].pt() > self.reject_tail * pthat:
             logger.warning(f"Found abnormal event {self.iev} (skipping):\n\tpThat={pthat:.3f} GeV\n\tjets: {[j.pt() for j in jets]}, ratio {jets[0].pt() / pthat:.3f}")
-            return
+            logger.warning("Event listing:")
+            print(pythia.event)
+            if self.reject_tail:
+                logger.warning("Tail rejection ON so rejecting event.")
+                return
 
         for part in parts:
             self.hists["trk_pT"].Fill(part.pt(), self.evw)
