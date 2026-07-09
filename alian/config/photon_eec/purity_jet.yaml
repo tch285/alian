@@ -1,0 +1,53 @@
+constants:
+  pi34: &pi34 2.35619449019
+
+# Event cuts
+selections:
+  event:
+    event_sel: sel8
+    trig_sel: GammaHighPtEMCAL, GammaHighPtDCAL
+    rct: CBT_calo
+  track:
+    pt_min: 0.150
+    track_sel: globalTrack
+  cluster:
+    energy_min: 0.7
+    m02_min: none
+    m02_max: none
+    ncells_min: 2
+    time_min: -30
+    time_max: 35
+    exoticity: True
+    nlm: 2
+    defn: 0
+    edge: True
+    delta_phi: 0.05
+    delta_eta: 0.05
+    ep_max: 1.75
+  isolation:
+    iso_pt_max: 1.5
+
+jet_finder:
+  R: 0.4
+  alg: antikt
+  pT_min: 20
+
+analysis:
+  iso_pt_edges: [0, 1.5, 4, 25]
+  m02_edges: [0, 0.1, 0.3, 0.4, 3]
+  cluster_pt_min: 20
+  photon_jet_angle_min: *pi34
+
+output:
+  bins:
+    iso_fine: ['lin', 0.0, 20.0, 80]
+    m02_fine: ['lin', 0.0, 3.0, 60]
+    iso_coarse: ['c', [0.0, 1.5, 4.0, 25.0]]
+    m02_coarse: ['c', [0, 0.1, 0.3, 0.4, 3]]
+    photon_E:  ['lin', 10, 140, 520]
+    photon_pt: ['lin', 10, 140, 520]
+  histograms:
+    purity_fine:   [3, "purity_fine", "Purity;#it{M}_{02};#it{p}_{T}^{iso} (GeV);#it{p}_{T}^{#gamma} (GeV)", m02_fine, iso_fine, photon_E]
+    purity_coarse: [3, "purity_coarse", "Purity;#it{M}_{02};#it{p}_{T}^{iso} (GeV);#it{p}_{T}^{#gamma} (GeV)", m02_coarse, iso_coarse, photon_E]
+    photon_E:  [1, "photon_E", "Photon energy spectrum;photon energy (GeV);Counts", photon_E]
+    photon_pt: [1, "photon_pt", "Photon #it{p}_{T} spectrum;photon #it{p}_{T} (GeV/#it{c});Counts", photon_pt]

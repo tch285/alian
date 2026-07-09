@@ -1,0 +1,20 @@
+# Event cuts
+selections:
+  event:
+    event_sel: sel8
+    trig_sel: EMCALReadout
+    # rct: CBT_calo
+  track:
+    # pt_min: 0.150
+    track_sel: globalTrack
+  cluster:
+jet_finder:
+analysis:
+
+output:
+  bins:
+    deta: ['lin', -2.0, 2.0, 100]
+    nev: ['lin', -0.5, 1.5, 2]
+  histograms:
+    nev: [1, "nev", "nev", nev]
+    delta_eta: [1, "deta", "deta", "deta"]

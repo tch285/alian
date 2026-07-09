@@ -1,0 +1,51 @@
+constants:
+  pi78: &pi78 2.74889357189
+  pi34: &pi34 2.35619449019
+  halfpi: &pihalf 1.57079632679
+  pi: &pi 3.14159265359
+
+# Event cuts
+selections:
+  event:
+    event_sel: sel8
+    trig_sel: GammaHighPtEMCAL, GammaHighPtDCAL
+    rct: CBT_calo
+  track:
+    pt_min: 0.150
+    track_sel: globalTrack
+  cluster:
+    energy_min: 0.7
+    m02_min: 0.1
+    m02_max: 0.3
+    ncells_min: 2
+    time_min: -30
+    time_max: 35
+    exoticity: True
+    nlm: 2
+    defn: 0
+    edge: True
+    delta_phi: 0.05
+    delta_eta: 0.05
+    ep_max: 1.75
+  isolation:
+    iso_pt_max: 1.5
+
+jet_finder:
+  R: 0.4
+  alg: antikt
+  pT_min: 10
+
+analysis:
+  cluster_pt_min: 10
+  photon_jet_angle_min: *pi34
+
+output:
+  bins:
+    nrecoil: ['lin', -0.5, 3.5, 4]
+    jet_pT: ['lin', 0, 200, 200]
+    # photon_pT: ['lin', 10, 100, 360]
+  histograms:
+    nrecoil: [1, "nrecoil", "Number of recoil isolated photon candidates;Number of recoil isolated photon candidates;Counts", nrecoil]
+    nrecoil2d: [2, "nrecoil2d", "Recoil isolated photon candidates;Number of recoil isolated photon candidates;jet #it{p}_{T} (GeV/#it{c})", nrecoil, jet_pT]
+    # recoil_pT_1: [2, "recoil_pT_1", "Recoil cluster #it{p}_{T} (GeV/#it{c});cluster #it{p}_{T} (GeV/#it{c});Counts", nrecoil, jet_pT]
+

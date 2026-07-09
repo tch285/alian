@@ -1,0 +1,24 @@
+# Event cuts
+selections:
+  event:
+    event_sel: sel8
+    trig_sel: GammaHighPtEMCAL, GammaHighPtDCAL
+    rct: CBT_calo
+  track:
+    pt_min: 0.150
+    track_sel: globalTrack
+  cluster:
+    defn: 10
+jet_finder:
+analysis:
+  clus_pT_min: 9
+
+output:
+  bins:
+    clus_pT_lead: ['lin', -2, 100, 204]
+    clus_pT: ['lin', 0, 100, 200]
+    nev: ['lin', -0.5, 1.5, 2]
+  histograms:
+    clus_lead_pt: [1, "lead_clus_pT", "Leading cluster #it{p}_{T} spectrum;leading cluster #it{p}_{T} (GeV);Counts", clus_pT_lead]
+    clus_pt: [1, "clus_pT", "Cluster #it{p}_{T} spectrum (with event cut);leading cluster #it{p}_{T} (GeV);Counts", clus_pT]
+    nev: [1, "nev", "Number of events;;Counts", nev]

@@ -1,0 +1,9 @@
+# Event cuts
+selections:
+  event:
+    event_sel: sel8
+    trig_sel: GammaLowPtEMCAL, GammaLowPtDCAL
+    rct: CBT_calo
+  track:
+    pt_min: 0.150
+    track_sel: globalTrack
