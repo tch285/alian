@@ -282,15 +282,15 @@ class PythiaOTFCW(object):
         # AND there is at least one jet
         # AND the leading jet has too high pT
         pthat = pythia.info.pTHat()
+        for part in parts:
+            if part.pt() > self.reject_tail * pthat:
+                logger.warning(f"Found abnormal event {self.iev}:\n\tpThat={pthat:.3f} GeV\n\tpart: {part.pt()}, ratio {part.pt() / pthat:.3f}")
+                logger.warning("Event listing:")
+                print(pythia.event.list())
         if jets and jets[0].pt() > self.reject_tail * pthat:
             logger.warning(f"Found abnormal event {self.iev}:\n\tpThat={pthat:.3f} GeV\n\tjets: {[j.pt() for j in jets]}, ratio {jets[0].pt() / pthat:.3f}")
             logger.warning("Event listing:")
             print(pythia.event.list())
-            for part in parts:
-                if part.pt() > self.reject_tail * pthat:
-                    logger.warning(f"Found abnormal event {self.iev}:\n\tpThat={pthat:.3f} GeV\n\tpart: {part.pt()}, ratio {part.pt() / pthat:.3f}")
-                    logger.warning("Event listing:")
-                    print(pythia.event.list())
             if self.reject_tail:
                 logger.warning("Tail rejection ON so rejecting event.")
                 return
