@@ -8,10 +8,10 @@
 
 #!/usr/bin/env python
 
+import argparse
 import itertools
 import heppyy
-from alian.analysis.base import AnalysisBase
-from alian.analysis.base.analysis import get_default_args
+from alian.analysis.base import AnalysisBase, add_default_args
 from alian.analysis.base.utils import delta_R
 
 fj = heppyy.load_cppyy('fastjet')
@@ -52,7 +52,8 @@ class BasicEEC(AnalysisBase):
 
 
 if __name__ == '__main__':
-    parser = get_default_args()
+    parser = argparse.ArgumentParser(description="Run analysis on ROOT file using YAML configuration.")
+    add_default_args(parser)
     args = parser.parse_args()
 
     ana = BasicEEC(args.input_file, args.output_file, args.config_file, args.tree_struct, args.nev, args.lhc_run)
