@@ -48,18 +48,48 @@ namespace alian
 
 	std::vector<fastjet::PseudoJet> numpy_pxpypz_to_tracks(PyObject *px, PyObject *py, PyObject *pz, PyObject *tracksel, int index_offset);
 	std::vector<fastjet::PseudoJet> numpy_ptetaphi_to_tracks(PyObject *pt, PyObject *eta, PyObject *phi, PyObject *tracksel, int index_offset);
+	std::vector<fastjet::PseudoJet> numpy_ptetaphi_to_tracks_mc(PyObject *pt, PyObject *eta, PyObject *phi, PyObject *tracksel, PyObject *mcid, int index_offset);
+	std::vector<fastjet::PseudoJet> numpy_ptetaphie_to_particles(PyObject *pt, PyObject *eta, PyObject *phi, PyObject *energy, PyObject *charge, PyObject *mcid, PyObject *pdgid, int index_offset);
 
 	class TrackInfo : public fastjet::PseudoJet::UserInfoBase
 	{
 	public:
-		TrackInfo(short q, uint16_t track_sel) : _q(q), _track_sel(track_sel) {}
+		TrackInfo(short q, uint16_t track_sel) : _q(q), _track_sel(track_sel), _mcid(-99), _has_match(false) {}
+		TrackInfo(short q, uint16_t track_sel, long mcid) : _q(q), _track_sel(track_sel), _mcid(mcid), _has_match(false) {}
 
 		const short q() const { return _q; }
 		const uint16_t track_sel() const { return _track_sel; }
+		const long mcid() const { return _mcid; }
+		const bool has_match() const { return _has_match; }
+		const fastjet::PseudoJet match() const { return _match; }
+		void set_match(const fastjet::PseudoJet match) { _match = match; _has_match = true; }
 
 	private:
 		short _q;
 		uint16_t _track_sel;
+		long _mcid;
+		bool _has_match = false;
+		fastjet::PseudoJet _match;
+	};
+
+	class ParticleInfo : public fastjet::PseudoJet::UserInfoBase
+	{
+	public:
+		ParticleInfo(int q, long mcid, int pdgid) : _q(q), _mcid(mcid), _pdgid(pdgid), _has_match(false) {}
+
+		const int q() const { return _q; }
+		const long mcid() const { return _mcid; }
+		const int pdgid() const { return _pdgid; }
+		const bool has_match() const { return _has_match; }
+		const fastjet::PseudoJet match() const { return _match; }
+		void set_match(const fastjet::PseudoJet match) { _match = match; _has_match = true; }
+
+	private:
+		int _q;
+		long _mcid;
+		long _pdgid;
+		bool _has_match = false;
+		fastjet::PseudoJet _match;
 	};
 
 	class Cluster : public fastjet::PseudoJet

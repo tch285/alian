@@ -71,7 +71,7 @@ class Run3FileInput(yasp.GenericObject):
                     for event_data in zip(*batch.values()):
                         # event_data is a tuple of 1-D ndarrays for one event, one from each branch
                         self.event.data = {branch: branch_data for branch, branch_data in zip(batch.keys(), event_data)}
-                        self.add_generic_ebye_info()
+                        # self.add_generic_ebye_info()
                         pbar.update(1)
                         pbar_total.update(1)
                         yield self.event

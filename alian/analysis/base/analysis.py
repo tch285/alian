@@ -1,3 +1,4 @@
+from collections import defaultdict
 from time import perf_counter
 
 from alian.io import data_io
@@ -5,13 +6,21 @@ from ROOT import TFile
 
 import heppyy
 
-from .event import Event, get_selected_clusters, get_selected_tracks
+from .event import (
+    Event,
+    EventMC,
+    get_particles,
+    get_selected_clusters,
+    get_selected_tracks,
+    get_selected_tracks_mc,
+)
 from .jet_finder import JetFinder
 from .logs import set_up_logger
 from .output import Output
 from .selector import AnalysisSelector
-from .utils import is_slurm, read_yaml
+from .utils import is_slurm, read_yaml, delta_R
 
+alian = heppyy.load_cppyy("alian")
 
 class BaseAnalysis(heppyy.GenericObject):
     _defaults = {}
@@ -78,12 +87,7 @@ class AnalysisBase:
             self.load_clusters = False
         # initialize jet finder
         if 'jet_finder' in self.cfg:
-            self.logger.info("Jet finder config found, jets will be loaded into events.")
-            self.load_jets = True
-            self.logger.info("Configuring jet finder...")
-            self.jet_finder = JetFinder.load(self.cfg)
-            self.jet_finder.dump()
-            self.logger.info("Jet finder configured.")
+            self.init_jet_finder()
         else:
             self.logger.info("No configuration for jet finder, no jets will be loaded.")
             self.load_jets = False
@@ -105,6 +109,14 @@ class AnalysisBase:
         """Initialize analysis configuration parameters. Override in analyses if necessary."""
         self.logger.info("No analysis configuration to parse.")
 
+    def init_jet_finder(self):
+        self.logger.info("Jet finder config found, jets will be loaded into events.")
+        self.load_jets = True
+        self.logger.info("Configuring jet finder...")
+        self.jet_finder = JetFinder.load(self.cfg)
+        self.jet_finder.dump()
+        self.logger.info("Jet finder configured.")
+
     def init_output(self):
         self.output = Output.load(self.cfg)
         self.hists = self.output.hists
@@ -112,7 +124,8 @@ class AnalysisBase:
 
     def analyze_events(self):
         self.logger.info("Analyzing events...")
-        slurm_check = is_slurm()
+        # slurm_check = is_slurm()
+        slurm_check = True
         for e in self.data_source.next_event(disable_bar = slurm_check):
             # build the event only
             self.build_event(e)
@@ -162,6 +175,99 @@ class AnalysisBase:
         m, s = divmod(round(seconds), 60)
         h, m = divmod(m, 60)
         return f"{h:d}h {m:02d}m {s:02d}s"
+
+class AnalysisMCBase(AnalysisBase):
+    """A base class for MC analysis tasks.
+
+    Overrides only a few of the AnalysisBase class for MC.
+    """
+    _defaults = {}
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+    def init_jet_finder(self):
+        self.logger.info("Jet finder config found, jets will be loaded into events.")
+        self.load_jets = True
+        self.logger.info("Configuring jet finders...")
+        self.jet_finder_det = JetFinder.load(self.cfg)
+        self.jet_finder_det.dump()
+        self.jet_finder_gen = JetFinder.load(self.cfg)
+        self.jet_finder_gen.dump()
+        self.logger.info("Jet finders configured.")
+    def build_event(self, event_struct):
+        """Build event as EventMC and store in self.event."""
+        self.event = EventMC(event_struct)
+        self.weight = self.event.weight
+    def build_event_objs(self, event_struct):
+        """Build tracks and optionally clusters and jets from associated event."""
+        self.tracks = get_selected_tracks_mc(event_struct, self.selector.track)
+        self.particles = get_particles(event_struct)
+        mapping = self.build_track_part_matching(self.tracks, self.particles)
+        self.set_track_part_matching(mapping, self.tracks, self.particles)
+        if self.load_jets:
+            self.jets_det = self.jet_finder_det.find_jets(self.tracks)
+            self.jets_gen = self.jet_finder_gen.find_jets(self.particles)
+    def build_track_part_matching(self, dets, gens):
+        gen_idx_map = {}
+        # build map of gen mcid -> index in gens list
+        for gen_idx, gen in enumerate(gens):
+            gen_mcid = gen.user_info[alian.ParticleInfo]().mcid()
+            if gen_mcid in gen_idx_map:
+                raise ValueError(f"duplicate MC ID {gen_mcid} in generated particles")
+            gen_idx_map[gen_mcid] = gen_idx
+
+        get = gen_idx_map.get # skip the attribute lookup per iteration with local bind
+        det_gen_mapping = {}
+        for det_idx, det in enumerate(dets):
+            det_mcid = det.user_info[alian.TrackInfo]().mcid()
+            if det_mcid != -1 and (gen_idx := get(det_mcid)) is not None:
+                det_gen_mapping[det_idx] = gen_idx
+        return det_gen_mapping
+    def set_track_part_matching(self, mapping, tracks, particles):
+        mapping_inv = defaultdict(list)
+        for det_idx, gen_idx in mapping.items():
+            mapping_inv[gen_idx].append(det_idx)
+
+        shared = {gen_idx: det_idxs for gen_idx, det_idxs in mapping_inv.items() if len(det_idxs) > 1}
+        if shared:
+            self.logger.warning(f"Found {len(shared)} particle matching to multiple tracks, resolving via NN")
+            idxs_to_delete = []
+            for gen_idx, det_idxs in shared.items():
+                self.logger.warning(f"  Particle matches to {len(det_idxs)} tracks")
+                min_det_idx = self._get_nearest_track_match(gen_idx, det_idxs)
+                idxs_to_delete += [idx for idx in det_idxs if idx != min_det_idx]
+            for idx in idxs_to_delete:
+                del mapping[idx]
+
+        for det_idx, gen_idx in mapping.items():
+            tracks[det_idx].user_info[alian.TrackInfo]().set_match(particles[gen_idx])
+            particles[gen_idx].user_info[alian.ParticleInfo]().set_match(tracks[det_idx])
+
+    def _get_nearest_track_match(self, gen_idx, det_idxs):
+        return min(det_idxs, key=lambda det_idx: delta_R(self.particles[gen_idx], self.tracks[det_idx]))
+
+    def _get_jet_matches(self, jets_det, jets_gen, distance):
+        pairs = []
+        for i, j_det in enumerate(jets_det):
+            match = None
+            for j, j_gen in enumerate(jets_gen):
+                if delta_R(j_det, j_gen) <= distance:
+                    if match is not None:
+                        match = None
+                        break
+                    match = j
+            if match is None:
+                continue
+            count = 0
+            for j_det_other in jets_det:
+                if delta_R(j_det_other, jets_gen[match]) <= distance:
+                    count += 1
+                    if count > 1:
+                        break
+            if count == 1:
+                pairs.append((i, match))
+        return pairs
 
 def add_default_args(parser):
     parser.add_argument('-i', '--input-file',  type = str, required = True,           help = "Input file or file containing a list of input files.")

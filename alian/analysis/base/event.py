@@ -19,6 +19,15 @@ class Event:
         self.rct = RCTSel(ev.data["rct"])
 
 
+class EventMC:
+    def __init__(self, ev):
+        self.multiplicity = ev.data["fMultiplicity"]
+        self.occupancy = ev.data["fOccupancy"]
+        self.event_sel = EventSel(ev.data["fEventSel"])
+        self.rct = RCTSel(ev.data["fRct"])
+        self.weight = ev.data["fWeight"]
+
+
 def get_tracks(ev):
     """Get all tracks from an event (no track selections applied)."""
     return alian.numpy_ptetaphi_to_tracks(
@@ -26,6 +35,18 @@ def get_tracks(ev):
         ev.data["track_eta"],
         ev.data["track_phi"],
         ev.data["track_sel"],
+        0,
+    )
+
+
+def get_tracks_mc(ev):
+    """Get all MC tracks from an event (no track selections applied)."""
+    return alian.numpy_ptetaphi_to_tracks_mc(
+        ev.data["fDetPt"],
+        ev.data["fDetEta"],
+        ev.data["fDetPhi"],
+        ev.data["fDetTrackSel"],
+        ev.data["fDetMcId"],
         0,
     )
 
@@ -44,6 +65,38 @@ def get_selected_tracks(ev, selector):
             )
             if selector.selects(t)
         ]
+    )
+
+
+def get_selected_tracks_mc(ev, selector):
+    """Get selected MC tracks from an event (track selections applied)."""
+    return std.vector[fj.PseudoJet](
+        [
+            t
+            for t in alian.numpy_ptetaphi_to_tracks_mc(
+                ev.data["fDetPt"],
+                ev.data["fDetEta"],
+                ev.data["fDetPhi"],
+                ev.data["fDetTrackSel"],
+                ev.data["fDetMcId"],
+                0,
+            )
+            if selector.selects(t)
+        ]
+    )
+
+
+def get_particles(ev):
+    """Get selected particles from an event."""
+    return alian.numpy_ptetaphie_to_particles(
+        ev.data["fGenPt"],
+        ev.data["fGenEta"],
+        ev.data["fGenPhi"],
+        ev.data["fGenE"],
+        ev.data["fGenCharge"],
+        ev.data["fGenMcId"],
+        ev.data["fPdgId"],
+        0,
     )
 
 
