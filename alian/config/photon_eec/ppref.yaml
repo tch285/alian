@@ -10,16 +10,18 @@ selections:
 jet_finder:
   R: 0.4
   alg: antikt
-  pT_min: 10
+  pT_min: 8
 
 analysis:
   pt_min_eec: 1.0
 
 output:
   bins:
+    track_pT: ['log', 0.15, 20, 300]
     RL: ['log', 0.01, 0.4, 20]
     jet_pT: ['lin', 0, 200, 200]
   histograms:
+    track_pT: [1, "track_pT", "Track #it{p}_{T} spectrum;track #it{p}_{T} (GeV);Counts", track_pT]
     jet_pT: [1, "jet_pT", "Jet #it{p}_{T} spectrum;jet #it{p}_{T} (GeV);Counts", jet_pT]
     eec_T:  [2, "eec_T",  "EEC_T;jet #it{p}_{T} (GeV);#it{R}_{L}",  jet_pT, RL]
     eec_Q:  [2, "eec_Q",  "EEC_Q;jet #it{p}_{T} (GeV);#it{R}_{L}",  jet_pT, RL]

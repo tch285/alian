@@ -93,23 +93,23 @@ class AnalysisExample(AnalysisMCBase):
                 self.hists[f"eec_PM_{suffix}"].Fill(jet.pt(), angle, ew * self.weight)
 
     def finalize(self):
-        # self.hists['track_pT_det'].Scale(1, "width")
-        # self.hists['track_pT_gen'].Scale(1, "width")
+        self.hists['track_pT_det'].Scale(1, "width")
+        self.hists['track_pT_gen'].Scale(1, "width")
 
-        h_eff = self.hists['eff_track_pT_det'].Clone("h_eff")
-        h_eff.SetTitle("Efficiency;pt (GeV);Efficiency")
-        h_eff.Divide(self.hists['eff_track_pT_gen'])
-        self.hists['efficiency'] = h_eff
+        # h_eff = self.hists['eff_track_pT_det'].Clone("h_eff")
+        # h_eff.SetTitle("Efficiency;pt (GeV);Efficiency")
+        # h_eff.Divide(self.hists['eff_track_pT_gen'])
+        # self.hists['efficiency'] = h_eff
 
-        h_pur = self.hists['pur_track_pT_gen'].Clone("h_pur")
-        h_pur.SetTitle("Purity;pt (GeV);Purity")
-        h_pur.Divide(self.hists['pur_track_pT_det'])
-        self.hists['purity'] = h_pur
+        # h_pur = self.hists['pur_track_pT_gen'].Clone("h_pur")
+        # h_pur.SetTitle("Purity;pt (GeV);Purity")
+        # h_pur.Divide(self.hists['pur_track_pT_det'])
+        # self.hists['purity'] = h_pur
 
-        h_ch = self.hists['ch_track_pT_det'].Clone("h_ch")
-        h_ch.SetTitle("Charge reco efficiency;pt (GeV);Efficiency")
-        h_ch.Divide(self.hists['ch_track_pT_gen'])
-        self.hists['ch_eff'] = h_ch
+        # h_ch = self.hists['ch_track_pT_det'].Clone("h_ch")
+        # h_ch.SetTitle("Charge reco efficiency;pt (GeV);Efficiency")
+        # h_ch.Divide(self.hists['ch_track_pT_gen'])
+        # self.hists['ch_eff'] = h_ch
 
 
 if __name__ == '__main__':

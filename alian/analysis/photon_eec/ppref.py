@@ -29,6 +29,12 @@ class BasicEEC(AnalysisBase):
 
     def analyze_event(self):
         jets = self.jet_finder.find_jets(self.tracks)
+        if jets:
+            for t in self.tracks:
+                self.hists["track_pT"].Fill(t.pt())
+        # else:
+        #     self.logger.info("Found event without jet!")
+
         for jet in jets:
             self.do_eec(jet)
 
@@ -50,6 +56,8 @@ class BasicEEC(AnalysisBase):
             else:
                 self.hists["eec_PM"].Fill(jet.pt(), angle, ew)
 
+    def finalize(self):
+        self.hists['track_pT'].Scale(1, "width")
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Run analysis on ROOT file using YAML configuration.")

@@ -25,11 +25,11 @@ analysis:
 output:
   bins:
     track_pT: ['log', 0.1, 20, 300]
-    track_pT_coarse: ['log', 0.1, 20, 20]
+    track_pT_coarse: ['log', 0.15, 30, 50]
     jet_pT: ['lin', 0, 200, 200]
     RL: ['log', 1.0e-2, 0.4, 20]
-    res: ['lin', -4, 4, 20]
-    pThat_ratio: ['log', 1.e-2, 5, 300]
+    res: ['lin', -7, 7, 80]
+    pThat_ratio: ['lin', 0.1, 12, 300]
   histograms:
     # define histograms with bins described in `bins`
     track_pT_det: [1, "track_pT_det", "Det. track #it{p}_{T} spectrum;#it{p}_{T} (GeV);dN/d#it{p}_{T}", track_pT]
