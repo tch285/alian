@@ -64,17 +64,33 @@ class AnalysisExample(AnalysisMCBase):
         [self.hists['jet_pT_det'].Fill(j.pt(), self.weight) for j in self.jets_det]
         [self.hists['jet_pT_gen'].Fill(j.pt(), self.weight) for j in self.jets_gen]
         for j in self.jets_det:
-            self.do_eec(j, "eec_det")
+            self.hists['pThat_ratio_det'].Fill(j.pt() / self.event.pThat)
+            self.do_eec(j, "det")
         for j in self.jets_gen:
-            self.do_eec(j, "eec_gen")
+            self.hists['pThat_ratio_gen'].Fill(j.pt() / self.event.pThat)
+            self.do_eec(j, "gen")
 
-    def do_eec(self, jet, name):
+    def do_eec(self, jet, suffix):
         tracks = self.eec_trk_selector(jet.constituents())
+        if suffix == "det":
+            info_cls = alian.TrackInfo
+        else:
+            info_cls = alian.ParticleInfo
+
         for p1, p2 in itertools.permutations(tracks, 2):
             ew = p1.pt() * p2.pt() / jet.pt() / jet.pt()
             angle = delta_R(p1, p2)
+            q1 = p1.user_info[info_cls]().q()
+            q2 = p2.user_info[info_cls]().q()
 
-            self.hists[name].Fill(jet.pt(), angle, ew * self.weight)
+            self.hists[f"eec_T_{suffix}"].Fill(jet.pt(), angle, ew * self.weight)
+            self.hists[f"eec_Q_{suffix}"].Fill(jet.pt(), angle, ew * self.weight * q1 * q2)
+            if q1 > 0 and q2 > 0:
+                self.hists[f"eec_P_{suffix}"].Fill(jet.pt(), angle, ew * self.weight)
+            if q1 < 0 and q2 < 0:
+                self.hists[f"eec_M_{suffix}"].Fill(jet.pt(), angle, ew * self.weight)
+            else:
+                self.hists[f"eec_PM_{suffix}"].Fill(jet.pt(), angle, ew * self.weight)
 
     def finalize(self):
         # self.hists['track_pT_det'].Scale(1, "width")

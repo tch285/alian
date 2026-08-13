@@ -26,6 +26,7 @@ class EventMC:
         self.event_sel = EventSel(ev.data["fEventSel"])
         self.rct = RCTSel(ev.data["fRct"])
         self.weight = ev.data["fWeight"]
+        self.pThat = ev.data["fPtHat"]
 
 
 def get_tracks(ev):

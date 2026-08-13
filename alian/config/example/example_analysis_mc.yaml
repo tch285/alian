@@ -7,7 +7,7 @@ constants: # a YAML hack to define constants
 # Event cuts
 selections:
   event:
-    event_sel: sel8
+    event_sel: selMC
     rct: CBT
   track:
     pt_min: 0.150
@@ -27,8 +27,9 @@ output:
     track_pT: ['log', 0.1, 20, 300]
     track_pT_coarse: ['log', 0.1, 20, 20]
     jet_pT: ['lin', 0, 200, 200]
-    RL: ['log', 1.0e-3, 1, 30]
+    RL: ['log', 1.0e-2, 0.4, 20]
     res: ['lin', -4, 4, 20]
+    pThat_ratio: ['log', 1.e-2, 5, 300]
   histograms:
     # define histograms with bins described in `bins`
     track_pT_det: [1, "track_pT_det", "Det. track #it{p}_{T} spectrum;#it{p}_{T} (GeV);dN/d#it{p}_{T}", track_pT]
@@ -42,5 +43,15 @@ output:
     pT_res: [2, "pT_res", "#it{p}_{T} resolution;#it{p}_{T} (GeV);Resolution (%)", track_pT_coarse, res]
     jet_pT_det: [1, "jet_pT_det", "Det. jet #it{p}_{T} spectrum;jet #it{p}_{T} (GeV);Counts", jet_pT]
     jet_pT_gen: [1, "jet_pT_gen", "Gen. jet #it{p}_{T} spectrum;jet #it{p}_{T} (GeV);Counts", jet_pT]
-    eec_det: [2, "eec_det", "EEC (det);jet #it{p}_{T} (GeV);#it{R}_{L}", jet_pT, RL]
-    eec_gen: [2, "eec_gen", "EEC (gen);jet #it{p}_{T} (GeV);#it{R}_{L}", jet_pT, RL]
+    pThat_ratio_gen: [1, "pThat_ratio_gen", "pTjet / pThat (gen jets);Ratio;Counts", pThat_ratio]
+    pThat_ratio_det: [1, "pThat_ratio_det", "pTjet / pThat (det jets);Ratio;Counts", pThat_ratio]
+    eec_T_det: [2, "eec_T_det", "EEC_T (det);jet #it{p}_{T} (GeV);#it{R}_{L}", jet_pT, RL]
+    eec_T_gen: [2, "eec_T_gen", "EEC_T (gen);jet #it{p}_{T} (GeV);#it{R}_{L}", jet_pT, RL]
+    eec_P_det: [2, "eec_P_det", "EEC_P (det);jet #it{p}_{T} (GeV);#it{R}_{L}", jet_pT, RL]
+    eec_P_gen: [2, "eec_P_gen", "EEC_P (gen);jet #it{p}_{T} (GeV);#it{R}_{L}", jet_pT, RL]
+    eec_M_det: [2, "eec_M_det", "EEC_M (det);jet #it{p}_{T} (GeV);#it{R}_{L}", jet_pT, RL]
+    eec_M_gen: [2, "eec_M_gen", "EEC_M (gen);jet #it{p}_{T} (GeV);#it{R}_{L}", jet_pT, RL]
+    eec_PM_det: [2, "eec_PM_det", "EEC_PM (det);jet #it{p}_{T} (GeV);#it{R}_{L}", jet_pT, RL]
+    eec_PM_gen: [2, "eec_PM_gen", "EEC_PM (gen);jet #it{p}_{T} (GeV);#it{R}_{L}", jet_pT, RL]
+    eec_Q_det: [2, "eec_Q_det", "EEC_Q (det);jet #it{p}_{T} (GeV);#it{R}_{L}", jet_pT, RL]
+    eec_Q_gen: [2, "eec_Q_gen", "EEC_Q (gen);jet #it{p}_{T} (GeV);#it{R}_{L}", jet_pT, RL]
