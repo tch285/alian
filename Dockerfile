@@ -10,7 +10,7 @@ WORKDIR /opt
 COPY packages entrypoint.sh requirements.txt apps/
 
 RUN apt-get update -qq \
- && ln -sf /usr/share/zoneinfo/UTC /etc/localtime \
+ && ln -sf /usr/share/zoneinfo/US/Pacific /etc/localtime \
  && apt-get -y install --no-install-recommends $(cat apps/packages) wget \
  && rm -rf /var/lib/apt/lists/* \
  && cd /opt/apps \
