@@ -181,7 +181,6 @@ class AnalysisMCBase(AnalysisBase):
 
     Overrides only a few of the AnalysisBase class for MC.
     """
-    _defaults = {}
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -190,8 +189,10 @@ class AnalysisMCBase(AnalysisBase):
         self.logger.info("Jet finder config found, jets will be loaded into events.")
         self.load_jets = True
         self.logger.info("Configuring jet finders...")
+        self.logger.info("Configuring detector-level jet finder...")
         self.jet_finder_det = JetFinder.load(self.cfg)
         self.jet_finder_det.dump()
+        self.logger.info("Configuring generator-level jet finder...")
         self.jet_finder_gen = JetFinder.load(self.cfg)
         self.jet_finder_gen.dump()
         self.logger.info("Jet finders configured.")

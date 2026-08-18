@@ -15,7 +15,7 @@ import argparse
 import itertools
 
 import numpy as np
-from alian.analysis.base import AnalysisMCBase, add_default_args, delta_R, JetFinder
+from alian.analysis.base import AnalysisMCBase, JetFinder, add_default_args, delta_R
 from cppyy.gbl import std
 
 import heppyy
@@ -24,7 +24,7 @@ fj = heppyy.load_cppyy('fastjet')
 alian = heppyy.load_cppyy("alian")
 
 
-class AnalysisExample(AnalysisMCBase):
+class SystSingle(AnalysisMCBase):
     _defaults = {
         'pt_min_eec': 1.0,
         'rng_seed': 5,
@@ -114,5 +114,5 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
 
-    ana = AnalysisExample(args.input_file, args.output_file, args.config_file, args.tree_struct, args.nev, args.lhc_run)
+    ana = SystSingle(args.input_file, args.output_file, args.config_file, args.tree_struct, args.nev, args.lhc_run)
     ana.run()

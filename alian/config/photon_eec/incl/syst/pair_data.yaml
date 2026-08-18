@@ -1,0 +1,34 @@
+# Event cuts
+selections:
+  event:
+    event_sel: selMC
+    rct: CBT
+  track:
+    pt_min: 0.150
+    track_sel: globalTrack
+
+# remove the jet_finder section below if jets are not needed in analysis
+jet_finder:
+  R: 0.4
+  alg: antikt
+  pT_min: 10
+
+analysis:
+  pt_min_eec: 1.0
+
+output:
+  bins:
+    jet_pT: ['lin', 0, 200, 200]
+    RL: ['log', 1.0e-2, 0.4, 20]
+  histograms:
+    jet_pT: [1, "jet_pT", "jet #it{p}_{T} spectrum;jet #it{p}_{T} (GeV);Counts", jet_pT]
+    eec_rej_T: [2, "eec_rej_T", "EEC_T (rej);jet #it{p}_{T} (GeV);#it{R}_{L}", jet_pT, RL]
+    eec_nom_T: [2, "eec_nom_T", "EEC_T (nom);jet #it{p}_{T} (GeV);#it{R}_{L}", jet_pT, RL]
+    eec_rej_P: [2, "eec_rej_P", "EEC_P (rej);jet #it{p}_{T} (GeV);#it{R}_{L}", jet_pT, RL]
+    eec_nom_P: [2, "eec_nom_P", "EEC_P (nom);jet #it{p}_{T} (GeV);#it{R}_{L}", jet_pT, RL]
+    eec_rej_M: [2, "eec_rej_M", "EEC_M (rej);jet #it{p}_{T} (GeV);#it{R}_{L}", jet_pT, RL]
+    eec_nom_M: [2, "eec_nom_M", "EEC_M (nom);jet #it{p}_{T} (GeV);#it{R}_{L}", jet_pT, RL]
+    eec_rej_PM: [2, "eec_rej_PM", "EEC_PM (rej);jet #it{p}_{T} (GeV);#it{R}_{L}", jet_pT, RL]
+    eec_nom_PM: [2, "eec_nom_PM", "EEC_PM (nom);jet #it{p}_{T} (GeV);#it{R}_{L}", jet_pT, RL]
+    eec_rej_Q: [2, "eec_rej_Q", "EEC_Q (rej);jet #it{p}_{T} (GeV);#it{R}_{L}", jet_pT, RL]
+    eec_nom_Q: [2, "eec_nom_Q", "EEC_Q (nom);jet #it{p}_{T} (GeV);#it{R}_{L}", jet_pT, RL]

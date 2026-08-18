@@ -1,0 +1,22 @@
+# Event cuts
+selections:
+  event:
+    event_sel: selMC
+    rct: CBT
+  track:
+    pt_min: 0.150
+    track_sel: globalTrack
+
+output:
+  bins:
+    kT: ['lin', 0, 10, 100]
+    pairdist: ['lin', -0.2, 0.2, 200]
+  histograms:
+    pair_eff_T_det:  [3, "pair_eff_T_det",  "Pairs (T) (det);pair #it{k}_{T} (GeV);#delta#eta;#delta#phi *",  kT, pairdist, pairdist]
+    pair_eff_T_gen:  [3, "pair_eff_T_gen",  "Pairs (T) (gen);pair #it{k}_{T} (GeV);#delta#eta;#delta#phi *",  kT, pairdist, pairdist]
+    pair_eff_P_det:  [3, "pair_eff_P_det",  "Pairs (P) (det);pair #it{k}_{T} (GeV);#delta#eta;#delta#phi *",  kT, pairdist, pairdist]
+    pair_eff_P_gen:  [3, "pair_eff_P_gen",  "Pairs (P) (gen);pair #it{k}_{T} (GeV);#delta#eta;#delta#phi *",  kT, pairdist, pairdist]
+    pair_eff_M_det:  [3, "pair_eff_M_det",  "Pairs (M) (det);pair #it{k}_{T} (GeV);#delta#eta;#delta#phi *",  kT, pairdist, pairdist]
+    pair_eff_M_gen:  [3, "pair_eff_M_gen",  "Pairs (M) (gen);pair #it{k}_{T} (GeV);#delta#eta;#delta#phi *",  kT, pairdist, pairdist]
+    pair_eff_PM_det: [3, "pair_eff_PM_det", "Pairs (PM) (det);pair #it{k}_{T} (GeV);#delta#eta;#delta#phi *", kT, pairdist, pairdist]
+    pair_eff_PM_gen: [3, "pair_eff_PM_gen", "Pairs (PM) (gen);pair #it{k}_{T} (GeV);#delta#eta;#delta#phi *", kT, pairdist, pairdist]

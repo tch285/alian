@@ -28,15 +28,16 @@ def set_up_logger(name,
                   date_fmt = '%Y-%m-%d %H:%M:%S'
     ):
     logger = logging.getLogger(name)
-    handler = logging.StreamHandler()
+    if not logger.handlers:
+        handler = logging.StreamHandler()
 
-    if is_slurm():
-        formatter = logging.Formatter(log_fmt, datefmt = date_fmt)
-    else:
-        formatter = ColoredFormatter(log_fmt, datefmt = date_fmt)
+        if is_slurm():
+            formatter = logging.Formatter(log_fmt, datefmt = date_fmt)
+        else:
+            formatter = ColoredFormatter(log_fmt, datefmt = date_fmt)
 
-    handler.setFormatter(formatter)
-    handler.setLevel(handler_level)
-    logger.addHandler(handler)
-    logger.setLevel(logger_level)
+        handler.setFormatter(formatter)
+        handler.setLevel(handler_level)
+        logger.addHandler(handler)
+        logger.setLevel(logger_level)
     return logger
