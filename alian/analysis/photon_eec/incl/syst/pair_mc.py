@@ -77,7 +77,7 @@ class SystPairMC(AnalysisMCBase):
             self.hists["eec_Q_det"].Fill(jet.pt(), angle, ew * self.weight * q1 * q2)
             if q1 > 0 and q2 > 0:
                 self.hists["eec_P_det"].Fill(jet.pt(), angle, ew * self.weight)
-            if q1 < 0 and q2 < 0:
+            elif q1 < 0 and q2 < 0:
                 self.hists["eec_M_det"].Fill(jet.pt(), angle, ew * self.weight)
             else:
                 self.hists["eec_PM_det"].Fill(jet.pt(), angle, ew * self.weight)
@@ -95,7 +95,7 @@ class SystPairMC(AnalysisMCBase):
             self.hists["eec_Q_gen"].Fill(jet.pt(), angle, ew * self.weight * q1 * q2)
             if q1 > 0 and q2 > 0:
                 self.hists["eec_P_gen"].Fill(jet.pt(), angle, ew * self.weight)
-            if q1 < 0 and q2 < 0:
+            elif q1 < 0 and q2 < 0:
                 self.hists["eec_M_gen"].Fill(jet.pt(), angle, ew * self.weight)
             else:
                 self.hists["eec_PM_gen"].Fill(jet.pt(), angle, ew * self.weight)

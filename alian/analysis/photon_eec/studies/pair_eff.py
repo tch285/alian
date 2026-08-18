@@ -66,7 +66,7 @@ class AnalysisExample(AnalysisMCBase):
 
             if q1 > 0 and q2 > 0:
                 pair_type = "P"
-            if q1 < 0 and q2 < 0:
+            elif q1 < 0 and q2 < 0:
                 pair_type = "M"
             else:
                 pair_type = "PM"

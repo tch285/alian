@@ -74,7 +74,7 @@ class SystPairData(AnalysisBase):
             self.hists["eec_rej_Q"].Fill(jet.pt(), angle, ew * q1 * q2)
             if q1 > 0 and q2 > 0:
                 self.hists["eec_rej_P"].Fill(jet.pt(), angle, ew)
-            if q1 < 0 and q2 < 0:
+            elif q1 < 0 and q2 < 0:
                 self.hists["eec_rej_M"].Fill(jet.pt(), angle, ew)
             else:
                 self.hists["eec_rej_PM"].Fill(jet.pt(), angle, ew)
