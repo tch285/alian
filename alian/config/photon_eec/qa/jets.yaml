@@ -5,8 +5,8 @@ constants:
 selections:
   event:
     event_sel: sel8
-    trig_sel: GammaHighPtEMCAL, GammaHighPtDCAL
-    rct: CBT_calo
+    # trig_sel: GammaHighPtEMCAL, GammaHighPtDCAL
+    # rct: CBT_calo
   track:
     pt_min: 0.150
     track_sel: globalTrack
@@ -23,7 +23,7 @@ output:
     pT: ['lin', 0, 200, 200]
     phi: ['lin', 0, *twopi, 100]
     eta: ['lin', -1, 1, 100]
-    pT_custom: ['c', [0.15, 0.5, 1, 5, 10, 15, 20, 30, 40, 50, 60, 100, 200]]
+    pT_custom: ['c', [5, 10, 15, 20, 30, 40, 50, 60, 100, 200]]
   histograms:
     pT: [1, "pT", "Jet #it{p}_{T} spectrum;jet #it{p}_{T} (GeV);Counts", pT]
     phi: [1, "phi", "Jet #phi distribution;#phi_{jet};Counts", phi]

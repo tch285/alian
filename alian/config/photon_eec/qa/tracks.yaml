@@ -1,0 +1,8 @@
+# Event cuts
+selections:
+  event:
+    event_sel: sel8
+    # rct: CBT
+  track:
+    pt_min: 0.150
+    track_sel: globalTrack
