@@ -59,9 +59,9 @@ class UnfoldMC(AnalysisMCBase):
             resp.Fill(jet_det_matched.pt(), jet_gen_matched.pt(), self.weight)
 
         idxs_det_matched = [pair[0] for pair in pairs_cpp]
-        idxs_fake = [idx for idx in range(len(pairs_cpp)) if idx not in idxs_det_matched]
+        idxs_fake = [idx for idx in range(len(self.jets_det)) if idx not in idxs_det_matched]
         idxs_gen_matched = [pair[1] for pair in pairs_cpp]
-        idxs_miss = [idx for idx in range(len(pairs_cpp)) if idx not in idxs_gen_matched]
+        idxs_miss = [idx for idx in range(len(self.jets_gen)) if idx not in idxs_gen_matched]
 
         for idx_fake in idxs_fake:
             jet_fake = self.jets_det[idx_fake]
@@ -72,9 +72,10 @@ class UnfoldMC(AnalysisMCBase):
             resp.Miss(jet_miss.pt(), self.weight)
 
     def finalize(self):
-        hresponse = self.responses["jet_pT_unf"].Hresponse()
-        hresponse.SetName("hresponse")
-        self.responses["hresponse"] = hresponse
+        pass
+        # hresponse = self.responses["jet_pT_unf"].Hresponse()
+        # hresponse.SetName("hresponse")
+        # self.responses["hresponse"] = hresponse
 
     # def do_eec_det(self, jet):
     #     tracks = self.eec_trk_selector(jet.constituents())
