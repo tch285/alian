@@ -121,6 +121,7 @@ class AnalysisBase:
         self.output = Output.load(self.cfg)
         self.hists = self.output.hists
         self.trees = self.output.trees
+        self.responses = self.output.responses
 
     def analyze_events(self):
         self.logger.info("Analyzing events...")
@@ -269,6 +270,9 @@ class AnalysisMCBase(AnalysisBase):
             if count == 1:
                 pairs.append((i, match))
         return pairs
+    def _get_jet_matches_cpp(self, jets_det, jets_gen, distance):
+        vec = alian.get_jet_matches(jets_det, jets_gen, distance)
+        return [(p.first, p.second) for p in vec]
 
 def add_default_args(parser):
     parser.add_argument('-i', '--input-file',  type = str, required = True,           help = "Input file or file containing a list of input files.")

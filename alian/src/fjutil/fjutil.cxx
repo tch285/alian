@@ -22,6 +22,38 @@ namespace alian
 		}
 	}
 
+	std::vector<std::pair<int,int>> get_jet_matches(const std::vector<fastjet::PseudoJet>& jetsDet,
+									const std::vector<fastjet::PseudoJet>& jetsGen,
+									double r)
+	{
+		const std::size_t nDet = jetsDet.size(), nGen = jetsGen.size();
+		const double r2 = r * r;
+
+		std::vector<double> etasDet(nDet), etasGen(nGen);
+		for (std::size_t i = 0; i < nDet; ++i) etasDet[i] = jetsDet[i].eta();
+		for (std::size_t j = 0; j < nGen; ++j) etasGen[j] = jetsGen[j].eta();
+
+		std::vector<int> countsDet(nDet, 0), countsGen(nGen, 0), firstMatchInGen(nDet, -1);
+
+		for (std::size_t iDet = 0; iDet < nDet; ++iDet) {
+			for (std::size_t iGen = 0; iGen < nGen; ++iGen) {
+				const double deta = etasDet[iDet] - etasGen[iGen];
+				if (deta * deta >= r2) continue;
+				const double dphi = jetsDet[iDet].delta_phi_to(jetsGen[iGen]);
+				if (deta * deta + dphi * dphi < r2) {
+					if (++countsDet[iDet] == 1) firstMatchInGen[iDet] = (int)iGen;
+					++countsGen[iGen];
+				}
+			}
+		}
+
+		std::vector<std::pair<int,int>> matchIndices;
+		for (std::size_t iDet = 0; iDet < nDet; ++iDet)
+			if (countsDet[iDet] == 1 && countsGen[firstMatchInGen[iDet]] == 1)
+				matchIndices.emplace_back((int)iDet, firstMatchInGen[iDet]);
+		return matchIndices;
+	}
+
 	// function to transform three numpy arrays into a vector of PseudoJets
 	std::vector<fastjet::PseudoJet> numpy_pxpypz_to_pseudojets(PyObject *px, PyObject *py, PyObject *pz, double m, int index_offset)
 	{

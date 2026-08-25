@@ -41,6 +41,11 @@ namespace alian
 	// Static instance to trigger initialization
 	static NumpyInitializer numpy_initializer;
 
+	// pairs stored flat: [i0, j0, i1, j1, ...]
+	std::vector<std::pair<int,int>> get_jet_matches(const std::vector<fastjet::PseudoJet>& jetsDet,
+									const std::vector<fastjet::PseudoJet>& jetsGen,
+									double r);
+
 	std::vector<fastjet::PseudoJet> numpy_pxpypz_to_pseudojets(PyObject *px, PyObject *py, PyObject *pz, double m, int index_offset = 0);
 	std::vector<fastjet::PseudoJet> numpy_ptetaphi_to_pseudojets(PyObject *pt, PyObject *eta, PyObject *phi, double m, int index_offset = 0);
 
