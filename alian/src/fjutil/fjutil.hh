@@ -59,40 +59,29 @@ namespace alian
 	class TrackInfo : public fastjet::PseudoJet::UserInfoBase
 	{
 	public:
-		TrackInfo(short q, uint16_t track_sel) : _q(q), _track_sel(track_sel), _mcid(-99), _has_match(false) {}
-		TrackInfo(short q, uint16_t track_sel, long mcid) : _q(q), _track_sel(track_sel), _mcid(mcid), _has_match(false) {}
-
-		const short q() const { return _q; }
-		const uint16_t track_sel() const { return _track_sel; }
-		const long mcid() const { return _mcid; }
-		const bool has_match() const { return _has_match; }
-		const fastjet::PseudoJet match() const { return _match; }
-		void set_match(const fastjet::PseudoJet match) { _match = match; _has_match = true; }
-
-	private:
-		short _q;
-		uint16_t _track_sel;
-		long _mcid;
-		bool _has_match = false;
-		fastjet::PseudoJet _match;
-	};
-
-	class ParticleInfo : public fastjet::PseudoJet::UserInfoBase
-	{
-	public:
-		ParticleInfo(int q, long mcid, int pdgid) : _q(q), _mcid(mcid), _pdgid(pdgid), _has_match(false) {}
+		// for raw data-level tracks:
+		TrackInfo(int q, uint16_t track_sel) : _q(q), _track_sel(track_sel) {}
+		// for detector-level tracks:
+		// extra pdgid arg is a little unnecessary but avoids ambiguity with particle constructor due to implicit conversions
+		// and easy to work around
+		TrackInfo(int q, uint16_t track_sel, long mcid, int pdgid) : _q(q), _track_sel(track_sel), _mcid(mcid), _pdgid(pdgid) {}
+		// for generator-level particles:
+		TrackInfo(int q, long mcid, int pdgid) : _q(q), _mcid(mcid), _pdgid(pdgid) {}
 
 		const int q() const { return _q; }
+		const uint16_t track_sel() const { return _track_sel; }
 		const long mcid() const { return _mcid; }
 		const int pdgid() const { return _pdgid; }
 		const bool has_match() const { return _has_match; }
 		const fastjet::PseudoJet match() const { return _match; }
+		void set_mcid(const long mcid) { _mcid = mcid; }
 		void set_match(const fastjet::PseudoJet match) { _match = match; _has_match = true; }
 
 	private:
-		int _q;
-		long _mcid;
-		long _pdgid;
+		const int _q;
+		const uint16_t _track_sel = 0;
+		long _mcid = -99;
+		const long _pdgid = 0;
 		bool _has_match = false;
 		fastjet::PseudoJet _match;
 	};

@@ -1,6 +1,8 @@
 from functools import singledispatchmethod
 from pathlib import Path
 
+from cppyy.gbl import std
+
 import heppyy
 
 from .logs import set_up_logger
@@ -19,12 +21,16 @@ class JetFinder:
         R (str): The jet resolution / radius parameter.
         alg (fastjet.JetDefinition): The jet definition.
         pT_min (int): The minimum jet transverse momentum in GeV.
+        pT_max (int): The maximum jet transverse momentum in GeV. If None, removes this limit.
+        reject_100 (bool): Reject jets with tracks above 100 GeV.
     """
 
     _defaults = {
         'R': 0.4,
         'alg': fj.antikt_algorithm,
         'pT_min': 10,
+        'pT_max': None,
+        'reject_100': False,
     }
     _defaults["eta_max"] = 0.9 - _defaults["R"]
 
@@ -39,7 +45,7 @@ class JetFinder:
         for key in keys
     }
 
-    def __init__(self, alg = fj.antikt_algorithm, R = 0.4, eta_max = None, pT_min = 10):
+    def __init__(self, alg = fj.antikt_algorithm, R = 0.4, eta_max = None, pT_min = 10, pT_max = None, reject_100 = False):
         self.logger = set_up_logger(__name__)
         self.R = R
         if eta_max is None:
@@ -49,7 +55,11 @@ class JetFinder:
         self.alg = self._parse_jet_alg(alg)
         self.jet_def = fj.JetDefinition(self.alg, self.R)
         self.pT_min = pT_min
-        self.jet_selector = fj.SelectorAbsEtaMax(self.eta_max) * fj.SelectorPtMin(pT_min)
+        self.pT_max = pT_max
+        self.reject_100 = reject_100
+        self.jet_selector = fj.SelectorAbsEtaMax(self.eta_max) * fj.SelectorPtMin(self.pT_min)
+        if self.pT_max is not None:
+            self.jet_selector *= fj.SelectorPtMax(self.pT_max)
         fj.ClusterSequence.print_banner()
         # TODO: jet background subtraction
         # self.area_def = fj.AreaDefinition(fj.active_area, fj.GhostedAreaSpec(self.eta_max + self.jet_R))
@@ -102,5 +112,16 @@ class JetFinder:
     def find_jets(self, tracks, m = 0.13957, index_offset = 0):
         # NOTE: ClusterSequence must be attached somehow to self to keep it in scope
         self.cs = fj.ClusterSequence(tracks, self.jet_def)
-        jets = fj.sorted_by_pt(self.jet_selector(self.cs.inclusive_jets()))
-        return jets
+        jets = self.jet_selector(self.cs.inclusive_jets())
+        # jets = fj.sorted_by_pt(self.jet_selector(self.cs.inclusive_jets()))
+        if self.reject_100:
+            selected_jets = std.vector[fj.PseudoJet]()
+            for j in jets:
+                # no need to check length before [0] since jets by definition must have at least one constituent
+                if fj.sorted_by_pt(j.constituents())[0].pt() > 100:
+                    # jet has 100 GeV constituent, ignore it
+                    continue
+                selected_jets.push_back(j)
+            return selected_jets
+        else:
+            return jets

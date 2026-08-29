@@ -171,7 +171,7 @@ namespace alian
 		{
 			// assume the charged pion mass
 			double E = sqrt(px_data[i] * px_data[i] + py_data[i] * py_data[i] + pz_data[i] * pz_data[i] + PION_MASS * PION_MASS);
-			// charge is stored in the 0th bit of tracksel (1 = positive, 0 = negativ)
+			// charge is stored in the 0th bit of tracksel (1 = positive, 0 = negative)
 			short q = tracksel_data[i] & 0b1 ? 1 : -1;
 
 			tracks.emplace_back(px_data[i], py_data[i], pz_data[i], E);
@@ -235,7 +235,7 @@ namespace alian
 		return tracks;
 	}
 
-	// function to transform numpy arrays (pT, eta, phi, mcid) into a vector of PseudoJets with MC information
+	// function to transform numpy arrays (pT, eta, phi, tracksel, mcid) into a vector of PseudoJets with MC information
 	std::vector<fastjet::PseudoJet> numpy_ptetaphi_to_tracks_mc(PyObject *pt, PyObject *eta, PyObject *phi, PyObject *tracksel, PyObject *mcid, int index_offset)
 	{
 		PyArrayObject *np_pt = reinterpret_cast<PyArrayObject *>(pt);
@@ -283,7 +283,7 @@ namespace alian
 			short q = tracksel_data[i] & 0b1 ? 1 : -1;
 
 			tracks.emplace_back(px, py, pz, E);
-			tracks.back().set_user_info(new alian::TrackInfo(q, tracksel_data[i], mcid_data[i]));
+			tracks.back().set_user_info(new alian::TrackInfo(q, tracksel_data[i], mcid_data[i], 0));
 			tracks.back().set_user_index(i + index_offset);
 		}
 
@@ -340,7 +340,7 @@ namespace alian
 			double E = energy_data[i];
 
 			tracks.emplace_back(px, py, pz, E);
-			tracks.back().set_user_info(new alian::ParticleInfo(charge_data[i], mcid_data[i], pdgid_data[i]));
+			tracks.back().set_user_info(new alian::TrackInfo(charge_data[i], mcid_data[i], pdgid_data[i]));
 			tracks.back().set_user_index(i + index_offset);
 		}
 

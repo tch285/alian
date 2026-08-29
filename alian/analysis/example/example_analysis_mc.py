@@ -45,16 +45,16 @@ class AnalysisExample(AnalysisMCBase):
 
         for p in self.particles:
             self.hists['eff_track_pT_gen'].Fill(p.pt(), self.weight)
-            if p.user_info[alian.ParticleInfo]().has_match():
+            if p.user_info[alian.TrackInfo]().has_match():
                 self.hists['eff_track_pT_det'].Fill(p.pt(), self.weight)
 
-                match = p.user_info[alian.ParticleInfo]().match()
+                match = p.user_info[alian.TrackInfo]().match()
                 match_pt = match.pt()
                 res = (match_pt - p.pt()) / p.pt() * 100
                 self.hists['pT_res'].Fill(p.pt(), res, self.weight)
 
                 self.hists['ch_track_pT_gen'].Fill(p.pt(), self.weight)
-                if match.user_info[alian.TrackInfo]().q() == p.user_info[alian.ParticleInfo]().q():
+                if match.user_info[alian.TrackInfo]().q() == p.user_info[alian.TrackInfo]().q():
                     self.hists['ch_track_pT_det'].Fill(p.pt(), self.weight)
         for t in self.tracks:
             self.hists['pur_track_pT_det'].Fill(t.pt(), self.weight)
@@ -72,16 +72,12 @@ class AnalysisExample(AnalysisMCBase):
 
     def do_eec(self, jet, suffix):
         tracks = self.eec_trk_selector(jet.constituents())
-        if suffix == "det":
-            info_cls = alian.TrackInfo
-        else:
-            info_cls = alian.ParticleInfo
 
         for p1, p2 in itertools.permutations(tracks, 2):
             ew = p1.pt() * p2.pt() / jet.pt() / jet.pt()
             angle = delta_R(p1, p2)
-            q1 = p1.user_info[info_cls]().q()
-            q2 = p2.user_info[info_cls]().q()
+            q1 = p1.user_info[alian.TrackInfo]().q()
+            q2 = p2.user_info[alian.TrackInfo]().q()
 
             self.hists[f"eec_T_{suffix}"].Fill(jet.pt(), angle, ew * self.weight)
             self.hists[f"eec_Q_{suffix}"].Fill(jet.pt(), angle, ew * self.weight * q1 * q2)

@@ -11,6 +11,7 @@ jet_finder:
   R: 0.4
   alg: antikt
   pT_min: 8
+  reject_100: true
 
 analysis:
   pt_min_eec: 1.0

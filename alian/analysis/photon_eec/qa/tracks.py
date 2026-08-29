@@ -16,8 +16,9 @@ from time import perf_counter as timenow
 
 import numpy as np
 import ROOT
-from alian.analysis.base.selector import AnalysisSelector
 from alian.analysis.base.logs import set_up_logger
+from alian.analysis.base.selector import AnalysisSelector
+
 
 def linbins(xmin, xmax, nbins):
     return np.linspace(xmin, xmax, nbins+1)
@@ -37,7 +38,7 @@ class TrackQA:
         logger.info(f"{msg}: -------- {timenow() - self.start_time:.3f} sec. --------", stacklevel = 2)
     def note_start(self, msg):
         self.start_time = timenow()
-        logger.info(f"{msg}: {dt.now().replace(microsecond=0)}", stacklevel = 2)
+        logger.info(f"{msg}: {dt.now().replace(microsecond=0)}", stacklevel = 2)  # noqa: DTZ005
 
     def analyze(self):
         self.note_start("Starting analysis")

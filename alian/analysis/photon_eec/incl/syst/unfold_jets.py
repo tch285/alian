@@ -12,11 +12,8 @@ To be used with alian/config/example/example_analysis.yaml
 """
 
 import argparse
-import itertools
 
-import numpy as np
-from alian.analysis.base import AnalysisMCBase, add_default_args, delta_R
-from RooUnfold import RooUnfoldResponse
+from alian.analysis.base import AnalysisMCBase, add_default_args
 
 import heppyy
 
@@ -24,7 +21,7 @@ fj = heppyy.load_cppyy('fastjet')
 alian = heppyy.load_cppyy("alian")
 
 
-class UnfoldMC(AnalysisMCBase):
+class UnfoldJets(AnalysisMCBase):
     _defaults = {
         'pt_min_eec': 1.0,
     }
@@ -52,7 +49,7 @@ class UnfoldMC(AnalysisMCBase):
         for idx_det, idx_gen in pairs_cpp:
             jet_det_matched = self.jets_det[idx_det]
             jet_gen_matched = self.jets_gen[idx_gen]
-            
+
             self.hists['jet_pT_det_matched'].Fill(jet_det_matched.pt(), self.weight)
             self.hists['jet_pT_gen_matched'].Fill(jet_gen_matched.pt(), self.weight)
             self.hists['jet_pT_resp'].Fill(jet_det_matched.pt(), jet_gen_matched.pt(), self.weight)
@@ -124,5 +121,5 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
 
-    ana = UnfoldMC(args.input_file, args.output_file, args.config_file, args.tree_struct, args.nev, args.lhc_run)
+    ana = UnfoldJets(args.input_file, args.output_file, args.config_file, args.tree_struct, args.nev, args.lhc_run)
     ana.run()

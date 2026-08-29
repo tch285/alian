@@ -192,9 +192,11 @@ class AnalysisMCBase(AnalysisBase):
         self.logger.info("Configuring jet finders...")
         self.logger.info("Configuring detector-level jet finder...")
         self.jet_finder_det = JetFinder.load(self.cfg)
+        # self.jet_finder_det.reject_100 = True
         self.jet_finder_det.dump()
         self.logger.info("Configuring generator-level jet finder...")
         self.jet_finder_gen = JetFinder.load(self.cfg)
+        # self.jet_finder_gen.reject_100 = False
         self.jet_finder_gen.dump()
         self.logger.info("Jet finders configured.")
     def build_event(self, event_struct):
@@ -214,7 +216,7 @@ class AnalysisMCBase(AnalysisBase):
         gen_idx_map = {}
         # build map of gen mcid -> index in gens list
         for gen_idx, gen in enumerate(gens):
-            gen_mcid = gen.user_info[alian.ParticleInfo]().mcid()
+            gen_mcid = gen.user_info[alian.TrackInfo]().mcid()
             if gen_mcid in gen_idx_map:
                 raise ValueError(f"duplicate MC ID {gen_mcid} in generated particles")
             gen_idx_map[gen_mcid] = gen_idx
@@ -244,7 +246,7 @@ class AnalysisMCBase(AnalysisBase):
 
         for det_idx, gen_idx in mapping.items():
             tracks[det_idx].user_info[alian.TrackInfo]().set_match(particles[gen_idx])
-            particles[gen_idx].user_info[alian.ParticleInfo]().set_match(tracks[det_idx])
+            particles[gen_idx].user_info[alian.TrackInfo]().set_match(tracks[det_idx])
 
     def _get_nearest_track_match(self, gen_idx, det_idxs):
         return min(det_idxs, key=lambda det_idx: delta_R(self.particles[gen_idx], self.tracks[det_idx]))
