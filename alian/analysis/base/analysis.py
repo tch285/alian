@@ -203,16 +203,17 @@ class AnalysisMCBase(AnalysisBase):
         """Build event as EventMC and store in self.event."""
         self.event = EventMC(event_struct)
         self.weight = self.event.weight
+        self.pThat = self.event.pThat
     def build_event_objs(self, event_struct):
         """Build tracks and optionally clusters and jets from associated event."""
         self.tracks = get_selected_tracks_mc(event_struct, self.selector.track)
         self.particles = get_particles(event_struct)
-        mapping = self.build_track_part_matching(self.tracks, self.particles)
-        self.set_track_part_matching(mapping, self.tracks, self.particles)
+        mapping = self.build_mapping(self.tracks, self.particles)
+        self.mapping = self.set_track_part_matching(mapping, self.tracks, self.particles)
         if self.load_jets:
             self.jets_det = self.jet_finder_det.find_jets(self.tracks)
             self.jets_gen = self.jet_finder_gen.find_jets(self.particles)
-    def build_track_part_matching(self, dets, gens):
+    def build_mapping(self, dets, gens):
         gen_idx_map = {}
         # build map of gen mcid -> index in gens list
         for gen_idx, gen in enumerate(gens):
@@ -247,6 +248,7 @@ class AnalysisMCBase(AnalysisBase):
         for det_idx, gen_idx in mapping.items():
             tracks[det_idx].user_info[alian.TrackInfo]().set_match(particles[gen_idx])
             particles[gen_idx].user_info[alian.TrackInfo]().set_match(tracks[det_idx])
+        return mapping
 
     def _get_nearest_track_match(self, gen_idx, det_idxs):
         return min(det_idxs, key=lambda det_idx: delta_R(self.particles[gen_idx], self.tracks[det_idx]))

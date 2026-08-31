@@ -112,8 +112,7 @@ class JetFinder:
     def find_jets(self, tracks, m = 0.13957, index_offset = 0):
         # NOTE: ClusterSequence must be attached somehow to self to keep it in scope
         self.cs = fj.ClusterSequence(tracks, self.jet_def)
-        jets = self.jet_selector(self.cs.inclusive_jets())
-        # jets = fj.sorted_by_pt(self.jet_selector(self.cs.inclusive_jets()))
+        jets = fj.sorted_by_pt(self.jet_selector(self.cs.inclusive_jets()))
         if self.reject_100:
             selected_jets = std.vector[fj.PseudoJet]()
             for j in jets:

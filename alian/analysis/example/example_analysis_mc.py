@@ -14,7 +14,6 @@ To be used with alian/config/example/example_analysis.yaml
 import argparse
 import itertools
 
-import numpy as np
 from alian.analysis.base import AnalysisMCBase, add_default_args, delta_R
 
 import heppyy

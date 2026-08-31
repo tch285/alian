@@ -1,0 +1,33 @@
+# to be used with alian/analysis/example/example_analysis_mc.py
+
+# Event cuts
+selections:
+  event:
+    event_sel: selMC
+    rct: CBT
+  track:
+    pt_min: 0.150
+    track_sel: globalTrack
+
+# remove the jet_finder section below if jets are not needed in analysis
+jet_finder:
+  R: 0.4
+  alg: antikt
+  pT_min: 10
+
+output:
+  bins:
+    pThat: ['lin', 5, 600, 595]
+    pThat_diff: ['lin', -10, 10, 1000]
+    jet_pT: ['lin', 0, 200, 200]
+    pThat_ratio: ['lin', 0.1, 12, 300]
+  histograms:
+    # define histograms with bins described in `bins`
+    pThat: [1, "pThat", "pThat (unweighted);pThat;Counts", pThat]
+    pThat_diff: [1, "pThat_diff", "pThat difference;pThat (event - weight);Counts", pThat_diff]
+    pThat_weighted: [1, "pThat_weighted", "pThat (weighted);pThat;weighted counts", pThat]
+    pThat_corr: [2, "pThat_corr", "pThat correlation;event pThat;weight pThat", pThat, pThat]
+    pThat_ratio_det: [1, "pThat_ratio_det", "pTjet / pThat (det jets);Ratio;Counts", pThat_ratio]
+    pThat_ratio_gen: [1, "pThat_ratio_gen", "pTjet / pThat (gen jets);Ratio;Counts", pThat_ratio]
+    jet_pT_det: [1, "jet_pT_det", "Det. jet #it{p}_{T} spectrum;jet #it{p}_{T} (GeV);Counts", jet_pT]
+    jet_pT_gen: [1, "jet_pT_gen", "Gen. jet #it{p}_{T} spectrum;jet #it{p}_{T} (GeV);Counts", jet_pT]
