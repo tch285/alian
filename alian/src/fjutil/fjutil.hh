@@ -45,6 +45,9 @@ namespace alian
 	std::vector<std::pair<int,int>> get_jet_matches(const std::vector<fastjet::PseudoJet>& jetsDet,
 									const std::vector<fastjet::PseudoJet>& jetsGen,
 									double r);
+	std::vector<std::pair<int,int>> get_jet_matches_filtered(const std::vector<fastjet::PseudoJet>& jetsDet,
+									const std::vector<fastjet::PseudoJet>& jetsGen,
+									double r, double pTMaxDet, double pTMaxGen);
 
 	std::vector<fastjet::PseudoJet> numpy_pxpypz_to_pseudojets(PyObject *px, PyObject *py, PyObject *pz, double m, int index_offset = 0);
 	std::vector<fastjet::PseudoJet> numpy_ptetaphi_to_pseudojets(PyObject *pt, PyObject *eta, PyObject *phi, double m, int index_offset = 0);
@@ -62,8 +65,8 @@ namespace alian
 		// for raw data-level tracks:
 		TrackInfo(int q, uint16_t track_sel) : _q(q), _track_sel(track_sel) {}
 		// for detector-level tracks:
-		// extra pdgid arg is a little unnecessary but avoids ambiguity with particle constructor due to implicit conversions
-		// and easy to work around
+		// extra pdgid arg is a little unnecessary but avoids ambiguity with particle 
+		// constructor due to implicit conversions and it's easy to work around
 		TrackInfo(int q, uint16_t track_sel, long mcid, int pdgid) : _q(q), _track_sel(track_sel), _mcid(mcid), _pdgid(pdgid) {}
 		// for generator-level particles:
 		TrackInfo(int q, long mcid, int pdgid) : _q(q), _mcid(mcid), _pdgid(pdgid) {}

@@ -12,6 +12,7 @@ To be used with alian/config/example/example_analysis.yaml
 """
 
 import argparse
+from itertools import permutations
 
 from alian.analysis.base import AnalysisMCBase, add_default_args
 
@@ -23,24 +24,26 @@ alian = heppyy.load_cppyy("alian")
 
 class UnfoldJets(AnalysisMCBase):
     _defaults = {
-        # 'pt_min_eec': 1.0,
-        "jet_matching": 0.6,
-        "jet_pT_max_gen": 200,
-        "jet_pT_max_det": 200,
+        'pt_min_eec': 1.0,
+        'eec_ew_min': 1.0e-5,
+        'eec_ew_max': 1.0,
+        'eec_RL_min': 1.0e-2,
+        'eec_RL_max': 0.4,
     }
     def init_analysis(self, analysis_cfg: dict):
         config = self._defaults | analysis_cfg
         for setting, value in config.items():
             setattr(self, setting, value)
         self.eec_trk_selector = fj.SelectorPtMin(self.pt_min_eec)
-        self.jet_pT_max_det = self.hists["jet_pT_det"].GetXaxis().GetXmax()
-        self.jet_pT_max_gen = self.hists["jet_pT_gen"].GetXaxis().GetXmax()
+
+    def is_track_matched(self, idet, igen):
+        return self.mapping[idet] == igen
 
     def analyze_event(self):
-        # if any(j.pt() > 4 * self.pThat for j in self.jets_det):
-        #     return
-        # if any(j.pt() > 4 * self.pThat for j in self.jets_gen):
-        #     return
+
+        for idet1, idet2 in permutations(range(len(self.tracks)), 2):
+            print(self.tracks[idet1], self.tracks[idet2])
+
         for j in self.jets_det:
             self.hists['jet_pT_det'].Fill(j.pt(), self.weight)
             # self.do_eec_det(j)
@@ -48,14 +51,10 @@ class UnfoldJets(AnalysisMCBase):
             self.hists['jet_pT_gen'].Fill(j.pt(), self.weight)
             # self.do_eec_gen(j)
 
-        # pairs_py = self._get_jet_matches(self.jets_det, self.jets_gen, 0.4*0.6)
-        # pairs_cpp = self._get_jet_matches_cpp(self.jets_det, self.jets_gen, 0.4*self.jet_matching)
-        # if pairs_py != pairs_cpp:
-        #     raise ValueError(f"Pairs don't match:\n\tPython: {pairs_py}\n\tC++: {pairs_cpp}")
-        pairs_cpp = alian.get_jet_matches_filtered(self.jets_det, self.jets_gen, 0.4*self.jet_matching,
-                                                self.jet_pT_max_det,
-                                                self.jet_pT_max_gen)
-        pairs_cpp = [(p.first, p.second) for p in pairs_cpp]
+        pairs_py = self._get_jet_matches(self.jets_det, self.jets_gen, 0.4*0.6)
+        pairs_cpp = self._get_jet_matches_cpp(self.jets_det, self.jets_gen, 0.4*0.6)
+        if pairs_py != pairs_cpp:
+            raise ValueError(f"Pairs don't match:\n\tPython: {pairs_py}\n\tC++: {pairs_cpp}")
 
         resp = self.responses["jet_pT_unf"]
         for idx_det, idx_gen in pairs_cpp:
