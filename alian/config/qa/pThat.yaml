@@ -15,11 +15,16 @@ jet_finder:
   alg: antikt
   pT_min: 10
 
+analysis:
+  pThat_scale_det: 8
+  pThat_scale_gen: 1000
+
 output:
   bins:
     pThat: ['lin', 5, 600, 595]
     pThat_diff: ['lin', -10, 10, 1000]
     jet_pT: ['lin', 0, 200, 200]
+    track_pT: ['lin', 0, 300, 150]
     pThat_ratio: ['lin', 0.1, 12, 300]
   histograms:
     # define histograms with bins described in `bins`
@@ -27,7 +32,17 @@ output:
     pThat_diff: [1, "pThat_diff", "pThat difference;pThat (event - weight);Counts", pThat_diff]
     pThat_weighted: [1, "pThat_weighted", "pThat (weighted);pThat;weighted counts", pThat]
     pThat_corr: [2, "pThat_corr", "pThat correlation;event pThat;weight pThat", pThat, pThat]
-    pThat_ratio_det: [1, "pThat_ratio_det", "pTjet / pThat (det jets);Ratio;Counts", pThat_ratio]
-    pThat_ratio_gen: [1, "pThat_ratio_gen", "pTjet / pThat (gen jets);Ratio;Counts", pThat_ratio]
+    ratio_jet_corr: [2, "ratio_jet_corr", "pThat ratio correlation;det jet pT / pThat;gen jet pT / pThat", pThat_ratio, pThat_ratio]
+    ratio_track_corr: [2, "ratio_track_corr", "pThat ratio correlation;track pT / pThat;particle pT / pThat", pThat_ratio, pThat_ratio]
+    ratio_jet_det: [1, "ratio_jet_det", "pTjet / pThat (det jets);Ratio;Counts", pThat_ratio]
+    ratio_jet_gen: [1, "ratio_jet_gen", "pTjet / pThat (gen jets);Ratio;Counts", pThat_ratio]
     jet_pT_det: [1, "jet_pT_det", "Det. jet #it{p}_{T} spectrum;jet #it{p}_{T} (GeV);Counts", jet_pT]
     jet_pT_gen: [1, "jet_pT_gen", "Gen. jet #it{p}_{T} spectrum;jet #it{p}_{T} (GeV);Counts", jet_pT]
+    ratio_track: [1, "ratio_track", "pTtrack / pThat;Ratio;Counts", pThat_ratio]
+    ratio_particle: [1, "ratio_particle", "pTparticle / pThat;Ratio;Counts", pThat_ratio]
+    track_pT: [1, "track_pT", "Track #it{p}_{T} spectrum;track #it{p}_{T} (GeV);Counts", track_pT]
+    particle_pT: [1, "particle_pT", "Particle #it{p}_{T} spectrum;particle #it{p}_{T} (GeV);Counts", track_pT]
+    jet_pT_det_after_jet: [1, "jet_pT_det_after_jet", "Det. jet #it{p}_{T} spectrum (after jet cut);jet #it{p}_{T} (GeV);Counts", jet_pT]
+    jet_pT_gen_after_jet: [1, "jet_pT_gen_after_jet", "Gen. jet #it{p}_{T} spectrum (after jet cut);jet #it{p}_{T} (GeV);Counts", jet_pT]
+    track_pT_det_after_jet: [1, "track_pT_det_after_jet", "Det. track #it{p}_{T} spectrum (after jet cut);track #it{p}_{T} (GeV);Counts", track_pT]
+    track_pT_gen_after_jet: [1, "track_pT_gen_after_jet", "Gen. track #it{p}_{T} spectrum (after jet cut);track #it{p}_{T} (GeV);Counts", track_pT]
