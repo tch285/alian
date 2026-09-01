@@ -114,6 +114,7 @@ class AnalysisBase:
         self.load_jets = True
         self.logger.info("Configuring jet finder...")
         self.jet_finder = JetFinder.load(self.cfg)
+        self.jet_finder.reject_100 = True
         self.jet_finder.dump()
         self.logger.info("Jet finder configured.")
 
@@ -192,11 +193,11 @@ class AnalysisMCBase(AnalysisBase):
         self.logger.info("Configuring jet finders...")
         self.logger.info("Configuring detector-level jet finder...")
         self.jet_finder_det = JetFinder.load(self.cfg)
-        # self.jet_finder_det.reject_100 = True
+        self.jet_finder_det.reject_100 = True
         self.jet_finder_det.dump()
         self.logger.info("Configuring generator-level jet finder...")
         self.jet_finder_gen = JetFinder.load(self.cfg)
-        # self.jet_finder_gen.reject_100 = False
+        self.jet_finder_gen.reject_100 = False
         self.jet_finder_gen.dump()
         self.logger.info("Jet finders configured.")
     def build_event(self, event_struct):

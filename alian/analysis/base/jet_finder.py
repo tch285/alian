@@ -116,9 +116,8 @@ class JetFinder:
         if self.reject_100:
             selected_jets = std.vector[fj.PseudoJet]()
             for j in jets:
-                # no need to check length before [0] since jets by definition must have at least one constituent
-                if fj.sorted_by_pt(j.constituents())[0].pt() > 100:
-                    # jet has 100 GeV constituent, ignore it
+                if any(c.pt() > 100 for c in j.constituents()):
+                    # jet has > 100 GeV constituent, ignore it
                     continue
                 selected_jets.push_back(j)
             return selected_jets
