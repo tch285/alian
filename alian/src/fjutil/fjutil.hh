@@ -75,15 +75,19 @@ namespace alian
 		const uint16_t track_sel() const { return _track_sel; }
 		const long mcid() const { return _mcid; }
 		const int pdgid() const { return _pdgid; }
+		const int match_idx() const { return _match_idx; }
 		const bool has_match() const { return _has_match; }
 		const fastjet::PseudoJet match() const { return _match; }
+		const bool is_matched_to(const fastjet::PseudoJet psj) const { return has_match() && psj.user_info<TrackInfo>().has_match() && match_idx() == psj.user_info<TrackInfo>().match_idx(); }
 		void set_mcid(const long mcid) { _mcid = mcid; }
 		void set_match(const fastjet::PseudoJet match) { _match = match; _has_match = true; }
+		void set_match_idx(const int match_idx) { _match_idx = match_idx; _has_match = true; }
 
 	private:
 		const int _q;
 		const uint16_t _track_sel = 0;
 		long _mcid = -99;
+		int _match_idx = -1;
 		const long _pdgid = 0;
 		bool _has_match = false;
 		fastjet::PseudoJet _match;

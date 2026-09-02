@@ -59,3 +59,6 @@ def is_slurm():
     else:
         # if unparsable, default to Slurm configuration (safer)
         return True
+
+def is_track_matched(psj1, psj2):
+    return psj1.user_info[alian.TrackInfo]().is_matched_to(psj2)

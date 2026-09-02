@@ -246,7 +246,9 @@ class AnalysisMCBase(AnalysisBase):
             for idx in idxs_to_delete:
                 del mapping[idx]
 
-        for det_idx, gen_idx in mapping.items():
+        for match_idx, (det_idx, gen_idx) in enumerate(mapping.items()):
+            tracks[det_idx].user_info[alian.TrackInfo]().set_match_idx(match_idx)
+            particles[gen_idx].user_info[alian.TrackInfo]().set_match_idx(match_idx)
             tracks[det_idx].user_info[alian.TrackInfo]().set_match(particles[gen_idx])
             particles[gen_idx].user_info[alian.TrackInfo]().set_match(tracks[det_idx])
         return mapping

@@ -12,78 +12,177 @@ To be used with alian/config/example/example_analysis.yaml
 """
 
 import argparse
-from itertools import permutations
+from itertools import combinations
+from typing import NamedTuple
 
 from alian.analysis.base import AnalysisMCBase, add_default_args
+from alian.analysis.base.utils import delta_R
 
 import heppyy
 
 fj = heppyy.load_cppyy('fastjet')
 alian = heppyy.load_cppyy("alian")
 
+class Pair(NamedTuple):
+    ctype: str
+    RL: float
+    ew: float
+    jet_pT: float
+    hasmatch1: bool
+    hasmatch2: bool
+    midx1: int
+    midx2: int
 
-class UnfoldJets(AnalysisMCBase):
+    @classmethod
+    def from_pseudojets(cls, p1, p2, jet_pT):
+        q1 = p1.user_info[alian.TrackInfo]().q()
+        q2 = p2.user_info[alian.TrackInfo]().q()
+        if q1 > 0 and q2 > 0:
+            ctype = "P"
+        elif q1 < 0 and q2 < 0:
+            ctype = "M"
+        else:
+            ctype = "PM"
+        ew = p1.pt() * p2.pt() / jet_pT / jet_pT
+        RL = delta_R(p1, p2)
+        return cls(ctype, RL, ew, jet_pT,
+                   p1.user_info[alian.TrackInfo]().has_match(),
+                   p2.user_info[alian.TrackInfo]().has_match(),
+                   p1.user_info[alian.TrackInfo]().match_idx(),
+                   p2.user_info[alian.TrackInfo]().match_idx(),
+                   )
+    def is_idx_match_to(self, other) -> bool:
+        return self.hasmatch1 and self.hasmatch2 and other.hasmatch1 and other.hasmatch2 \
+                and ((self.midx1 == other.midx1 and self.midx2 == other.midx2)  \
+                or   (self.midx1 == other.midx2 and self.midx2 == other.midx1))
+    def is_charge_match_to(self, other) -> bool:
+        return self.ctype == other.ctype
+    def is_full_match_to(self, other) -> bool:
+        return self.is_charge_match_to(other) and self.is_idx_match_to(other)
+    def is_in_range(self, RL_min, RL_max, ew_min, ew_max, jet_pT_min, jet_pT_max):
+        return self.RL > RL_min and self.RL < RL_max \
+            and self.ew > ew_min and self.ew < ew_max \
+            and self.jet_pT > jet_pT_min and self.jet_pT < jet_pT_max
+
+def pair_full_match(pair1, pair2):
+    return pair1.is_full_match_to(pair2)
+def pair_idx_match(pair1, pair2):
+    return pair1.is_idx_match_to(pair2)
+
+class UnfoldEECPairs(AnalysisMCBase):
     _defaults = {
         'pt_min_eec': 1.0,
-        'eec_ew_min': 1.0e-5,
-        'eec_ew_max': 1.0,
         'eec_RL_min': 1.0e-2,
         'eec_RL_max': 0.4,
+        'eec_ew_min': 1.0e-5,
+        'eec_ew_max': 1.0,
+        'eec_jet_pT_min': 20,
+        'eec_jet_pT_max': 160,
     }
     def init_analysis(self, analysis_cfg: dict):
         config = self._defaults | analysis_cfg
         for setting, value in config.items():
             setattr(self, setting, value)
         self.eec_trk_selector = fj.SelectorPtMin(self.pt_min_eec)
+        self.ctypes = ["T", "P", "M", "PM"]
+        self.eec_RL_min = self.output._bins["RL"][0]
+        self.eec_RL_max = self.output._bins["RL"][-1]
+        self.eec_ew_min = self.output._bins["ew"][0]
+        self.eec_ew_max = self.output._bins["ew"][-1]
+        self.eec_jet_pT_min = self.output._bins["jet_pT"][0]
+        self.eec_jet_pT_max = self.output._bins["jet_pT"][-1]
+        # self.eec_RL_min = self.hists["eec_T_det"].GetXaxis().GetXmin()
+        # self.eec_RL_max = self.hists["eec_T_det"].GetXaxis().GetXmax()
+        # self.eec_ew_min = self.hists["eec_T_det"].GetYaxis().GetXmin()
+        # self.eec_ew_max = self.hists["eec_T_det"].GetYaxis().GetXmax()
+        # self.eec_jet_pT_min = self.hists["eec_T_det"].GetZaxis().GetXmin()
+        # self.eec_jet_pT_max = self.hists["eec_T_det"].GetZaxis().GetXmax()
 
-    def is_track_matched(self, idet, igen):
-        return self.mapping[idet] == igen
+    def is_matched(self, psj1, psj2):
+        return psj1.user_info[alian.TrackInfo]().is_matched_to(psj2)
 
     def analyze_event(self):
+        pairs_det = {ctype: [] for ctype in self.ctypes}
+        for jet_det in self.jets_det:
+            jet_pT_det = jet_det.pt()
+            const_det = self.eec_trk_selector(jet_det.constituents())
+            for cdet1, cdet2 in combinations(const_det, 2):
+                pair_det = Pair.from_pseudojets(cdet1, cdet2, jet_pT_det)
+                ctype_det = pair_det.ctype
+                pairs_det["T"].append(pair_det)
+                pairs_det[ctype_det].append(pair_det)
 
-        for idet1, idet2 in permutations(range(len(self.tracks)), 2):
-            print(self.tracks[idet1], self.tracks[idet2])
+        pairs_gen = {ctype: [] for ctype in self.ctypes}
+        for jet_gen in self.jets_gen:
+            jet_pT_gen = jet_gen.pt()
+            const_gen = self.eec_trk_selector(jet_gen.constituents())
+            for cgen1, cgen2 in combinations(const_gen, 2):
+                pair_gen = Pair.from_pseudojets(cgen1, cgen2, jet_pT_gen)
+                ctype_gen = pair_gen.ctype
+                pairs_gen["T"].append(pair_gen)
+                pairs_gen[ctype_gen].append(pair_gen)
 
-        for j in self.jets_det:
-            self.hists['jet_pT_det'].Fill(j.pt(), self.weight)
-            # self.do_eec_det(j)
-        for j in self.jets_gen:
-            self.hists['jet_pT_gen'].Fill(j.pt(), self.weight)
-            # self.do_eec_gen(j)
+        # for ctype in self.ctypes:
+        self.analyze_pairs(pairs_det["T"], pairs_gen["T"], "T", pair_idx_match)
+        self.analyze_pairs(pairs_det["P"], pairs_gen["P"], "P", pair_full_match)
+        self.analyze_pairs(pairs_det["M"], pairs_gen["M"], "M", pair_full_match)
+        self.analyze_pairs(pairs_det["PM"], pairs_gen["PM"], "PM", pair_full_match)
 
-        pairs_py = self._get_jet_matches(self.jets_det, self.jets_gen, 0.4*0.6)
-        pairs_cpp = self._get_jet_matches_cpp(self.jets_det, self.jets_gen, 0.4*0.6)
-        if pairs_py != pairs_cpp:
-            raise ValueError(f"Pairs don't match:\n\tPython: {pairs_py}\n\tC++: {pairs_cpp}")
+    def analyze_pairs(self, pairs_det, pairs_gen, ctype, match_fcn):
+        resp = self.responses[f"eec_{ctype}_unf"]
+        matched_idxs_det = []
+        matched_idxs_gen = []
+        for ipair_det, pair_det in enumerate(pairs_det):
+            for ipair_gen, pair_gen in enumerate(pairs_gen):
+                if match_fcn(pair_det, pair_gen) \
+                    and pair_det.is_in_range(self.eec_RL_min, self.eec_RL_max, self.eec_ew_min, self.eec_ew_max, self.eec_jet_pT_min, self.eec_jet_pT_max) \
+                    and pair_gen.is_in_range(self.eec_RL_min, self.eec_RL_max, self.eec_ew_min, self.eec_ew_max, self.eec_jet_pT_min, self.eec_jet_pT_max):
+                    matched_idxs_det.append(ipair_det)
+                    matched_idxs_gen.append(ipair_gen)
 
-        resp = self.responses["jet_pT_unf"]
-        for idx_det, idx_gen in pairs_cpp:
-            jet_det_matched = self.jets_det[idx_det]
-            jet_gen_matched = self.jets_gen[idx_gen]
+        # self.logger.info("Starting pairs analysis")
+        for ipair_det, ipair_gen in zip(matched_idxs_det, matched_idxs_gen):
+            # self.logger.info(f"{ipair_det} {ipair_gen}")
+            pair_det = pairs_det[ipair_det]
+            pair_gen = pairs_gen[ipair_gen]
+            resp.Fill(pair_det.RL, pair_det.ew, pair_det.jet_pT, pair_gen.RL, pair_gen.ew, pair_gen.jet_pT, self.weight)
+            resp.Fill(pair_det.RL, pair_det.ew, pair_det.jet_pT, pair_gen.RL, pair_gen.ew, pair_gen.jet_pT, self.weight)
 
-            self.hists['jet_pT_det_matched'].Fill(jet_det_matched.pt(), self.weight)
-            self.hists['jet_pT_gen_matched'].Fill(jet_gen_matched.pt(), self.weight)
-            self.hists['jet_pT_resp'].Fill(jet_det_matched.pt(), jet_gen_matched.pt(), self.weight)
-            resp.Fill(jet_det_matched.pt(), jet_gen_matched.pt(), self.weight)
-
-        idxs_det_matched = [pair[0] for pair in pairs_cpp]
-        idxs_fake = [idx for idx in range(len(self.jets_det)) if idx not in idxs_det_matched]
-        idxs_gen_matched = [pair[1] for pair in pairs_cpp]
-        idxs_miss = [idx for idx in range(len(self.jets_gen)) if idx not in idxs_gen_matched]
+        idxs_fake = [idx for idx in range(len(pairs_det)) if idx not in matched_idxs_det]
+        idxs_miss = [idx for idx in range(len(pairs_gen)) if idx not in matched_idxs_gen]
 
         for idx_fake in idxs_fake:
-            jet_fake = self.jets_det[idx_fake]
-            resp.Fake(jet_fake.pt(), self.weight)
+            pair_fake = pairs_det[idx_fake]
+            if pair_fake.is_in_range(self.eec_RL_min, self.eec_RL_max, self.eec_ew_min, self.eec_ew_max, self.eec_jet_pT_min, self.eec_jet_pT_max):
+                resp.Fake(pair_fake.RL, pair_fake.ew, pair_fake.jet_pT, self.weight)
+                resp.Fake(pair_fake.RL, pair_fake.ew, pair_fake.jet_pT, self.weight)
 
         for idx_miss in idxs_miss:
-            jet_miss = self.jets_gen[idx_miss]
-            resp.Miss(jet_miss.pt(), self.weight)
+            pair_miss = pairs_gen[idx_miss]
+            if pair_miss.is_in_range(self.eec_RL_min, self.eec_RL_max, self.eec_ew_min, self.eec_ew_max, self.eec_jet_pT_min, self.eec_jet_pT_max):
+                resp.Miss(pair_miss.RL, pair_miss.ew, pair_miss.jet_pT, self.weight)
+                resp.Miss(pair_miss.RL, pair_miss.ew, pair_miss.jet_pT, self.weight)
+
+        # for pair_det in pairs_det:
+        #     if pair_det.is_in_range(self.eec_RL_min, self.eec_RL_max, self.eec_ew_min, self.eec_ew_max, self.eec_jet_pT_min, self.eec_jet_pT_max):
+        #         self.hists[f"eec_{ctype}_det"].Fill(pair_det.RL, pair_det.ew, pair_det.jet_pT, self.weight)
+        #         self.hists[f"eec_{ctype}_det"].Fill(pair_det.RL, pair_det.ew, pair_det.jet_pT, self.weight)
+        # for pair_gen in pairs_gen:
+        #     if pair_gen.is_in_range(self.eec_RL_min, self.eec_RL_max, self.eec_ew_min, self.eec_ew_max, self.eec_jet_pT_min, self.eec_jet_pT_max):
+        #         self.hists[f"eec_{ctype}_gen"].Fill(pair_gen.RL, pair_gen.ew, pair_gen.jet_pT, self.weight)
+        #         self.hists[f"eec_{ctype}_gen"].Fill(pair_gen.RL, pair_gen.ew, pair_gen.jet_pT, self.weight)
 
     def finalize(self):
         pass
-        # hresponse = self.responses["jet_pT_unf"].Hresponse()
-        # hresponse.SetName("hresponse")
-        # self.responses["hresponse"] = hresponse
+        # hmeasured = self.responses["eec_P_unf"].Hmeasured()
+        # hmeasured.SetName("hmeasured_P")
+        # self.hists["hmeasured_P"] = hmeasured
+        # htruth = self.responses["eec_P_unf"].Htruth()
+        # htruth.SetName("htruth_P")
+        # self.hists["htruth_P"] = htruth
+        # hresponse = self.responses["eec_P_unf"].Hresponse()
+        # hresponse.SetName("hresponse_P")
+        # self.hists["hresponse_P"] = hresponse
 
     # def do_eec_det(self, jet):
     #     tracks = self.eec_trk_selector(jet.constituents())
@@ -132,5 +231,5 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
 
-    ana = UnfoldJets(args.input_file, args.output_file, args.config_file, args.tree_struct, args.nev, args.lhc_run)
+    ana = UnfoldEECPairs(args.input_file, args.output_file, args.config_file, args.tree_struct, args.nev, args.lhc_run)
     ana.run()
